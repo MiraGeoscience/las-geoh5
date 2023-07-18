@@ -1,0 +1,35 @@
+[tool.poetry]
+name = "my-app"
+version = "0.1.0-alpha.1"
+description = "My application"
+authors = ["Mira Geoscience <support@mirageoscience.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.9, <3.11"
+
+
+## dependencies on github repos
+geoh5py = { url = "https://github.com/MiraGeoscience/geoh5py/archive/refs/heads/main.tar.gz#sha256=None" }
+
+[tool.poetry.dev-dependencies]
+pylint = "*"
+pytest = "*"
+pytest-cov = "*"
+toml = "*"
+
+[tool.isort]
+# settings for compatibility between ``isort`` and ``black`` formatting
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+line_length = 88
+# auto-updated by seed-isort-config
+known_third_party = ["toml"]
+
+[tool.black]
+# defaults are just fine
+
+[build-system]
+requires = ["poetry-core>=1.0.0", "setuptools"]
+build-backend = "poetry.core.masonry.api"
