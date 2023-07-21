@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "my-app"
-version = "0.1.0-alpha.1"
-description = "My application"
+name = "las-geoh5"
+version = "0.0.0"
+description = "Las/Geoh5 conversion"
 authors = ["Mira Geoscience <support@mirageoscience.com>"]
 
 [tool.poetry.dependencies]
@@ -10,6 +10,9 @@ python = "^3.9, <3.11"
 
 ## dependencies on github repos
 geoh5py = { url = "https://github.com/MiraGeoscience/geoh5py/archive/refs/heads/main.tar.gz#sha256=None" }
+
+## pip dependencies
+lasio = {version = "~0.31", source = "pypi", allow-prereleases = true}
 
 [tool.poetry.dev-dependencies]
 pylint = "*"
