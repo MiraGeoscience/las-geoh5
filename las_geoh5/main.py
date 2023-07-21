@@ -15,6 +15,12 @@ def geoh5_to_las(drillholes):
 
         las = lasio.LASFile()
         las.well["WELL"] = well.name
+        item = lasio.HeaderItem(mnemonic="X", value = float(well.collar["x"]))
+        las.params.append(item)
+        item = lasio.HeaderItem(mnemonic="Y", value = float(well.collar["y"]))
+        las.params.append(item)
+        item = lasio.HeaderItem(mnemonic="ELEV", value=float(well.collar["z"]))
+        las.params.append(item)
 
         for group in well.property_groups:
 
