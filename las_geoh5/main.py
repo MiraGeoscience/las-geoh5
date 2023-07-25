@@ -9,8 +9,10 @@ from __future__ import annotations
 import os
 from copy import deepcopy
 from pathlib import Path
+import numpy as np
 from lasio import LASFile, HeaderItem
 from geoh5py.shared.concatenation import ConcatenatedDrillhole
+from geoh5py.data import ReferencedData
 from geoh5py.groups import PropertyGroup
 from geoh5py.ui_json import InputFile
 from geoh5py.ui_json.constants import default_ui_json
@@ -79,15 +81,26 @@ def add_curve_data(
     if group.depth_:
         file.append_curve("DEPT", group.depth_.values, unit='m')
     else:
-        # TODO convert from-to to depth and dump data to las
-        return file
-        # raise NotImplementedError("")
+        file.append_curve("DEPTH", group.from_.values, unit='m', descr="FROM")
+        file.append_curve("TO", group.to_.values, unit='m', descr="TO")
 
     properties = [drillhole.get_data(k)[0] for k in group.properties]
     for data in [k for k in properties if k.name not in ["FROM", "TO", "DEPTH"]]:
-        file.append_curve(str(data.uid), data.values, descr="")
-        item = HeaderItem(mnemonic=str(data.uid), value=data.name)
-        file.params.append(item)
+        file.append_curve(data.name, data.values)
+        if isinstance(data, ReferencedData):
+            for k, v in data.value_map.map.items():
+                file.params.append(
+                    HeaderItem(
+                        mnemonic=f"{data.name} ({k})",
+                        value=v,
+                        descr="Reference"
+                    )
+                )
+            # file.append_curve(
+            #     f"{data.name} (REF)",
+            #     np.array([data.value_map[k] for k in data.values]),
+            #     descr="REFERENCE"
+            # )
 
     return file
 
