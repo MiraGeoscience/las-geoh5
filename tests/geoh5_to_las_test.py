@@ -12,7 +12,7 @@ from geoh5py.workspace import Workspace
 from geoh5py.groups.drillhole_group import DrillholeGroup
 from geoh5py.objects.drillhole import Drillhole
 
-from las_geoh5 import geoh5_to_las
+from las_geoh5 import drillhole_group_to_las, write_uijson
 
 def test_geoh5_to_las(tmp_path):
 
@@ -86,9 +86,10 @@ def test_geoh5_to_las(tmp_path):
         )
 
 
-        las = geoh5_to_las(dh_group)
-        with open(Path(tmp_path / "test.las"), 'a', encoding="utf8") as file:
-            las.write(file)
+        drillhole_group_to_las(dh_group, tmp_path)
+
 
         pass
 
+def test_write_uijson(tmp_path):
+    write_uijson(tmp_path)
