@@ -6,4 +6,4 @@
 
 __version__ = "0.1.0-alpha.1"
 
-from .main import drillhole_group_to_las, write_uijson
+from .main import export_las, import_las, write_uijson

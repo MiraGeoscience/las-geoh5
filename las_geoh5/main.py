@@ -6,179 +6,125 @@
 
 from __future__ import annotations
 
-import os
+import sys
 from copy import deepcopy
 from pathlib import Path
-import numpy as np
-from lasio import LASFile, HeaderItem
+
+import lasio
+from geoh5py.shared.utils import fetch_active_workspace
+from geoh5py.groups.drillhole_group import DrillholeGroup
 from geoh5py.shared.concatenation import ConcatenatedDrillhole
-from geoh5py.data import ReferencedData
-from geoh5py.groups import PropertyGroup
 from geoh5py.ui_json import InputFile
 from geoh5py.ui_json.constants import default_ui_json
-from geoh5py.ui_json.templates import group_parameter
+from geoh5py.ui_json.templates import (
+    file_parameter, group_parameter, string_parameter
+)
+
+from las_geoh5.export_las import drillhole_to_las
+from las_geoh5.import_las import las_to_drillhole
 
 
-def add_well_data(file: LASFile, drillhole: ConcatenatedDrillhole):
-    """
-    Populate las file well data from drillhole.
 
-    :param file: lasio file object.
-    :param drillhole: geoh5py drillhole object.
-
-    :returns: Updated lasio file object.
-    """
-
-    # Add well name
-    file.well["WELL"] = drillhole.name
-
-    # Add epsg code
-    file.well.append(
-        HeaderItem(
-            mnemonic="GDAT",
-            value=drillhole.coordinate_reference_system["Code"],
-            descr=drillhole.coordinate_reference_system["Name"]
-        )
-    )
-
-    # Add collar data
-    file.well.append(
-        HeaderItem(
-            mnemonic="X",
-            value=float(drillhole.collar["x"])
-        )
-    )
-    file.well.append(
-        HeaderItem(
-            mnemonic="Y",
-            value=float(drillhole.collar["y"])
-        )
-    )
-    file.well.append(
-        HeaderItem(
-            mnemonic="ELEV",
-            value=float(drillhole.collar["z"])
-        )
-    )
-
-    return file
-
-def add_curve_data(
-    file: LASFile,
-    drillhole: ConcatenatedDrillhole,
-    group: PropertyGroup
-):
-    """
-    Populate las file with curve data from each property in group.
-
-    :param file: lasio file object.
-    :param drillhole: geoh5py drillhole object containing property
-        groups for collocated data.
-    :param group: Property group containing collocated float data
-        objects of 'drillhole'.
-    """
-
-    if group.depth_:
-        file.append_curve("DEPT", group.depth_.values, unit='m')
-    else:
-        file.append_curve("DEPTH", group.from_.values, unit='m', descr="FROM")
-        file.append_curve("TO", group.to_.values, unit='m', descr="TO")
-
-    properties = [drillhole.get_data(k)[0] for k in group.properties]
-    for data in [k for k in properties if k.name not in ["FROM", "TO", "DEPTH"]]:
-        file.append_curve(data.name, data.values)
-        if isinstance(data, ReferencedData):
-            for k, v in data.value_map.map.items():
-                file.params.append(
-                    HeaderItem(
-                        mnemonic=f"{data.name} ({k})",
-                        value=v,
-                        descr="Reference"
-                    )
-                )
-            # file.append_curve(
-            #     f"{data.name} (REF)",
-            #     np.array([data.value_map[k] for k in data.values]),
-            #     descr="REFERENCE"
-            # )
-
-    return file
-
-def add_survey_data(file, drillhole):
-
-    # Add survey data
-    file.append_curve("DEPT", drillhole.surveys[:, 0], unit='m')
-    file.append_curve("DIP", drillhole.surveys[:, 1], unit="degrees", descr="from horizontal")
-    file.append_curve("AZIM", drillhole.surveys[:, 2], unit="degrees", descr="from north (clockwise)")
-
-    return file
-def write_curves(drillhole, basepath):
-
-    for group in drillhole.property_groups:
-        file = LASFile()
-        file = add_well_data(file, drillhole)
-        file = add_curve_data(file, drillhole, group)
-
-        subpath = Path(basepath / group.name)
-        if not subpath.exists():
-            subpath.mkdir()
-
-        with open(Path(subpath / f"{drillhole.name}.las"), 'a', encoding="utf8") as io:
-            file.write(io)
-
-def write_survey(drillhole, basepath):
-
-    file = LASFile()
-    file = add_well_data(file, drillhole)
-    file = add_survey_data(file, drillhole)
-
-    subpath = Path(basepath / "Surveys")
-    if not subpath.exists():
-        subpath.mkdir()
-
-    with open(Path(subpath / f"{drillhole.name}.las"), 'a', encoding="utf8") as io:
-        file.write(io)
-
-def drillhole_to_las(drillhole, basepath):
-
-    write_survey(drillhole, basepath)
-    write_curves(drillhole, basepath)
-
-def drillhole_group_to_las(group, basepath):
+def export_las(group, basepath, name=None):
 
     drillholes = [
         k for k in group.children if isinstance(k, ConcatenatedDrillhole)
     ]
 
+    name = name if name is not None else group.name
+    subpath = Path(basepath / name)
+    if not subpath.exists():
+        subpath.mkdir()
+
     for drillhole in drillholes:
-        drillhole_to_las(drillhole, basepath)
+        drillhole_to_las(drillhole, subpath)
+
+def import_las(workspace, basepath, name=None):
+
+    if not basepath.exists():
+        raise OSError(f"Path {str(basepath)} does not exist.")
+
+    name = name if name is not None else basepath.name
+    dh_group = DrillholeGroup.create(workspace, name=name)
+
+    surveys_path = Path(basepath / "Surveys")
+    surveys = [f for f in surveys_path.iterdir()]
+    property_group_folders = [
+        p for p in basepath.iterdir() if p.is_dir()
+        and p.name != "Surveys"
+    ]
+
+    for p in property_group_folders:
+        lasfiles = [
+            lasio.read(f, mnemonic_case="preserve") for f in p.iterdir() if f.suffix == ".las"
+        ]
+        las_to_drillhole(workspace, lasfiles, dh_group, p.name, surveys)
 
 
-def write_uijson(basepath):
+def write_uijson(basepath, mode="export"):
     ui_json = deepcopy(default_ui_json)
+    update = {}
+    if mode == "export":
+        drillhole_group = group_parameter(
+            label="Drillhole group",
+            group_type="{825424fb-c2c6-4fea-9f2b-6cd00023d393}"
+        )
+    elif mode == "import":
+        drillhole_group = string_parameter(
+            label="Drillhole group", value=""
+
+        )
+        name_parameter = string_parameter(
+            label="Name", value="", optional="enabled"
+        )
+        drillhole_group["groupOptional"] = True
+        drillhole_group["enabled"] = False
+        drillhole_group["group"] = "Simple"
+        name_parameter["group"] = "Simple"
+
+        update["name_parameter"] = name_parameter
+        update["data_files_parameter"] = file_parameter(
+            label="Data files",
+            file_type=["las"],
+            optional="disabled",
+        )
+    else:
+        raise ValueError("Mode argument must be 'import' or 'export'.")
+
     ui_json.update(
-        {
-            "title": "Export drillhole group",
-            "run_command": "las_geoh5.main",
-            "conda_environment": "las-geoh5",
-            "drillhole_group": group_parameter(
-                    label="drillhole group",
-                    group_type="{825424fb-c2c6-4fea-9f2b-6cd00023d393}",
-                ),
-        }
+        dict(
+            {
+                "title": f"{mode.capitalize()} drillhole group",
+                "run_command": "las_geoh5.main",
+                "conda_environment": "las-geoh5",
+                "drillhole_group": drillhole_group,
+            },
+            **update
+        )
     )
-    ifile = InputFile(ui_json=ui_json)
-    ifile.validate=False
-    ifile.write_ui_json("drillholes_to_las.ui.json", basepath)
+    ifile = InputFile(ui_json=ui_json, validate=False)
+    ifile.path = basepath
+    ifile.write_ui_json(f"{mode}_to_las.ui.json", basepath)
 
     return ifile
 
 
-
+def main(file):
+    ifile = InputFile.read_ui_json(file)
+    dh_group = ifile.data["drillhole_group"]
+    name = ifile.data["name"]
+    if ifile.data["title"].split()[0].lower() == "export":
+        with fetch_active_workspace(ifile.data["geoh5"]):
+            export_las(dh_group, Path(ifile.path), name)
+    elif ifile.data["title"].split()[0].lower() == "import":
+        with fetch_active_workspace(
+                ifile.data["geoh5"], mode='a'
+        ) as workspace:
+            basepath = Path(ifile.path) / dh_group
+            import_las(workspace, basepath, name)
 
 if __name__ == "__main__":  # pragma: no cover
     file = sys.argv[1]
-    ifile = InputFile.read_ui_json(file)
-    if ifile.data["title"].split()[0].lower() == "export":
-        drillhole_group_to_las()
+    main(file)
+
 

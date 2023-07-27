@@ -1,0 +1,206 @@
+#  Copyright (c) 2022 Mira Geoscience Ltd.
+#
+#  This file is part of my_app project.
+#
+#  All rights reserved.
+#
+from __future__ import annotations
+
+import warnings
+from pathlib import Path
+import numpy as np
+
+import lasio
+from geoh5py import Workspace
+from geoh5py.objects import Drillhole
+from geoh5py.shared.concatenation import ConcatenatedDrillhole
+from geoh5py.groups import DrillholeGroup
+
+def find_copy_name(workspace: Workspace, basename: str, start: int = 1):
+    """
+    Augment name with increasing integer value until no entities found.
+
+    :param workspace: A geoh5py.Workspace object.
+    :param basename: Existing name of entity in workspace.
+    :param start: Integer name augmenter to test for existence.
+
+    :returns: Augmented name of the earliest non-existent copy in workspace.
+    """
+
+    name = f"{basename} ({start})"
+    obj = workspace.get_entity(name)
+    if obj and obj[0] is not None:
+        find_copy_name(workspace, basename, start=start+1)
+    return name
+
+def add_survey(survey: str | Path, drillhole: ConcatenatedDrillhole):
+
+    if isinstance(survey, str):
+        survey = Path(survey)
+
+    if survey.suffix == ".las":
+        file = lasio.read(survey, mnemonic_case="preserve")
+        try:
+            surveys = np.c_[
+                file["DEPT"], file["DIP"], file["AZIM"]
+            ]
+            if len(drillhole.surveys) == 1:
+                drillhole.surveys = surveys
+        except KeyError:
+            warnings.warn(
+                "Attempted survey import failed because data read from "
+                ".las file did not contain the expected 3 curves 'DEPT'"
+                ", 'DIP', 'AZIM'."
+            )
+    else:
+        survey = np.genfromtxt(survey, delimiter=",", skip_header=0)
+        if survey.shape[1] == 3:
+            if len(drillhole.surveys) == 1:
+                drillhole.surveys = survey
+        else:
+            warnings.warn(
+                "Attempted survey import failed because data read from "
+                "comma separated file did not contain the expected 3 "
+                "columns of depth/dip/azimuth."
+            )
+
+    return drillhole
+
+def create_or_append_drillhole(
+    workspace: Workspace,
+    lasfile: lasio.LASFile,
+    drillhole_group: DrillholeGroup,
+    property_group: str,
+):
+    """
+
+    :param workspace:
+    :return:
+    """
+
+    name = lasfile.well["WELL"].value
+    collar = [
+        lasfile.well.get("X", None),
+        lasfile.well.get("Y", None),
+        lasfile.well.get("ELEV", None)
+    ]
+    if all(k is not None for k in collar):
+        collar = [k.value for k in collar]
+    else:
+        collar = None
+
+    drillhole = drillhole_group.get_entity(name)
+    drillhole = drillhole[0] if drillhole else None
+    if drillhole is None:
+
+        kwargs = {"name": name}
+        kwargs["parent"] = drillhole_group
+        if collar:
+            kwargs["collar"] = collar
+
+        drillhole = Drillhole.create(workspace, **kwargs)
+
+    elif not np.allclose(collar, drillhole.collar.tolist()):
+
+        kwargs = {"name": find_copy_name(workspace, drillhole.name)}
+        kwargs["parent"] = drillhole_group
+        if collar:
+            kwargs["collar"] = collar
+
+        drillhole = Drillhole.create(workspace, **kwargs)
+
+    pg_type = "Interval table" if "TO" in lasfile.curves else "Depth table"
+    property_group = drillhole.find_or_create_property_group(
+        name=property_group,
+        property_group_type=pg_type,
+        association="DEPTH"
+    )
+    for curve in [
+        k for k in lasfile.curves if k.mnemonic not in ["DEPT", "TO"]
+    ]:
+
+        name = curve.mnemonic
+        data = drillhole.get_data(name)
+
+        if not data:
+            kwargs = {"values": curve.data}
+            depths = lasfile["DEPT"]
+            if "TO" in lasfile.curves:
+                tos = lasfile["TO"]
+                kwargs["from-to"] = np.c_[depths, tos]
+            else:
+                kwargs["depth"] = depths
+
+            is_referenced = any(name in k.mnemonic for k in lasfile.params)
+            is_referenced &= any(k.descr == "REFERENCE" for k in lasfile.params)
+            if is_referenced:
+                kwargs["values"] = kwargs["values"].astype(int)
+                value_map = {k.mnemonic: k.value for k in lasfile.params if name in k.mnemonic}
+                value_map = {int(k.split()[1][1:-1]): v for k, v in value_map.items()}
+                kwargs["value_map"] = value_map
+                kwargs["type"] = "referenced"
+
+            drillhole.add_data(
+                {
+                    name: kwargs
+                },
+                property_group=property_group
+            )
+
+    return drillhole
+
+
+def las_to_drillhole(
+    workspace: Workspace,
+    data: lasio.LASFile | list[lasio.LASFile],
+    drillhole_group: DrillholeGroup,
+    property_group: str,
+    survey: str | Path | list[str | Path] | None = None,
+) -> ConcatenatedDrillhole:
+    """
+    import a las file containing collocated datasets for a single drillhole.
+
+    :param workspace: Project workspace.
+    :param group: Name of property group to contain collocated data.
+    :param lasfile: Path to a .las file.
+    :param survey: Path to a survey file stored as .csv or .las format.
+    :param drillhole_group: An existing geoh5py.DrillholeGroup object.
+
+    :return: A geoh5py.ConcatenatedDrillhole object
+    """
+
+    if not isinstance(data, list):
+        data = [data]
+    if not isinstance(survey, list):
+        survey = [survey]
+
+    for d in data:
+        drillhole = create_or_append_drillhole(workspace, d, drillhole_group, property_group)
+        ind = [drillhole.name == s.name.rstrip(".las") for s in survey]
+        if any(ind):
+            survey_path = survey[np.where(ind)[0][0]]
+            drillhole = add_survey(survey_path, drillhole)
+
+    # prop_group = drillhole.find_or_create_property_group(name=group)
+
+    return drillhole
+
+
+def las_to_drillhole_group(group, basepath):
+
+    for subpath in basepath.iterdir():
+        if subpath.is_dir() and str(subpath) != "Surveys":
+            for file in subpath.iterdir():
+                if file.suffix != ".las":
+                    continue
+                file = lasio.read(file, mnemonic_case="preserve")
+
+
+
+    surveypath = Path(basepath / "Surveys")
+    if not surveypath.exists():
+        raise IOError(
+            f"Provided path {basepath} must contain a sub-directory called \
+             'Surveys' containing deviation survey data for each drillhole \
+             stored in .las format."
+        )

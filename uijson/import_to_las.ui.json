@@ -1,0 +1,42 @@
+{
+    "title": "Import drillhole group",
+    "geoh5": "",
+    "run_command": "las_geoh5.main",
+    "run_command_boolean": {
+        "value": false,
+        "label": "Run python module ",
+        "tooltip": "Warning: launches process to run python model on save",
+        "main": true
+    },
+    "monitoring_directory": "",
+    "conda_environment": "las-geoh5",
+    "conda_environment_boolean": false,
+    "workspace": "",
+    "drillhole_group": {
+        "main": true,
+        "label": "Drillhole group",
+        "value": "",
+        "groupOptional": true,
+        "enabled": false,
+        "group": "Simple"
+    },
+    "name_parameter": {
+        "main": true,
+        "label": "Name",
+        "value": "",
+        "optional": true,
+        "enabled": false,
+        "group": "Simple"
+    },
+    "data_files_parameter": {
+        "fileDescription": [],
+        "fileType": [
+            "las"
+        ],
+        "main": true,
+        "label": "Data files",
+        "value": "",
+        "optional": true,
+        "enabled": false
+    }
+}
