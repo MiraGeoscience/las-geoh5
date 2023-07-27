@@ -33,7 +33,18 @@ def find_copy_name(workspace: Workspace, basename: str, start: int = 1):
         find_copy_name(workspace, basename, start=start+1)
     return name
 
-def add_survey(survey: str | Path, drillhole: ConcatenatedDrillhole):
+def add_survey(
+    survey: str | Path,
+    drillhole: ConcatenatedDrillhole
+):
+    """
+    Import survey data from csv or las format and add to drillhole.
+
+    :param survey: Path to a survey file stored as .csv or .las format.
+    :param drillhole: Drillhole object to append data to.
+
+    :return: Updated drillhole object.
+    """
 
     if isinstance(survey, str):
         survey = Path(survey)
@@ -73,9 +84,14 @@ def create_or_append_drillhole(
     property_group: str,
 ):
     """
+    Create a drillhole or append data to drillhole if it exists in workspace.
 
-    :param workspace:
-    :return:
+    :param workspace: Project workspace.
+    :param lasfile: Las file object.
+    :param drillhole_group: Drillhole group container.
+    :param property_group: Property group name.
+
+    :return: Created or augmented drillhole.
     """
 
     name = lasfile.well["WELL"].value
@@ -149,7 +165,6 @@ def create_or_append_drillhole(
 
     return drillhole
 
-
 def las_to_drillhole(
     workspace: Workspace,
     data: lasio.LASFile | list[lasio.LASFile],
@@ -161,10 +176,10 @@ def las_to_drillhole(
     import a las file containing collocated datasets for a single drillhole.
 
     :param workspace: Project workspace.
-    :param group: Name of property group to contain collocated data.
-    :param lasfile: Path to a .las file.
+    :param data: Las file(s) containing drillhole data.
+    :param drillhole_group: Drillhole group container.
+    :param property_group: Property group name.
     :param survey: Path to a survey file stored as .csv or .las format.
-    :param drillhole_group: An existing geoh5py.DrillholeGroup object.
 
     :return: A geoh5py.ConcatenatedDrillhole object
     """
@@ -181,26 +196,4 @@ def las_to_drillhole(
             survey_path = survey[np.where(ind)[0][0]]
             drillhole = add_survey(survey_path, drillhole)
 
-    # prop_group = drillhole.find_or_create_property_group(name=group)
-
     return drillhole
-
-
-def las_to_drillhole_group(group, basepath):
-
-    for subpath in basepath.iterdir():
-        if subpath.is_dir() and str(subpath) != "Surveys":
-            for file in subpath.iterdir():
-                if file.suffix != ".las":
-                    continue
-                file = lasio.read(file, mnemonic_case="preserve")
-
-
-
-    surveypath = Path(basepath / "Surveys")
-    if not surveypath.exists():
-        raise IOError(
-            f"Provided path {basepath} must contain a sub-directory called \
-             'Surveys' containing deviation survey data for each drillhole \
-             stored in .las format."
-        )

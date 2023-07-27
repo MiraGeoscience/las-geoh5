@@ -11,7 +11,10 @@ from geoh5py.data import ReferencedData
 from geoh5py.groups import PropertyGroup
 from geoh5py.shared.concatenation import ConcatenatedDrillhole
 
-def add_well_data(file: LASFile, drillhole: ConcatenatedDrillhole):
+def add_well_data(
+    file: LASFile,
+    drillhole: ConcatenatedDrillhole
+):
     """
     Populate las file well data from drillhole.
 
@@ -64,7 +67,7 @@ def add_curve_data(
     Populate las file with curve data from each property in group.
 
     :param file: lasio file object.
-    :param drillhole: geoh5py drillhole object containing property
+    :param drillhole: geoh5py.drillhole object containing property
         groups for collocated data.
     :param group: Property group containing collocated float data
         objects of 'drillhole'.
@@ -88,15 +91,21 @@ def add_curve_data(
                         descr="REFERENCE"
                     )
                 )
-            # file.append_curve(
-            #     f"{data.name} (REF)",
-            #     np.array([data.value_map[k] for k in data.values]),
-            #     descr="REFERENCE"
-            # )
 
     return file
 
-def add_survey_data(file, drillhole):
+def add_survey_data(
+    file: LASFile,
+    drillhole: ConcatenatedDrillhole
+):
+    """
+    Add drillhole survey data to LASFile object.
+
+    :param file: las file object.
+    :param drillhole: drillhole containing survey data.
+
+    :return: Updated las file object.
+    """
 
     # Add survey data
     file.append_curve("DEPT", drillhole.surveys[:, 0], unit='m')
@@ -104,7 +113,19 @@ def add_survey_data(file, drillhole):
     file.append_curve("AZIM", drillhole.surveys[:, 2], unit="degrees", descr="from north (clockwise)")
 
     return file
-def write_curves(drillhole, basepath, directory=True):
+def write_curves(
+    drillhole: ConcatenatedDrillhole,
+    basepath: str | Path,
+    directory: bool = True
+):
+    """
+    Write a formatted .las file with data from 'drillhole'.
+
+    :param drillhole: geoh5py drillhole object containing property
+        groups for collocated data.
+    :param basepath: Path to working directory.
+    :param directory: True if data is stored in sub-directories
+    """
 
     if not drillhole.property_groups:
         raise AttributeError(
@@ -130,7 +151,19 @@ def write_curves(drillhole, basepath, directory=True):
         with open(survey_path, 'a', encoding="utf8") as io:
             file.write(io)
 
-def write_survey(drillhole, basepath, directory=True):
+def write_survey(
+    drillhole: ConcatenatedDrillhole,
+    basepath: str | Path,
+    directory: bool = True
+):
+    """
+    Write a formatted .las file with survey data from 'drillhole'.
+
+    :param drillhole: geoh5py drillhole object containing property
+        groups for collocated data.
+    :param basepath: Path to working directory.
+    :param directory: True if data is stored in sub-directories
+    """
 
     file = LASFile()
     file = add_well_data(file, drillhole)
@@ -144,8 +177,19 @@ def write_survey(drillhole, basepath, directory=True):
     with open(Path(basepath / f"{drillhole.name}.las"), 'a', encoding="utf8") as io:
         file.write(io)
 
-def drillhole_to_las(drillhole, basepath, directory=True):
+def drillhole_to_las(
+    drillhole: ConcatenatedDrillhole,
+    basepath: str | Path,
+    directory: bool = True
+):
+    """
+    Write a formatted .las file with data from 'drillhole'.
 
+    :param drillhole: geoh5py drillhole object containing property
+        groups for collocated data.
+    :param basepath: Path to working directory.
+    :param directory: True if data is stored in sub-directories
+    """
 
     write_survey(drillhole, basepath, directory)
     write_curves(drillhole, basepath, directory)

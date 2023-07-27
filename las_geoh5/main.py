@@ -11,6 +11,7 @@ from copy import deepcopy
 from pathlib import Path
 
 import lasio
+from geoh5py import Workspace
 from geoh5py.shared.utils import fetch_active_workspace
 from geoh5py.groups.drillhole_group import DrillholeGroup
 from geoh5py.shared.concatenation import ConcatenatedDrillhole
@@ -25,7 +26,18 @@ from las_geoh5.import_las import las_to_drillhole
 
 
 
-def export_las(group, basepath, name=None):
+def export_las(
+    group: DrillholeGroup,
+    basepath: str | Path,
+    name: str | None = None
+):
+    """
+    Export contents of drillhole group to las files organized by directories.
+
+    :param group: Drillhole group container.
+    :param basepath: Base path where directories/files will be created.
+    :param name: Alternate name of root directory to be created.
+    """
 
     drillholes = [
         k for k in group.children if isinstance(k, ConcatenatedDrillhole)
@@ -39,7 +51,18 @@ def export_las(group, basepath, name=None):
     for drillhole in drillholes:
         drillhole_to_las(drillhole, subpath)
 
-def import_las(workspace, basepath, name=None):
+def import_las(
+    workspace: Workspace,
+    basepath: str | Path,
+    name: str | None = None
+):
+    """
+    Import directory/files from previous export.
+
+    :param workspace: Project workspace.
+    :param basepath: Root directory for las data.
+    :param name: Alternate name for property group to create.
+    """
 
     if not basepath.exists():
         raise OSError(f"Path {str(basepath)} does not exist.")
@@ -61,7 +84,18 @@ def import_las(workspace, basepath, name=None):
         las_to_drillhole(workspace, lasfiles, dh_group, p.name, surveys)
 
 
-def write_uijson(basepath, mode="export"):
+def write_uijson(
+    basepath: str | Path,
+    mode: str = "export"
+):
+    """
+    Write a ui.json file for either import or export or las files.
+
+    :param basepath: Root directory for las data.
+    :param mode: Switch for 'import' or 'export' behaviour.
+
+    :return: Input file for the written data.
+    """
     ui_json = deepcopy(default_ui_json)
     update = {}
     if mode == "export":
@@ -109,7 +143,9 @@ def write_uijson(basepath, mode="export"):
     return ifile
 
 
-def main(file):
+def main(file: str):
+    """Driver for import or export of las data."""
+    
     ifile = InputFile.read_ui_json(file)
     dh_group = ifile.data["drillhole_group"]
     name = ifile.data["name"]
