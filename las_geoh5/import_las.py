@@ -189,8 +189,10 @@ def las_to_drillhole(
     if not isinstance(survey, list):
         survey = [survey]
 
-    for d in data:
-        drillhole = create_or_append_drillhole(workspace, d, drillhole_group, property_group)
+    for datum in data:
+        drillhole = create_or_append_drillhole(
+            workspace, datum, drillhole_group, property_group
+        )
         ind = [drillhole.name == s.name.rstrip(".las") for s in survey]
         if any(ind):
             survey_path = survey[np.where(ind)[0][0]]

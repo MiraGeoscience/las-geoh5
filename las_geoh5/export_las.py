@@ -4,6 +4,7 @@
 #
 #  All rights reserved.
 #
+from __future__ import annotations
 
 from pathlib import Path
 from lasio import LASFile, HeaderItem
@@ -83,7 +84,7 @@ def add_curve_data(
     for data in [k for k in properties if k.name not in ["FROM", "TO", "DEPTH"]]:
         file.append_curve(data.name, data.values)
         if isinstance(data, ReferencedData):
-            for k, v in data.value_map.map.items():
+            for k, v in data.value_map.map.items():  # pylint: disable=invalid-name
                 file.params.append(
                     HeaderItem(
                         mnemonic=f"{data.name} ({k})",
@@ -108,9 +109,23 @@ def add_survey_data(
     """
 
     # Add survey data
-    file.append_curve("DEPT", drillhole.surveys[:, 0], unit='m')
-    file.append_curve("DIP", drillhole.surveys[:, 1], unit="degrees", descr="from horizontal")
-    file.append_curve("AZIM", drillhole.surveys[:, 2], unit="degrees", descr="from north (clockwise)")
+    file.append_curve(
+        "DEPT",
+        drillhole.surveys[:, 0],
+        unit='m'
+    )
+    file.append_curve(
+        "DIP",
+        drillhole.surveys[:, 1],
+        unit="degrees",
+        descr="from horizontal"
+    )
+    file.append_curve(
+        "AZIM",
+        drillhole.surveys[:, 2],
+        unit="degrees",
+        descr="from north (clockwise)"
+    )
 
     return file
 def write_curves(
@@ -148,7 +163,9 @@ def write_curves(
         if survey_path.exists():
             survey_path = Path(subpath / f"{drillhole.name}_survey.las")
 
-        with open(survey_path, 'a', encoding="utf8") as io:
+        with open(
+            survey_path, 'a', encoding="utf8"
+        ) as io:  # pylint: disable=invalid-name
             file.write(io)
 
 def write_survey(
@@ -174,7 +191,9 @@ def write_survey(
         if not basepath.exists():
             basepath.mkdir()
 
-    with open(Path(basepath / f"{drillhole.name}.las"), 'a', encoding="utf8") as io:
+    with open(
+        Path(basepath / f"{drillhole.name}.las"), 'a', encoding="utf8"
+    ) as io:  # pylint: disable=invalid-name
         file.write(io)
 
 def drillhole_to_las(

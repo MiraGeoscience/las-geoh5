@@ -17,5 +17,12 @@
         "label": "Drillhole group",
         "value": "",
         "groupType": "{825424fb-c2c6-4fea-9f2b-6cd00023d393}"
+    },
+    "name": {
+        "main": true,
+        "label": "Name",
+        "value": "",
+        "optional": true,
+        "enabled": false
     }
 }

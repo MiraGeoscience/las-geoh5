@@ -20,6 +20,14 @@
         "enabled": false,
         "group": "Simple"
     },
+    "name": {
+        "main": true,
+        "label": "Name",
+        "value": "",
+        "optional": true,
+        "enabled": false,
+        "group": "Simple"
+    },
     "name_parameter": {
         "main": true,
         "label": "Name",

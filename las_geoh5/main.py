@@ -71,17 +71,18 @@ def import_las(
     dh_group = DrillholeGroup.create(workspace, name=name)
 
     surveys_path = Path(basepath / "Surveys")
-    surveys = [f for f in surveys_path.iterdir()]
+    surveys = list(surveys_path.iterdir())
     property_group_folders = [
         p for p in basepath.iterdir() if p.is_dir()
         and p.name != "Surveys"
     ]
 
-    for p in property_group_folders:
+    for prop in property_group_folders:
         lasfiles = [
-            lasio.read(f, mnemonic_case="preserve") for f in p.iterdir() if f.suffix == ".las"
+            lasio.read(f, mnemonic_case="preserve") for f in prop.iterdir()
+            if f.suffix == ".las"
         ]
-        las_to_drillhole(workspace, lasfiles, dh_group, p.name, surveys)
+        las_to_drillhole(workspace, lasfiles, dh_group, prop.name, surveys)
 
 
 def write_uijson(
@@ -98,6 +99,9 @@ def write_uijson(
     """
     ui_json = deepcopy(default_ui_json)
     update = {}
+    name_parameter = string_parameter(
+        label="Name", value="", optional="enabled"
+    )
     if mode == "export":
         drillhole_group = group_parameter(
             label="Drillhole group",
@@ -132,6 +136,7 @@ def write_uijson(
                 "run_command": "las_geoh5.main",
                 "conda_environment": "las-geoh5",
                 "drillhole_group": drillhole_group,
+                "name": name_parameter,
             },
             **update
         )
@@ -145,7 +150,7 @@ def write_uijson(
 
 def main(file: str):
     """Driver for import or export of las data."""
-    
+
     ifile = InputFile.read_ui_json(file)
     dh_group = ifile.data["drillhole_group"]
     name = ifile.data["name"]
@@ -160,7 +165,5 @@ def main(file: str):
             import_las(workspace, basepath, name)
 
 if __name__ == "__main__":  # pragma: no cover
-    file = sys.argv[1]
-    main(file)
-
-
+    FILE = sys.argv[1]
+    main(FILE)
