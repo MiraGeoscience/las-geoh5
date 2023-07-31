@@ -5,13 +5,14 @@
 #  All rights reserved.
 #
 
-import lasio
+
 import random
 import string
 import numpy as np
 from pathlib import Path
-from geoh5py.workspace import Workspace
 
+import lasio
+from geoh5py.workspace import Workspace
 from geoh5py.groups.drillhole_group import DrillholeGroup
 from geoh5py.objects.drillhole import Drillhole
 
@@ -132,7 +133,7 @@ def test_import_las(tmp_path):
         from_to_a = np.sort(np.random.uniform(low=0.05, high=100, size=(50,))).reshape(
             (-1, 2)
         )
-        well_a_interval_data = well_a.add_data(
+        _ = well_a.add_data(
             {
                 "interval_values": {
                     "values": np.random.randn(from_to_a.shape[0]),
@@ -142,7 +143,7 @@ def test_import_las(tmp_path):
         )
 
         # Add depth data
-        well_a_depth_data = well_a.add_data(
+        _ = well_a.add_data(
             {
                 "depth_values": {
                     "depth": np.arange(0, 50.0),
@@ -168,7 +169,7 @@ def test_import_las(tmp_path):
         )
 
         # Add from-to data
-        n=25
+        n=25  # pylint: disable=true
         from_to_a = np.sort(np.random.uniform(low=0.05, high=100, size=(2*n,))).reshape(
             (-1, 2)
         )
@@ -176,7 +177,7 @@ def test_import_las(tmp_path):
         randstrs = [
             "".join(random.sample(string.ascii_lowercase, 6)) for k in range(n)
         ]
-        well_b_interval_data = well_b.add_data(
+        _ = well_b.add_data(
             {
                 "interval_values": {
                     "values": np.random.randn(from_to_a.shape[0]),
