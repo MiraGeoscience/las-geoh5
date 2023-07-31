@@ -8,8 +8,8 @@
 
 import random
 import string
-import numpy as np
 from pathlib import Path
+import numpy as np
 
 import lasio
 from geoh5py.workspace import Workspace
@@ -169,7 +169,7 @@ def test_import_las(tmp_path):
         )
 
         # Add from-to data
-        n=25  # pylint: disable=true
+        n=25  # pylint: disable=invalid-name
         from_to_a = np.sort(np.random.uniform(low=0.05, high=100, size=(2*n,))).reshape(
             (-1, 2)
         )
