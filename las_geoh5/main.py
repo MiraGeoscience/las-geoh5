@@ -97,6 +97,7 @@ def write_uijson(
 
     :return: Input file for the written data.
     """
+
     ui_json = deepcopy(default_ui_json)
     update = {}
     name_parameter = string_parameter(
@@ -105,7 +106,7 @@ def write_uijson(
     if mode == "export":
         drillhole_group = group_parameter(
             label="Drillhole group",
-            group_type="{825424fb-c2c6-4fea-9f2b-6cd00023d393}"
+            group_type=("{825424fb-c2c6-4fea-9f2b-6cd00023d393}",)
         )
     elif mode == "import":
         drillhole_group = string_parameter(
@@ -123,7 +124,7 @@ def write_uijson(
         update["name_parameter"] = name_parameter
         update["data_files_parameter"] = file_parameter(
             label="Data files",
-            file_type=["las"],
+            file_type=("las",),
             optional="disabled",
         )
     else:
@@ -142,7 +143,7 @@ def write_uijson(
         )
     )
     ifile = InputFile(ui_json=ui_json, validate=False)
-    ifile.path = basepath
+    ifile.path = basepath  # type: ignore
     ifile.write_ui_json(f"{mode}_to_las.ui.json", basepath)
 
     return ifile

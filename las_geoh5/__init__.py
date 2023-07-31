@@ -4,6 +4,6 @@
 #
 #  All rights reserved.
 
-__version__ = "0.1.0-alpha.1"
+__version__ = "0.0.0"
 
 from .main import export_las, import_las, write_uijson

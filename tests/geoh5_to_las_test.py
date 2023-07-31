@@ -48,35 +48,23 @@ def test_create_or_append_drillhole(tmp_path):
         file = lasio.read(Path(tmp_path / "dh1.las"), mnemonic_case="preserve")
         file.append_curve("my_new_data", np.random.randn(50))
         drillhole = create_or_append_drillhole(workspace, file, drillhole_group)
+
+        # New data is appended to existing drillhole
         assert drillhole.uid == drillhole_a.uid
         assert drillhole.get_data("my_new_data")
 
-        drillhole_b = Drillhole.create(
-            workspace,
-            collar=np.r_[0.0, 10.0, 10],
-            parent=drillhole_group,
-            name="dh1",
-        )
-        drillhole_b.add_data(
-            {
-                "my_data": {
-                    "depth": np.arange(0, 50.0),
-                    "values": np.random.randn(50),
-                },
-            }
-        )
-        write_curves(drillhole_b, tmp_path, directory=False)
-
         file = lasio.read(Path(tmp_path / "dh1.las"), mnemonic_case="preserve")
-        file.append_curve("my_new_data", np.random.randn(50))
         file.well["X"] = 10.0
         drillhole = create_or_append_drillhole(workspace, file, drillhole_group)
-        assert drillhole.uid != drillhole_b.uid
+
+        # New data should be placed in a new drillhole object with augmented name
+        assert drillhole.uid != drillhole_a.uid
         assert drillhole.name == "dh1 (1)"
 
-        file["WELL"] = "dh2.las"
+        file.well["WELL"] = "dh2"
         drillhole = create_or_append_drillhole(workspace, file, drillhole_group)
-        assert workspace.get_entity("dh2.las")
+        # Same data should be read into a new
+        assert workspace.get_entity("dh2")
 
 def test_add_survey(tmp_path):
 
@@ -110,13 +98,13 @@ def test_add_survey(tmp_path):
         basepath = Path(tmp_path)
         data = lasio.read(Path(basepath / "dh1.las"))
         survey = Path(basepath / "dh1_survey.las")
-        drillhole = las_to_drillhole(workspace, data, survey, drillhole_group)
+        drillhole = las_to_drillhole(workspace, data, drillhole_group, survey=survey)
         assert np.allclose(drillhole.surveys, surveys)
 
         survey.unlink()
         survey = Path(basepath / "dh1_survey.csv")
         np.savetxt(survey, surveys, delimiter=',',  header="depth, dip, azimuth")
-        drillhole = las_to_drillhole(workspace, data, survey, drillhole_group)
+        drillhole = las_to_drillhole(workspace, data, drillhole_group, survey=survey)
         assert np.allclose(drillhole.surveys, surveys)
 
 def test_import_las(tmp_path):

@@ -81,7 +81,7 @@ def create_or_append_drillhole(
     workspace: Workspace,
     lasfile: lasio.LASFile,
     drillhole_group: DrillholeGroup,
-    property_group: str,
+    property_group: str | None = None,
 ):
     """
     Create a drillhole or append data to drillhole if it exists in workspace.
@@ -169,8 +169,8 @@ def las_to_drillhole(
     workspace: Workspace,
     data: lasio.LASFile | list[lasio.LASFile],
     drillhole_group: DrillholeGroup,
-    property_group: str,
-    survey: str | Path | list[str | Path] | None = None,
+    property_group: str | None = None,
+    survey: Path | list[Path] | None = None,
 ) -> ConcatenatedDrillhole:
     """
     import a las file containing collocated datasets for a single drillhole.
@@ -187,7 +187,7 @@ def las_to_drillhole(
     if not isinstance(data, list):
         data = [data]
     if not isinstance(survey, list):
-        survey = [survey]
+        survey = [survey] if survey else []
 
     for datum in data:
         drillhole = create_or_append_drillhole(
