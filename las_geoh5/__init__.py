@@ -4,6 +4,8 @@
 #
 #  All rights reserved.
 
+# flake8: noqa
+
 __version__ = "0.0.0"
 
 from .main import export_las, import_las, write_uijson
