@@ -8,13 +8,14 @@ from __future__ import annotations
 
 import warnings
 from pathlib import Path
-import numpy as np
 
 import lasio
+import numpy as np
 from geoh5py import Workspace
+from geoh5py.groups import DrillholeGroup
 from geoh5py.objects import Drillhole
 from geoh5py.shared.concatenation import ConcatenatedDrillhole
-from geoh5py.groups import DrillholeGroup
+
 
 def find_copy_name(workspace: Workspace, basename: str, start: int = 1):
     """
@@ -30,13 +31,11 @@ def find_copy_name(workspace: Workspace, basename: str, start: int = 1):
     name = f"{basename} ({start})"
     obj = workspace.get_entity(name)
     if obj and obj[0] is not None:
-        find_copy_name(workspace, basename, start=start+1)
+        find_copy_name(workspace, basename, start=start + 1)
     return name
 
-def add_survey(
-    survey: str | Path,
-    drillhole: Drillhole | ConcatenatedDrillhole
-):
+
+def add_survey(survey: str | Path, drillhole: Drillhole | ConcatenatedDrillhole):
     """
     Import survey data from csv or las format and add to drillhole.
 
@@ -52,9 +51,7 @@ def add_survey(
     if survey.suffix == ".las":
         file = lasio.read(survey, mnemonic_case="preserve")
         try:
-            surveys = np.c_[
-                file["DEPT"], file["DIP"], file["AZIM"]
-            ]
+            surveys = np.c_[file["DEPT"], file["DIP"], file["AZIM"]]
             if len(drillhole.surveys) == 1:  # type: ignore
                 drillhole.surveys = surveys  # type: ignore
         except KeyError:
@@ -77,6 +74,7 @@ def add_survey(
 
     return drillhole
 
+
 def create_or_append_drillhole(
     workspace: Workspace,
     lasfile: lasio.LASFile,
@@ -98,7 +96,7 @@ def create_or_append_drillhole(
     collar = [
         lasfile.well.get("X", None),
         lasfile.well.get("Y", None),
-        lasfile.well.get("ELEV", None)
+        lasfile.well.get("ELEV", None),
     ]
     if all(k is not None for k in collar):
         collar = [k.value for k in collar]
@@ -108,7 +106,6 @@ def create_or_append_drillhole(
     drillhole = drillhole_group.get_entity(name)
     drillhole = drillhole[0] if drillhole else None  # type: ignore
     if drillhole is None:
-
         kwargs = {"name": name}
         kwargs["parent"] = drillhole_group
         if collar:
@@ -117,7 +114,6 @@ def create_or_append_drillhole(
         drillhole = Drillhole.create(workspace, **kwargs)
 
     elif not np.allclose(collar, drillhole.collar.tolist()):  # type: ignore
-
         kwargs = {"name": find_copy_name(workspace, drillhole.name)}  # type: ignore
         kwargs["parent"] = drillhole_group
         if collar:
@@ -127,14 +123,9 @@ def create_or_append_drillhole(
 
     pg_type = "Interval table" if "TO" in lasfile.curves else "Depth table"
     property_group = drillhole.find_or_create_property_group(  # type: ignore
-        name=property_group,
-        property_group_type=pg_type,
-        association="DEPTH"
+        name=property_group, property_group_type=pg_type, association="DEPTH"
     )
-    for curve in [
-        k for k in lasfile.curves if k.mnemonic not in ["DEPT", "TO"]
-    ]:
-
+    for curve in [k for k in lasfile.curves if k.mnemonic not in ["DEPT", "TO"]]:
         name = curve.mnemonic
         data = drillhole.get_data(name)  # type: ignore
 
@@ -151,19 +142,19 @@ def create_or_append_drillhole(
             is_referenced &= any(k.descr == "REFERENCE" for k in lasfile.params)
             if is_referenced:
                 kwargs["values"] = kwargs["values"].astype(int)
-                value_map = {k.mnemonic: k.value for k in lasfile.params if name in k.mnemonic}
+                value_map = {
+                    k.mnemonic: k.value for k in lasfile.params if name in k.mnemonic
+                }
                 value_map = {int(k.split()[1][1:-1]): v for k, v in value_map.items()}
                 kwargs["value_map"] = value_map
                 kwargs["type"] = "referenced"
 
             drillhole.add_data(  # type: ignore
-                {
-                    name: kwargs
-                },
-                property_group=property_group
+                {name: kwargs}, property_group=property_group
             )
 
     return drillhole
+
 
 def las_to_drillhole(
     workspace: Workspace,

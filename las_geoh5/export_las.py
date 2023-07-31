@@ -8,16 +8,15 @@
 from __future__ import annotations
 
 from pathlib import Path
-from lasio import LASFile, HeaderItem
+
 from geoh5py.data import ReferencedData
 from geoh5py.groups import PropertyGroup
-from geoh5py.shared.concatenation import ConcatenatedDrillhole
 from geoh5py.objects import Drillhole
+from geoh5py.shared.concatenation import ConcatenatedDrillhole
+from lasio import HeaderItem, LASFile
 
-def add_well_data(
-    file: LASFile,
-    drillhole: Drillhole | ConcatenatedDrillhole
-):
+
+def add_well_data(file: LASFile, drillhole: Drillhole | ConcatenatedDrillhole):
     """
     Populate las file well data from drillhole.
 
@@ -35,36 +34,26 @@ def add_well_data(
         HeaderItem(
             mnemonic="GDAT",
             value=drillhole.coordinate_reference_system["Code"],  # type: ignore
-            descr=drillhole.coordinate_reference_system["Name"]  # type: ignore
+            descr=drillhole.coordinate_reference_system["Name"],  # type: ignore
         )
     )
 
     # Add collar data
     file.well.append(
-        HeaderItem(
-            mnemonic="X",
-            value=float(drillhole.collar["x"])  # type: ignore
-        )
+        HeaderItem(mnemonic="X", value=float(drillhole.collar["x"]))  # type: ignore
     )
     file.well.append(
-        HeaderItem(
-            mnemonic="Y",
-            value=float(drillhole.collar["y"])  # type: ignore
-        )
+        HeaderItem(mnemonic="Y", value=float(drillhole.collar["y"]))  # type: ignore
     )
     file.well.append(
-        HeaderItem(
-            mnemonic="ELEV",
-            value=float(drillhole.collar["z"])  # type: ignore
-        )
+        HeaderItem(mnemonic="ELEV", value=float(drillhole.collar["z"]))  # type: ignore
     )
 
     return file
 
+
 def add_curve_data(
-    file: LASFile,
-    drillhole: Drillhole | ConcatenatedDrillhole,
-    group: PropertyGroup
+    file: LASFile, drillhole: Drillhole | ConcatenatedDrillhole, group: PropertyGroup
 ):
     """
     Populate las file with curve data from each property in group.
@@ -77,16 +66,12 @@ def add_curve_data(
     """
 
     if group.depth_:  # type: ignore
-        file.append_curve(
-            "DEPT", group.depth_.values, unit='m'  # type: ignore
-        )
+        file.append_curve("DEPT", group.depth_.values, unit="m")  # type: ignore
     else:
         file.append_curve(
-            "DEPT", group.from_.values, unit='m', descr="FROM"  # type: ignore
+            "DEPT", group.from_.values, unit="m", descr="FROM"  # type: ignore
         )
-        file.append_curve(
-            "TO", group.to_.values, unit='m', descr="TO"  # type: ignore
-        )
+        file.append_curve("TO", group.to_.values, unit="m", descr="TO")  # type: ignore
 
     properties = [drillhole.get_data(k)[0] for k in group.properties]
     for data in [k for k in properties if k.name not in ["FROM", "TO", "DEPTH"]]:
@@ -95,18 +80,14 @@ def add_curve_data(
             for k, v in data.value_map.map.items():  # pylint: disable=invalid-name
                 file.params.append(
                     HeaderItem(
-                        mnemonic=f"{data.name} ({k})",
-                        value=v,
-                        descr="REFERENCE"
+                        mnemonic=f"{data.name} ({k})", value=v, descr="REFERENCE"
                     )
                 )
 
     return file
 
-def add_survey_data(
-    file: LASFile,
-    drillhole: Drillhole | ConcatenatedDrillhole
-):
+
+def add_survey_data(file: LASFile, drillhole: Drillhole | ConcatenatedDrillhole):
     """
     Add drillhole survey data to LASFile object.
 
@@ -117,29 +98,27 @@ def add_survey_data(
     """
 
     # Add survey data
-    file.append_curve(
-        "DEPT",
-        drillhole.surveys[:, 0],  # type: ignore
-        unit='m'
-    )
+    file.append_curve("DEPT", drillhole.surveys[:, 0], unit="m")  # type: ignore
     file.append_curve(
         "DIP",
         drillhole.surveys[:, 1],  # type: ignore
         unit="degrees",
-        descr="from horizontal"
+        descr="from horizontal",
     )
     file.append_curve(
         "AZIM",
         drillhole.surveys[:, 2],  # type: ignore
         unit="degrees",
-        descr="from north (clockwise)"
+        descr="from north (clockwise)",
     )
 
     return file
+
+
 def write_curves(
     drillhole: Drillhole | ConcatenatedDrillhole,
     basepath: str | Path,
-    directory: bool = True
+    directory: bool = True,
 ):
     """
     Write a formatted .las file with data from 'drillhole'.
@@ -154,9 +133,7 @@ def write_curves(
         basepath = Path(basepath)
 
     if not drillhole.property_groups:
-        raise AttributeError(
-            "Drillhole doesn't have any associated property groups."
-        )
+        raise AttributeError("Drillhole doesn't have any associated property groups.")
 
     for group in drillhole.property_groups:
         file = LASFile()
@@ -175,14 +152,15 @@ def write_curves(
             survey_path = Path(subpath / f"{drillhole.name}_survey.las")
 
         with open(
-            survey_path, 'a', encoding="utf8"
+            survey_path, "a", encoding="utf8"
         ) as io:  # pylint: disable=invalid-name
             file.write(io)
+
 
 def write_survey(
     drillhole: Drillhole | ConcatenatedDrillhole,
     basepath: str | Path,
-    directory: bool = True
+    directory: bool = True,
 ):
     """
     Write a formatted .las file with survey data from 'drillhole'.
@@ -206,14 +184,15 @@ def write_survey(
             basepath.mkdir()
 
     with open(
-        Path(basepath / f"{drillhole.name}.las"), 'a', encoding="utf8"
+        Path(basepath / f"{drillhole.name}.las"), "a", encoding="utf8"
     ) as io:  # pylint: disable=invalid-name
         file.write(io)
+
 
 def drillhole_to_las(
     drillhole: Drillhole | ConcatenatedDrillhole,
     basepath: str | Path,
-    directory: bool = True
+    directory: bool = True,
 ):
     """
     Write a formatted .las file with data from 'drillhole'.

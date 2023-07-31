@@ -12,25 +12,18 @@ from pathlib import Path
 
 import lasio
 from geoh5py import Workspace
-from geoh5py.shared.utils import fetch_active_workspace
 from geoh5py.groups.drillhole_group import DrillholeGroup
 from geoh5py.shared.concatenation import ConcatenatedDrillhole
+from geoh5py.shared.utils import fetch_active_workspace
 from geoh5py.ui_json import InputFile
 from geoh5py.ui_json.constants import default_ui_json
-from geoh5py.ui_json.templates import (
-    file_parameter, group_parameter, string_parameter
-)
+from geoh5py.ui_json.templates import file_parameter, group_parameter, string_parameter
 
 from las_geoh5.export_las import drillhole_to_las
 from las_geoh5.import_las import las_to_drillhole
 
 
-
-def export_las(
-    group: DrillholeGroup,
-    basepath: str | Path,
-    name: str | None = None
-):
+def export_las(group: DrillholeGroup, basepath: str | Path, name: str | None = None):
     """
     Export contents of drillhole group to las files organized by directories.
 
@@ -42,9 +35,7 @@ def export_las(
     if isinstance(basepath, str):
         basepath = Path(basepath)
 
-    drillholes = [
-        k for k in group.children if isinstance(k, ConcatenatedDrillhole)
-    ]
+    drillholes = [k for k in group.children if isinstance(k, ConcatenatedDrillhole)]
 
     name = name if name is not None else group.name
     subpath = Path(basepath / name)
@@ -54,11 +45,8 @@ def export_las(
     for drillhole in drillholes:
         drillhole_to_las(drillhole, subpath)
 
-def import_las(
-    workspace: Workspace,
-    basepath: str | Path,
-    name: str | None = None
-):
+
+def import_las(workspace: Workspace, basepath: str | Path, name: str | None = None):
     """
     Import directory/files from previous export.
 
@@ -79,22 +67,19 @@ def import_las(
     surveys_path = Path(basepath / "Surveys")
     surveys = list(surveys_path.iterdir())
     property_group_folders = [
-        p for p in basepath.iterdir() if p.is_dir()
-        and p.name != "Surveys"
+        p for p in basepath.iterdir() if p.is_dir() and p.name != "Surveys"
     ]
 
     for prop in property_group_folders:
         lasfiles = [
-            lasio.read(f, mnemonic_case="preserve") for f in prop.iterdir()
+            lasio.read(f, mnemonic_case="preserve")
+            for f in prop.iterdir()
             if f.suffix == ".las"
         ]
         las_to_drillhole(workspace, lasfiles, dh_group, prop.name, surveys)
 
 
-def write_uijson(
-    basepath: str | Path,
-    mode: str = "export"
-):
+def write_uijson(basepath: str | Path, mode: str = "export"):
     """
     Write a ui.json file for either import or export or las files.
 
@@ -106,22 +91,15 @@ def write_uijson(
 
     ui_json = deepcopy(default_ui_json)
     update = {}
-    name_parameter = string_parameter(
-        label="Name", value="", optional="enabled"
-    )
+    name_parameter = string_parameter(label="Name", value="", optional="enabled")
     if mode == "export":
         drillhole_group = group_parameter(
             label="Drillhole group",
-            group_type=("{825424fb-c2c6-4fea-9f2b-6cd00023d393}",)
+            group_type=("{825424fb-c2c6-4fea-9f2b-6cd00023d393}",),
         )
     elif mode == "import":
-        drillhole_group = string_parameter(
-            label="Drillhole group", value=""
-
-        )
-        name_parameter = string_parameter(
-            label="Name", value="", optional="enabled"
-        )
+        drillhole_group = string_parameter(label="Drillhole group", value="")
+        name_parameter = string_parameter(label="Name", value="", optional="enabled")
         drillhole_group["groupOptional"] = True
         drillhole_group["enabled"] = False
         drillhole_group["group"] = "Simple"
@@ -145,7 +123,7 @@ def write_uijson(
                 "drillhole_group": drillhole_group,
                 "name": name_parameter,
             },
-            **update
+            **update,
         )
     )
     ifile = InputFile(ui_json=ui_json, validate=False)
@@ -165,11 +143,10 @@ def main(file: str):
         with fetch_active_workspace(ifile.data["geoh5"]):
             export_las(dh_group, Path(ifile.path), name)
     elif ifile.data["title"].split()[0].lower() == "import":
-        with fetch_active_workspace(
-                ifile.data["geoh5"], mode='a'
-        ) as workspace:
+        with fetch_active_workspace(ifile.data["geoh5"], mode="a") as workspace:
             basepath = Path(ifile.path) / dh_group
             import_las(workspace, basepath, name)
+
 
 if __name__ == "__main__":  # pragma: no cover
     FILE = sys.argv[1]
