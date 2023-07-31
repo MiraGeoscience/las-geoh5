@@ -35,7 +35,7 @@ def find_copy_name(workspace: Workspace, basename: str, start: int = 1):
 
 def add_survey(
     survey: str | Path,
-    drillhole: ConcatenatedDrillhole
+    drillhole: Drillhole | ConcatenatedDrillhole
 ):
     """
     Import survey data from csv or las format and add to drillhole.
@@ -55,8 +55,8 @@ def add_survey(
             surveys = np.c_[
                 file["DEPT"], file["DIP"], file["AZIM"]
             ]
-            if len(drillhole.surveys) == 1:
-                drillhole.surveys = surveys
+            if len(drillhole.surveys) == 1:  # type: ignore
+                drillhole.surveys = surveys  # type: ignore
         except KeyError:
             warnings.warn(
                 "Attempted survey import failed because data read from "
@@ -64,10 +64,10 @@ def add_survey(
                 ", 'DIP', 'AZIM'."
             )
     else:
-        survey = np.genfromtxt(survey, delimiter=",", skip_header=0)
-        if survey.shape[1] == 3:
-            if len(drillhole.surveys) == 1:
-                drillhole.surveys = survey
+        surveys = np.genfromtxt(survey, delimiter=",", skip_header=0)
+        if surveys.shape[1] == 3:  # type: ignore
+            if len(drillhole.surveys) == 1:  # type: ignore
+                drillhole.surveys = surveys  # type: ignore
         else:
             warnings.warn(
                 "Attempted survey import failed because data read from "
@@ -103,10 +103,10 @@ def create_or_append_drillhole(
     if all(k is not None for k in collar):
         collar = [k.value for k in collar]
     else:
-        collar = None
+        collar = None  # type: ignore
 
     drillhole = drillhole_group.get_entity(name)
-    drillhole = drillhole[0] if drillhole else None
+    drillhole = drillhole[0] if drillhole else None  # type: ignore
     if drillhole is None:
 
         kwargs = {"name": name}
@@ -116,9 +116,9 @@ def create_or_append_drillhole(
 
         drillhole = Drillhole.create(workspace, **kwargs)
 
-    elif not np.allclose(collar, drillhole.collar.tolist()):
+    elif not np.allclose(collar, drillhole.collar.tolist()):  # type: ignore
 
-        kwargs = {"name": find_copy_name(workspace, drillhole.name)}
+        kwargs = {"name": find_copy_name(workspace, drillhole.name)}  # type: ignore
         kwargs["parent"] = drillhole_group
         if collar:
             kwargs["collar"] = collar
@@ -126,7 +126,7 @@ def create_or_append_drillhole(
         drillhole = Drillhole.create(workspace, **kwargs)
 
     pg_type = "Interval table" if "TO" in lasfile.curves else "Depth table"
-    property_group = drillhole.find_or_create_property_group(
+    property_group = drillhole.find_or_create_property_group(  # type: ignore
         name=property_group,
         property_group_type=pg_type,
         association="DEPTH"
@@ -136,7 +136,7 @@ def create_or_append_drillhole(
     ]:
 
         name = curve.mnemonic
-        data = drillhole.get_data(name)
+        data = drillhole.get_data(name)  # type: ignore
 
         if not data:
             kwargs = {"values": curve.data}
@@ -156,7 +156,7 @@ def create_or_append_drillhole(
                 kwargs["value_map"] = value_map
                 kwargs["type"] = "referenced"
 
-            drillhole.add_data(
+            drillhole.add_data(  # type: ignore
                 {
                     name: kwargs
                 },

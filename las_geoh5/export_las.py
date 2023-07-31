@@ -12,10 +12,11 @@ from lasio import LASFile, HeaderItem
 from geoh5py.data import ReferencedData
 from geoh5py.groups import PropertyGroup
 from geoh5py.shared.concatenation import ConcatenatedDrillhole
+from geoh5py.objects import Drillhole
 
 def add_well_data(
     file: LASFile,
-    drillhole: ConcatenatedDrillhole
+    drillhole: Drillhole | ConcatenatedDrillhole
 ):
     """
     Populate las file well data from drillhole.
@@ -33,8 +34,8 @@ def add_well_data(
     file.well.append(
         HeaderItem(
             mnemonic="GDAT",
-            value=drillhole.coordinate_reference_system["Code"],
-            descr=drillhole.coordinate_reference_system["Name"]
+            value=drillhole.coordinate_reference_system["Code"],  # type: ignore
+            descr=drillhole.coordinate_reference_system["Name"]  # type: ignore
         )
     )
 
@@ -42,19 +43,19 @@ def add_well_data(
     file.well.append(
         HeaderItem(
             mnemonic="X",
-            value=float(drillhole.collar["x"])
+            value=float(drillhole.collar["x"])  # type: ignore
         )
     )
     file.well.append(
         HeaderItem(
             mnemonic="Y",
-            value=float(drillhole.collar["y"])
+            value=float(drillhole.collar["y"])  # type: ignore
         )
     )
     file.well.append(
         HeaderItem(
             mnemonic="ELEV",
-            value=float(drillhole.collar["z"])
+            value=float(drillhole.collar["z"])  # type: ignore
         )
     )
 
@@ -62,7 +63,7 @@ def add_well_data(
 
 def add_curve_data(
     file: LASFile,
-    drillhole: ConcatenatedDrillhole,
+    drillhole: Drillhole | ConcatenatedDrillhole,
     group: PropertyGroup
 ):
     """
@@ -75,11 +76,17 @@ def add_curve_data(
         objects of 'drillhole'.
     """
 
-    if group.depth_:
-        file.append_curve("DEPT", group.depth_.values, unit='m')
+    if group.depth_:  # type: ignore
+        file.append_curve(
+            "DEPT", group.depth_.values, unit='m'  # type: ignore
+        )
     else:
-        file.append_curve("DEPT", group.from_.values, unit='m', descr="FROM")
-        file.append_curve("TO", group.to_.values, unit='m', descr="TO")
+        file.append_curve(
+            "DEPT", group.from_.values, unit='m', descr="FROM"  # type: ignore
+        )
+        file.append_curve(
+            "TO", group.to_.values, unit='m', descr="TO"  # type: ignore
+        )
 
     properties = [drillhole.get_data(k)[0] for k in group.properties]
     for data in [k for k in properties if k.name not in ["FROM", "TO", "DEPTH"]]:
@@ -98,7 +105,7 @@ def add_curve_data(
 
 def add_survey_data(
     file: LASFile,
-    drillhole: ConcatenatedDrillhole
+    drillhole: Drillhole | ConcatenatedDrillhole
 ):
     """
     Add drillhole survey data to LASFile object.
@@ -112,25 +119,25 @@ def add_survey_data(
     # Add survey data
     file.append_curve(
         "DEPT",
-        drillhole.surveys[:, 0],
+        drillhole.surveys[:, 0],  # type: ignore
         unit='m'
     )
     file.append_curve(
         "DIP",
-        drillhole.surveys[:, 1],
+        drillhole.surveys[:, 1],  # type: ignore
         unit="degrees",
         descr="from horizontal"
     )
     file.append_curve(
         "AZIM",
-        drillhole.surveys[:, 2],
+        drillhole.surveys[:, 2],  # type: ignore
         unit="degrees",
         descr="from north (clockwise)"
     )
 
     return file
 def write_curves(
-    drillhole: ConcatenatedDrillhole,
+    drillhole: Drillhole | ConcatenatedDrillhole,
     basepath: str | Path,
     directory: bool = True
 ):
@@ -142,6 +149,9 @@ def write_curves(
     :param basepath: Path to working directory.
     :param directory: True if data is stored in sub-directories
     """
+
+    if isinstance(basepath, str):
+        basepath = Path(basepath)
 
     if not drillhole.property_groups:
         raise AttributeError(
@@ -170,7 +180,7 @@ def write_curves(
             file.write(io)
 
 def write_survey(
-    drillhole: ConcatenatedDrillhole,
+    drillhole: Drillhole | ConcatenatedDrillhole,
     basepath: str | Path,
     directory: bool = True
 ):
@@ -182,6 +192,9 @@ def write_survey(
     :param basepath: Path to working directory.
     :param directory: True if data is stored in sub-directories
     """
+
+    if isinstance(basepath, str):
+        basepath = Path(basepath)
 
     file = LASFile()
     file = add_well_data(file, drillhole)
@@ -198,7 +211,7 @@ def write_survey(
         file.write(io)
 
 def drillhole_to_las(
-    drillhole: ConcatenatedDrillhole,
+    drillhole: Drillhole | ConcatenatedDrillhole,
     basepath: str | Path,
     directory: bool = True
 ):

@@ -39,6 +39,9 @@ def export_las(
     :param name: Alternate name of root directory to be created.
     """
 
+    if isinstance(basepath, str):
+        basepath = Path(basepath)
+
     drillholes = [
         k for k in group.children if isinstance(k, ConcatenatedDrillhole)
     ]
@@ -63,6 +66,9 @@ def import_las(
     :param basepath: Root directory for las data.
     :param name: Alternate name for property group to create.
     """
+
+    if isinstance(basepath, str):
+        basepath = Path(basepath)
 
     if not basepath.exists():
         raise OSError(f"Path {str(basepath)} does not exist.")
