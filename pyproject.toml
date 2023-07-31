@@ -28,7 +28,7 @@ force_grid_wrap = 0
 use_parentheses = true
 line_length = 88
 # auto-updated by seed-isort-config
-known_third_party = ["toml"]
+known_third_party = ["geoh5py", "lasio", "numpy", "toml"]
 
 [tool.black]
 # defaults are just fine

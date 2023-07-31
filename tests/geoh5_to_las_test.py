@@ -9,24 +9,20 @@
 import random
 import string
 from pathlib import Path
-import numpy as np
 
 import lasio
-from geoh5py.workspace import Workspace
+import numpy as np
 from geoh5py.groups.drillhole_group import DrillholeGroup
 from geoh5py.objects.drillhole import Drillhole
+from geoh5py.workspace import Workspace
 
 from las_geoh5 import export_las, import_las, write_uijson
-from las_geoh5.import_las import (
-    create_or_append_drillhole, las_to_drillhole
-)
 from las_geoh5.export_las import drillhole_to_las, write_curves
+from las_geoh5.import_las import create_or_append_drillhole, las_to_drillhole
 
 
 def test_create_or_append_drillhole(tmp_path):
-
     with Workspace.create(Path(tmp_path / "test.geoh5")) as workspace:
-
         drillhole_group = DrillholeGroup.create(workspace, name="dh_group")
 
         # Create a workspace
@@ -67,10 +63,9 @@ def test_create_or_append_drillhole(tmp_path):
         # Same data should be read into a new
         assert workspace.get_entity("dh2")
 
+
 def test_add_survey(tmp_path):
-
     with Workspace.create(Path(tmp_path / "test.geoh5")) as workspace:
-
         drillhole_group = DrillholeGroup.create(workspace, name="dh_group")
 
         # Create a workspace
@@ -104,15 +99,14 @@ def test_add_survey(tmp_path):
 
         survey.unlink()
         survey = Path(basepath / "dh1_survey.csv")
-        np.savetxt(survey, surveys, delimiter=',',  header="depth, dip, azimuth")
+        np.savetxt(survey, surveys, delimiter=",", header="depth, dip, azimuth")
         drillhole = las_to_drillhole(workspace, data, drillhole_group, survey=survey)
         assert np.allclose(drillhole.surveys, surveys)
 
-def test_import_las(tmp_path):
 
+def test_import_las(tmp_path):
     n_data = 10
     with Workspace.create(Path(tmp_path / "test.geoh5")) as workspace:
-
         # Create a workspace
         dh_group = DrillholeGroup.create(workspace, name="dh_group")
         well_a = Drillhole.create(
@@ -133,6 +127,7 @@ def test_import_las(tmp_path):
         from_to_a = np.sort(np.random.uniform(low=0.05, high=100, size=(50,))).reshape(
             (-1, 2)
         )
+
         _ = well_a.add_data(
             {
                 "interval_values": {
@@ -151,7 +146,7 @@ def test_import_las(tmp_path):
                 },
                 "collocated_depth_values": {
                     "depth": np.arange(0.01, 50.01),
-                    "values": np.random.randn(50)
+                    "values": np.random.randn(50),
                 },
             }
         )
@@ -169,14 +164,12 @@ def test_import_las(tmp_path):
         )
 
         # Add from-to data
-        n=25  # pylint: disable=invalid-name
-        from_to_a = np.sort(np.random.uniform(low=0.05, high=100, size=(2*n,))).reshape(
-            (-1, 2)
-        )
+        n = 25  # pylint: disable=invalid-name
+        from_to_a = np.sort(
+            np.random.uniform(low=0.05, high=100, size=(2 * n,))
+        ).reshape((-1, 2))
 
-        randstrs = [
-            "".join(random.sample(string.ascii_lowercase, 6)) for k in range(n)
-        ]
+        randstrs = ["".join(random.sample(string.ascii_lowercase, 6)) for k in range(n)]
         _ = well_b.add_data(
             {
                 "interval_values": {
@@ -185,13 +178,12 @@ def test_import_las(tmp_path):
                 },
                 "interval_referenced": {
                     "type": "referenced",
-                    "values": np.arange(1, n+1),
-                    "value_map": dict(zip(np.arange(1, n+1), randstrs)),
+                    "values": np.arange(1, n + 1),
+                    "value_map": dict(zip(np.arange(1, n + 1), randstrs)),
                     "from-to": from_to_a.tolist(),
-                }
+                },
             }
         )
-
 
         export_las(dh_group, tmp_path, name="dh_group")
         import_las(workspace, Path(tmp_path / "dh_group"), name="dh_group2")
@@ -207,8 +199,9 @@ def test_import_las(tmp_path):
         #
         # assert np.allclose(drillhole.surveys, surveys)
 
-
         # dh_group2 = DrillholeGroup.create(workspace, name="dh_group2")
         # import_las(dh_group2, tmp_path, name="dh_group")
+
+
 def test_write_uijson(tmp_path):
     write_uijson(tmp_path)
