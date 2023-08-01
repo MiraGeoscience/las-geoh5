@@ -63,8 +63,7 @@ def add_survey(survey: str | Path, drillhole: Drillhole | ConcatenatedDrillhole)
     else:
         surveys = np.genfromtxt(survey, delimiter=",", skip_header=0)
         if surveys.shape[1] == 3:  # type: ignore
-            if len(drillhole.surveys) == 1:  # type: ignore
-                drillhole.surveys = surveys  # type: ignore
+            drillhole.surveys = surveys  # type: ignore
         else:
             warnings.warn(
                 "Attempted survey import failed because data read from "
@@ -75,7 +74,7 @@ def add_survey(survey: str | Path, drillhole: Drillhole | ConcatenatedDrillhole)
     return drillhole
 
 
-def create_or_append_drillhole(
+def create_or_append_drillhole(  # pylint: disable=too-many-locals
     workspace: Workspace,
     lasfile: lasio.LASFile,
     drillhole_group: DrillholeGroup,
@@ -93,15 +92,16 @@ def create_or_append_drillhole(
     """
 
     name = lasfile.well["WELL"].value
-    collar = [
-        lasfile.well.get("X", None),
-        lasfile.well.get("Y", None),
-        lasfile.well.get("ELEV", None),
-    ]
-    if all(k is not None for k in collar):
-        collar = [k.value for k in collar]
-    else:
-        collar = None  # type: ignore
+
+    collar: list | None = []
+    for attr in ["X", "Y", "ELEV"]:
+        item = lasfile.well.get(attr, None)
+
+        if item is None:
+            collar = None
+            break
+
+        collar.append(item.value)  # type: ignore
 
     drillhole = drillhole_group.get_entity(name)
     drillhole = drillhole[0] if drillhole else None  # type: ignore
@@ -127,31 +127,32 @@ def create_or_append_drillhole(
     )
     for curve in [k for k in lasfile.curves if k.mnemonic not in ["DEPT", "TO"]]:
         name = curve.mnemonic
-        data = drillhole.get_data(name)  # type: ignore
 
-        if not data:
-            kwargs = {"values": curve.data}
-            depths = lasfile["DEPT"]
-            if "TO" in lasfile.curves:
-                tos = lasfile["TO"]
-                kwargs["from-to"] = np.c_[depths, tos]
-            else:
-                kwargs["depth"] = depths
+        if drillhole.get_data(name):  # type: ignore
+            continue
 
-            is_referenced = any(name in k.mnemonic for k in lasfile.params)
-            is_referenced &= any(k.descr == "REFERENCE" for k in lasfile.params)
-            if is_referenced:
-                kwargs["values"] = kwargs["values"].astype(int)
-                value_map = {
-                    k.mnemonic: k.value for k in lasfile.params if name in k.mnemonic
-                }
-                value_map = {int(k.split()[1][1:-1]): v for k, v in value_map.items()}
-                kwargs["value_map"] = value_map
-                kwargs["type"] = "referenced"
+        kwargs = {"values": curve.data}
+        depths = lasfile["DEPT"]
+        if "TO" in lasfile.curves:
+            tos = lasfile["TO"]
+            kwargs["from-to"] = np.c_[depths, tos]
+        else:
+            kwargs["depth"] = depths
 
-            drillhole.add_data(  # type: ignore
-                {name: kwargs}, property_group=property_group
-            )
+        is_referenced = any(name in k.mnemonic for k in lasfile.params)
+        is_referenced &= any(k.descr == "REFERENCE" for k in lasfile.params)
+        if is_referenced:
+            kwargs["values"] = kwargs["values"].astype(int)
+            value_map = {
+                k.mnemonic: k.value for k in lasfile.params if name in k.mnemonic
+            }
+            value_map = {int(k.split()[1][1:-1]): v for k, v in value_map.items()}
+            kwargs["value_map"] = value_map
+            kwargs["type"] = "referenced"
+
+        drillhole.add_data(  # type: ignore
+            {name: kwargs}, property_group=property_group
+        )
 
     return drillhole
 
