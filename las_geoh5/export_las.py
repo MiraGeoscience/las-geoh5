@@ -66,15 +66,17 @@ def add_curve_data(
     """
 
     if group.depth_:  # type: ignore
-        file.append_curve("DEPT", group.depth_.values, unit="m")  # type: ignore
+        file.append_curve("DEPTH", group.depth_.values, unit="m")  # type: ignore
     else:
         file.append_curve(
-            "DEPT", group.from_.values, unit="m", descr="FROM"  # type: ignore
+            "DEPTH", group.from_.values, unit="m", descr="FROM"  # type: ignore
         )
         file.append_curve("TO", group.to_.values, unit="m", descr="TO")  # type: ignore
 
     properties = [drillhole.get_data(k)[0] for k in group.properties]
-    for data in [k for k in properties if k.name not in ["FROM", "TO", "DEPTH"]]:
+    for data in [
+        k for k in properties if k.name not in ["FROM", "TO", "DEPTH", "DEPT"]
+    ]:
         file.append_curve(data.name, data.values)
         if isinstance(data, ReferencedData):
             for k, v in data.value_map.map.items():  # pylint: disable=invalid-name
@@ -98,7 +100,7 @@ def add_survey_data(file: LASFile, drillhole: Drillhole | ConcatenatedDrillhole)
     """
 
     # Add survey data
-    file.append_curve("DEPT", drillhole.surveys[:, 0], unit="m")  # type: ignore
+    file.append_curve("DEPTH", drillhole.surveys[:, 0], unit="m")  # type: ignore
     file.append_curve(
         "DIP",
         drillhole.surveys[:, 1],  # type: ignore

@@ -17,6 +17,29 @@ from geoh5py.objects import Drillhole
 from geoh5py.shared.concatenation import ConcatenatedDrillhole
 
 
+def get_depths(lasfile: lasio.LASFile):
+    """
+    Get depth data from las file.
+
+    :param lasfile: Las file object.
+
+    :return: Depth data.
+    """
+
+    try:
+        return lasfile["DEPTH"]
+    except KeyError:
+        pass
+
+    try:
+        return lasfile["DEPT"]
+    except KeyError as err:
+        raise KeyError(
+            "In order to import data to geoh5py format, .las files "
+            "must contain a depth curve named 'DEPTH' or 'DEPT'."
+        ) from err
+
+
 def find_copy_name(workspace: Workspace, basename: str, start: int = 1):
     """
     Augment name with increasing integer value until no entities found.
@@ -51,13 +74,13 @@ def add_survey(survey: str | Path, drillhole: Drillhole | ConcatenatedDrillhole)
     if survey.suffix == ".las":
         file = lasio.read(survey, mnemonic_case="preserve")
         try:
-            surveys = np.c_[file["DEPT"], file["DIP"], file["AZIM"]]
+            surveys = np.c_[get_depths(file), file["DIP"], file["AZIM"]]
             if len(drillhole.surveys) == 1:  # type: ignore
                 drillhole.surveys = surveys  # type: ignore
         except KeyError:
             warnings.warn(
                 "Attempted survey import failed because data read from "
-                ".las file did not contain the expected 3 curves 'DEPT'"
+                ".las file did not contain the expected 3 curves 'DEPTH'"
                 ", 'DIP', 'AZIM'."
             )
     else:
@@ -125,14 +148,16 @@ def create_or_append_drillhole(  # pylint: disable=too-many-locals
     property_group = drillhole.find_or_create_property_group(  # type: ignore
         name=property_group, property_group_type=pg_type, association="DEPTH"
     )
-    for curve in [k for k in lasfile.curves if k.mnemonic not in ["DEPT", "TO"]]:
+    for curve in [
+        k for k in lasfile.curves if k.mnemonic not in ["DEPT", "DEPTH", "TO"]
+    ]:
         name = curve.mnemonic
 
         if drillhole.get_data(name):  # type: ignore
             continue
 
         kwargs = {"values": curve.data}
-        depths = lasfile["DEPT"]
+        depths = get_depths(lasfile)
         if "TO" in lasfile.curves:
             tos = lasfile["TO"]
             kwargs["from-to"] = np.c_[depths, tos]

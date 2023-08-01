@@ -5,13 +5,13 @@
 #  All rights reserved.
 #
 
-
 import random
 import string
 from pathlib import Path
 
 import lasio
 import numpy as np
+import pytest
 from geoh5py.groups.drillhole_group import DrillholeGroup
 from geoh5py.objects.drillhole import Drillhole
 from geoh5py.shared.utils import compare_entities
@@ -19,7 +19,23 @@ from geoh5py.workspace import Workspace
 
 from las_geoh5 import export_las, import_las, write_uijson
 from las_geoh5.export_las import drillhole_to_las, write_curves
-from las_geoh5.import_las import create_or_append_drillhole, las_to_drillhole
+from las_geoh5.import_las import (
+    create_or_append_drillhole,
+    get_depths,
+    las_to_drillhole,
+)
+
+
+def test_get_depths():
+    lasfile = lasio.LASFile()
+    lasfile.append_curve("DEPTH", np.arange(0, 10))
+    assert np.all(get_depths(lasfile) == np.arange(0, 10))
+    lasfile = lasio.LASFile()
+    lasfile.append_curve("DEPT", np.arange(0, 10))
+    assert np.all(get_depths(lasfile) == np.arange(0, 10))
+    lasfile = lasio.LASFile()
+    with pytest.raises(KeyError, match="curve named 'DEPTH' or 'DEPT'."):
+        get_depths(lasfile)
 
 
 def test_create_or_append_drillhole(tmp_path):
@@ -44,6 +60,7 @@ def test_create_or_append_drillhole(tmp_path):
         write_curves(drillhole_a, tmp_path, directory=False)
 
         file = lasio.read(Path(tmp_path / "dh1.las"), mnemonic_case="preserve")
+        assert "DEPTH" in [k.mnemonic for k in file.curves]
         file.append_curve("my_new_data", np.random.randn(50))
         drillhole = create_or_append_drillhole(workspace, file, drillhole_group)
 
