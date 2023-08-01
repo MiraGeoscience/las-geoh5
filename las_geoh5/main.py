@@ -53,6 +53,8 @@ def import_las(workspace: Workspace, basepath: str | Path, name: str | None = No
     :param workspace: Project workspace.
     :param basepath: Root directory for las data.
     :param name: Alternate name for property group to create.
+
+    :return: New drillhole group containing imported items.
     """
 
     if isinstance(basepath, str):
@@ -77,6 +79,8 @@ def import_las(workspace: Workspace, basepath: str | Path, name: str | None = No
             if f.suffix == ".las"
         ]
         las_to_drillhole(workspace, lasfiles, dh_group, prop.name, surveys)
+
+    return dh_group
 
 
 def write_uijson(basepath: str | Path, mode: str = "export"):
