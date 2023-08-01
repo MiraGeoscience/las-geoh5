@@ -164,7 +164,8 @@ def las_to_drillhole(
     survey: Path | list[Path] | None = None,
 ) -> ConcatenatedDrillhole:
     """
-    import a las file containing collocated datasets for a single drillhole.
+    Import a las file containing collocated datasets for a single drillhole.
+
 
     :param workspace: Project workspace.
     :param data: Las file(s) containing drillhole data.
