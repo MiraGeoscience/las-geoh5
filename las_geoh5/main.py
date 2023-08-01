@@ -67,7 +67,8 @@ def import_las(workspace: Workspace, basepath: str | Path, name: str | None = No
     dh_group = DrillholeGroup.create(workspace, name=name)
 
     surveys_path = Path(basepath / "Surveys")
-    surveys = list(surveys_path.iterdir())
+    surveys = list(surveys_path.iterdir()) if surveys_path.exists() else None
+
     property_group_folders = [
         p for p in basepath.iterdir() if p.is_dir() and p.name != "Surveys"
     ]
@@ -138,7 +139,11 @@ def write_uijson(basepath: str | Path, mode: str = "export"):
 
 
 def main(file: str):
-    """Driver for import or export of las data."""
+    """
+    Driver for import or export of las data.
+
+    :param file: Path to ui.json file.
+    """
 
     ifile = InputFile.read_ui_json(file)
     dh_group = ifile.data["drillhole_group"]
@@ -153,5 +158,5 @@ def main(file: str):
 
 
 if __name__ == "__main__":  # pragma: no cover
-    FILE = sys.argv[1]
-    main(FILE)
+    filepath = sys.argv[1]  # pylint: disable=invalid-name
+    main(filepath)
