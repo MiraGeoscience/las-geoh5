@@ -1,6 +1,6 @@
 #  Copyright (c) 2023 Mira Geoscience Ltd.
 #
-#  This file is part of my_app project.
+#  This file is part of las-geoh5 project.
 #
 #  All rights reserved.
 #
@@ -12,11 +12,13 @@ from pathlib import Path
 from geoh5py.data import ReferencedData
 from geoh5py.groups import PropertyGroup
 from geoh5py.objects import Drillhole
-from geoh5py.shared.concatenation import ConcatenatedDrillhole
 from lasio import HeaderItem, LASFile
 
 
-def add_well_data(file: LASFile, drillhole: Drillhole | ConcatenatedDrillhole):
+def add_well_data(
+    file: LASFile,
+    drillhole: Drillhole,
+) -> LASFile:
     """
     Populate las file well data from drillhole.
 
@@ -33,28 +35,20 @@ def add_well_data(file: LASFile, drillhole: Drillhole | ConcatenatedDrillhole):
     file.well.append(
         HeaderItem(
             mnemonic="GDAT",
-            value=drillhole.coordinate_reference_system["Code"],  # type: ignore
-            descr=drillhole.coordinate_reference_system["Name"],  # type: ignore
+            value=drillhole.coordinate_reference_system["Code"],
+            descr=drillhole.coordinate_reference_system["Name"],
         )
     )
 
     # Add collar data
-    file.well.append(
-        HeaderItem(mnemonic="X", value=float(drillhole.collar["x"]))  # type: ignore
-    )
-    file.well.append(
-        HeaderItem(mnemonic="Y", value=float(drillhole.collar["y"]))  # type: ignore
-    )
-    file.well.append(
-        HeaderItem(mnemonic="ELEV", value=float(drillhole.collar["z"]))  # type: ignore
-    )
+    file.well.append(HeaderItem(mnemonic="X", value=float(drillhole.collar["x"])))
+    file.well.append(HeaderItem(mnemonic="Y", value=float(drillhole.collar["y"])))
+    file.well.append(HeaderItem(mnemonic="ELEV", value=float(drillhole.collar["z"])))
 
     return file
 
 
-def add_curve_data(
-    file: LASFile, drillhole: Drillhole | ConcatenatedDrillhole, group: PropertyGroup
-):
+def add_curve_data(file: LASFile, drillhole: Drillhole, group: PropertyGroup):
     """
     Populate las file with curve data from each property in group.
 
@@ -89,7 +83,7 @@ def add_curve_data(
     return file
 
 
-def add_survey_data(file: LASFile, drillhole: Drillhole | ConcatenatedDrillhole):
+def add_survey_data(file: LASFile, drillhole: Drillhole) -> LASFile:
     """
     Add drillhole survey data to LASFile object.
 
@@ -118,12 +112,12 @@ def add_survey_data(file: LASFile, drillhole: Drillhole | ConcatenatedDrillhole)
 
 
 def write_curves(
-    drillhole: Drillhole | ConcatenatedDrillhole,
+    drillhole: Drillhole,
     basepath: str | Path,
     directory: bool = True,
 ):
     """
-    Write a formatted .las file with data from 'drillhole'.
+    Write a formatted .las file for each property group in 'drillhole'.
 
     :param drillhole: geoh5py drillhole object containing property
         groups for collocated data.
@@ -143,15 +137,15 @@ def write_curves(
         file = add_curve_data(file, drillhole, group)
 
         if directory:
-            subpath = Path(basepath / group.name)
+            subpath = basepath / group.name
             if not subpath.exists():
                 subpath.mkdir()
         else:
             subpath = basepath
 
-        survey_path = Path(subpath / f"{drillhole.name}.las")
+        survey_path = subpath / f"{drillhole.name}.las"
         if survey_path.exists():
-            survey_path = Path(subpath / f"{drillhole.name}_survey.las")
+            survey_path = subpath / f"{drillhole.name}_survey.las"
 
         with open(
             survey_path, "a", encoding="utf8"
@@ -160,7 +154,7 @@ def write_curves(
 
 
 def write_survey(
-    drillhole: Drillhole | ConcatenatedDrillhole,
+    drillhole: Drillhole,
     basepath: str | Path,
     directory: bool = True,
 ):
@@ -181,18 +175,18 @@ def write_survey(
     file = add_survey_data(file, drillhole)
 
     if directory:
-        basepath = Path(basepath / "Surveys")
+        basepath = basepath / "Surveys"
         if not basepath.exists():
             basepath.mkdir()
 
     with open(
-        Path(basepath / f"{drillhole.name}.las"), "a", encoding="utf8"
+        basepath / f"{drillhole.name}.las", "a", encoding="utf8"
     ) as io:  # pylint: disable=invalid-name
         file.write(io)
 
 
 def drillhole_to_las(
-    drillhole: Drillhole | ConcatenatedDrillhole,
+    drillhole: Drillhole,
     basepath: str | Path,
     directory: bool = True,
 ):

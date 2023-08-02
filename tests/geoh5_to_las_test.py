@@ -1,6 +1,6 @@
 #  Copyright (c) 2023 Mira Geoscience Ltd.
 #
-#  This file is part of my_app project.
+#  This file is part of las-geoh5 project.
 #
 #  All rights reserved.
 #
@@ -21,6 +21,7 @@ from las_geoh5 import export_las, import_las, write_uijson
 from las_geoh5.export_las import drillhole_to_las, write_curves
 from las_geoh5.import_las import (
     create_or_append_drillhole,
+    get_collar,
     get_depths,
     las_to_drillhole,
 )
@@ -29,13 +30,28 @@ from las_geoh5.import_las import (
 def test_get_depths():
     lasfile = lasio.LASFile()
     lasfile.append_curve("DEPTH", np.arange(0, 10))
-    assert np.all(get_depths(lasfile) == np.arange(0, 10))
+    assert np.all(get_depths(lasfile)["depth"] == np.arange(0, 10))
     lasfile = lasio.LASFile()
     lasfile.append_curve("DEPT", np.arange(0, 10))
-    assert np.all(get_depths(lasfile) == np.arange(0, 10))
+    depths = get_depths(lasfile)
+    assert np.all(depths["depth"] == np.arange(0, 10))
+    assert "depth" in depths and len(depths) == 1
+    lasfile.append_curve("TO", np.arange(1, 11))
+    depths = get_depths(lasfile)
+    assert "from-to" in depths and len(depths) == 1
+    assert np.allclose(depths["from-to"], np.c_[np.arange(0, 10), np.arange(1, 11)])
     lasfile = lasio.LASFile()
     with pytest.raises(KeyError, match="curve named 'DEPTH' or 'DEPT'."):
         get_depths(lasfile)
+
+
+def test_get_collar():
+    lasfile = lasio.LASFile()
+    lasfile.well.append(lasio.HeaderItem(mnemonic="X", value=0.0))
+    lasfile.well.append(lasio.HeaderItem(mnemonic="Y", value=0.0))
+    assert get_collar(lasfile) is None
+    lasfile.well.append(lasio.HeaderItem(mnemonic="ELEV", value=0.0))
+    assert np.allclose(get_collar(lasfile), [0.0, 0.0, 0.0])
 
 
 def test_create_or_append_drillhole(tmp_path):

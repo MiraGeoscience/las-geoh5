@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "las-geoh5"
-version = "0.0.0"
+version = "0.0.1"
 description = "Las/Geoh5 conversion"
 authors = ["Mira Geoscience <support@mirageoscience.com>"]
 

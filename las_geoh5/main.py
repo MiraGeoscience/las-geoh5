@@ -13,7 +13,7 @@ from pathlib import Path
 import lasio
 from geoh5py import Workspace
 from geoh5py.groups.drillhole_group import DrillholeGroup
-from geoh5py.shared.concatenation import ConcatenatedDrillhole
+from geoh5py.objects import Drillhole
 from geoh5py.shared.utils import fetch_active_workspace
 from geoh5py.ui_json import InputFile
 from geoh5py.ui_json.constants import default_ui_json
@@ -35,10 +35,10 @@ def export_las(group: DrillholeGroup, basepath: str | Path, name: str | None = N
     if isinstance(basepath, str):
         basepath = Path(basepath)
 
-    drillholes = [k for k in group.children if isinstance(k, ConcatenatedDrillhole)]
+    drillholes = [k for k in group.children if isinstance(k, Drillhole)]
 
     name = name if name is not None else group.name
-    subpath = Path(basepath / name)
+    subpath = basepath / name
     if not subpath.exists():
         subpath.mkdir()
 
@@ -66,7 +66,7 @@ def import_las(workspace: Workspace, basepath: str | Path, name: str | None = No
     name = name if name is not None else basepath.name
     dh_group = DrillholeGroup.create(workspace, name=name)
 
-    surveys_path = Path(basepath / "Surveys")
+    surveys_path = basepath / "Surveys"
     surveys = list(surveys_path.iterdir()) if surveys_path.exists() else None
 
     property_group_folders = [
