@@ -59,10 +59,9 @@ def get_collar(lasfile: lasio.LASFile) -> list | None:
             collar.append(lasfile.well[attr].value)
 
         else:
-            collar = None  # type: ignore
             break
 
-    return collar
+    return collar if len(collar) == 3 else None
 
 
 def find_copy_name(workspace: Workspace, basename: str, start: int = 1):
