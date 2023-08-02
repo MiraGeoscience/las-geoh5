@@ -83,7 +83,7 @@ def find_copy_name(workspace: Workspace, basename: str, start: int = 1):
     return name
 
 
-def add_survey(survey: str | Path, drillhole: Drillhole):
+def add_survey(survey: str | Path, drillhole: Drillhole) -> Drillhole:
     """
     Import survey data from csv or las format and add to drillhole.
 
