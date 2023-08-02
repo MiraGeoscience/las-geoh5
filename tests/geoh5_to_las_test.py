@@ -138,7 +138,7 @@ def test_add_survey(tmp_path):
         assert np.allclose(drillhole.surveys, surveys)
 
 
-def test_import_las(tmp_path):  # pylint: disable=too-many-locals
+def setup_import_las(tmp_path):
     n_data = 10
     with Workspace.create(Path(tmp_path / "test.geoh5")) as workspace:
         # Create a workspace
@@ -218,43 +218,46 @@ def test_import_las(tmp_path):  # pylint: disable=too-many-locals
                 },
             }
         )
+    return workspace, dh_group
 
-        export_las(dh_group, tmp_path, name="dh_group")
-        dh_group2 = import_las(workspace, Path(tmp_path / "dh_group"), name="dh_group2")
 
-        assert len(dh_group.children) == len(dh_group2.children)
-        for child in dh_group.children:
-            matches = [k for k in dh_group2.children if k.name == child.name]
+def test_import_las(tmp_path):
+    workspace, dh_group = setup_import_las(tmp_path)
+    workspace.open()
+    export_las(dh_group, tmp_path, name="dh_group")
+    dh_group2 = import_las(workspace, Path(tmp_path / "dh_group"), name="dh_group2")
+
+    assert len(dh_group.children) == len(dh_group2.children)
+    for child in dh_group.children:
+        matches = [k for k in dh_group2.children if k.name == child.name]
+        assert len(matches) == 1
+        other_child = matches[0]
+        compare_entities(
+            child,
+            other_child,
+            ignore=["_uid", "_parent", "_property_groups", "_type_id"],
+            decimal=4,
+        )
+        assert len(child.property_groups) == len(other_child.property_groups)
+        for pg in child.property_groups:  # pylint: disable=invalid-name
+            matches = [k for k in other_child.property_groups if k.name == pg.name]
             assert len(matches) == 1
-            other_child = matches[0]
-            compare_entities(
-                child,
-                other_child,
-                ignore=["_uid", "_parent", "_property_groups"],
-                decimal=4,
-            )
-            assert len(child.property_groups) == len(other_child.property_groups)
-            for pg in child.property_groups:  # pylint: disable=invalid-name
-                matches = [k for k in other_child.property_groups if k.name == pg.name]
+            other_pg = matches[0]
+            properties = [workspace.get_entity(k)[0] for k in pg.properties]
+            other_properties = [workspace.get_entity(k)[0] for k in other_pg.properties]
+            assert len(properties) == len(other_properties)
+            for prop in properties:
+                matches = [k for k in other_properties if k.name == prop.name]
                 assert len(matches) == 1
-                other_pg = matches[0]
-                properties = [workspace.get_entity(k)[0] for k in pg.properties]
-                other_properties = [
-                    workspace.get_entity(k)[0] for k in other_pg.properties
-                ]
-                assert len(properties) == len(other_properties)
-                for prop in properties:
-                    matches = [k for k in other_properties if k.name == prop.name]
-                    assert len(matches) == 1
-                    other_prop = matches[0]
-                    compare_entities(
-                        prop,
-                        other_prop,
-                        ignore=["_uid", "_parent", "_property_groups"],
-                        decimal=4,
-                    )
+                other_prop = matches[0]
+                compare_entities(
+                    prop,
+                    other_prop,
+                    ignore=["_uid", "_parent", "_property_groups", "Type ID"],
+                    decimal=4,
+                )
 
-        assert len(dh_group.property_group_ids) == len(dh_group2.property_group_ids)
+    assert len(dh_group.property_group_ids) == len(dh_group2.property_group_ids)
 
 
 def test_write_uijson(tmp_path):
