@@ -166,7 +166,7 @@ def create_or_append_drillhole(
     workspace: Workspace,
     lasfile: lasio.LASFile,
     drillhole_group: DrillholeGroup,
-    property_group: str | None = None,
+    group_name: str | None = None,
 ) -> Drillhole:
     """
     Create a drillhole or append data to drillhole if it exists in workspace.
@@ -174,34 +174,36 @@ def create_or_append_drillhole(
     :param workspace: Project workspace.
     :param lasfile: Las file object.
     :param drillhole_group: Drillhole group container.
-    :param property_group: Property group name.
+    :param group_name: Property group name.
 
     :return: Created or augmented drillhole.
     """
 
     name = lasfile.well["WELL"].value
     collar = get_collar(lasfile)
-    drillhole = drillhole_group.get_entity(name)[0]
+    drillhole = drillhole_group.get_entity(name)[0]  # type: ignore
 
-    if drillhole is None:
-        kwargs = {"name": name}
-        kwargs["parent"] = drillhole_group
+    if not isinstance(drillhole, Drillhole) or (
+        isinstance(drillhole, Drillhole)
+        and not np.allclose(collar, drillhole.collar.tolist())
+    ):
+        kwargs = {
+            "name": find_copy_name(workspace, name),
+            "parent": drillhole_group,
+        }
         if collar:
             kwargs["collar"] = collar
 
         drillhole = Drillhole.create(workspace, **kwargs)
 
-    elif not np.allclose(collar, drillhole.collar.tolist()):
-        kwargs = {"name": find_copy_name(workspace, drillhole.name)}
-        kwargs["parent"] = drillhole_group
-        if collar:
-            kwargs["collar"] = collar
-
-        drillhole = Drillhole.create(workspace, **kwargs)
+    if not isinstance(drillhole, Drillhole):
+        raise TypeError(
+            f"Drillhole {name} exists in workspace but is not a Drillhole object."
+        )
 
     pg_type = "Interval table" if "TO" in lasfile.curves else "Depth table"
     property_group = drillhole.find_or_create_property_group(
-        name=property_group, property_group_type=pg_type, association="DEPTH"
+        name=group_name, property_group_type=pg_type, association="DEPTH"
     )
     drillhole = add_data(drillhole, lasfile, property_group)
 
@@ -218,14 +220,13 @@ def las_to_drillhole(
     """
     Import a las file containing collocated datasets for a single drillhole.
 
-
     :param workspace: Project workspace.
     :param data: Las file(s) containing drillhole data.
     :param drillhole_group: Drillhole group container.
     :param property_group: Property group name.
     :param survey: Path to a survey file stored as .csv or .las format.
 
-    :return: A geoh5py.ConcatenatedDrillhole object
+    :return: A :obj:`geoh5py.objects.Drillhole` object
     """
 
     if not isinstance(data, list):

@@ -10,8 +10,8 @@ from __future__ import annotations
 from pathlib import Path
 
 from geoh5py.data import ReferencedData
-from geoh5py.groups import PropertyGroup
 from geoh5py.objects import Drillhole
+from geoh5py.shared.concatenation import ConcatenatedPropertyGroup
 from lasio import HeaderItem, LASFile
 
 
@@ -32,13 +32,14 @@ def add_well_data(
     file.well["WELL"] = drillhole.name
 
     # Add epsg code
-    file.well.append(
-        HeaderItem(
-            mnemonic="GDAT",
-            value=drillhole.coordinate_reference_system["Code"],
-            descr=drillhole.coordinate_reference_system["Name"],
+    if drillhole.coordinate_reference_system is not None:
+        file.well.append(
+            HeaderItem(
+                mnemonic="GDAT",
+                value=drillhole.coordinate_reference_system["Code"],
+                descr=drillhole.coordinate_reference_system["Name"],
+            )
         )
-    )
 
     # Add collar data
     file.well.append(HeaderItem(mnemonic="X", value=float(drillhole.collar["x"])))
@@ -48,7 +49,7 @@ def add_well_data(
     return file
 
 
-def add_curve_data(file: LASFile, drillhole: Drillhole, group: PropertyGroup):
+def add_curve_data(file: LASFile, drillhole: Drillhole, group):
     """
     Populate las file with curve data from each property in group.
 
@@ -59,12 +60,13 @@ def add_curve_data(file: LASFile, drillhole: Drillhole, group: PropertyGroup):
         objects of 'drillhole'.
     """
 
+    if not isinstance(group, ConcatenatedPropertyGroup):
+        raise TypeError("Property group must be of type ConcatenatedPropertyGroup.")
+
     if group.depth_:
         file.append_curve("DEPTH", group.depth_.values, unit="m")
     else:
-        file.append_curve(
-            "DEPTH", group.from_.values, unit="m", descr="FROM"
-        )
+        file.append_curve("DEPTH", group.from_.values, unit="m", descr="FROM")
         file.append_curve("TO", group.to_.values, unit="m", descr="TO")
 
     properties = [drillhole.get_data(k)[0] for k in group.properties]

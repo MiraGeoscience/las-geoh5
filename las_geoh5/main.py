@@ -132,7 +132,7 @@ def write_uijson(basepath: str | Path, mode: str = "export"):
         )
     )
     ifile = InputFile(ui_json=ui_json, validate=False)
-    ifile.path = basepath
+    ifile.path = str(basepath)
     ifile.write_ui_json(f"{mode}_to_las.ui.json", basepath)
 
     return ifile
@@ -158,5 +158,5 @@ def main(file: str):
 
 
 if __name__ == "__main__":  # pragma: no cover
-    filepath = sys.argv[1]  # pylint: disable=invalid-name
-    main(filepath)
+    FILE = sys.argv[1]
+    main(FILE)
