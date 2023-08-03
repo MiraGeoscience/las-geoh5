@@ -63,7 +63,7 @@ repos:
     rev: v2.2.5
     hooks:
     -   id: codespell
-        exclude: (\.ipynb$)
+        exclude: (\.ipynb$|poetry.lock)
         entry: codespell -I .codespellignore
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.4.0
