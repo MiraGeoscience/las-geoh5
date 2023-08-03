@@ -1,5 +1,5 @@
 {
-    "title": "Export drillhole group",
+    "title": "Export drillhole group to LAS",
     "geoh5": "",
     "run_command": "las_geoh5.main",
     "run_command_boolean": {
@@ -9,7 +9,7 @@
         "main": true
     },
     "monitoring_directory": "",
-    "conda_environment": "las-geoh5",
+    "conda_environment": "",
     "conda_environment_boolean": false,
     "workspace": "",
     "drillhole_group": {
