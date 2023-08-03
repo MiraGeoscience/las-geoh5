@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="sources" pattern="file:las_geoh5/*||file:tests/*" />
+</component>
