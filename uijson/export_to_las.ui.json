@@ -9,7 +9,8 @@
         "main": true
     },
     "monitoring_directory": "",
-    "conda_environment": "las-geoh5",
+    "conda_environment": "mirageo",
+
     "conda_environment_boolean": false,
     "workspace": "",
     "drillhole_group": {
