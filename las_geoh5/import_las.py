@@ -191,7 +191,7 @@ def create_or_append_drillhole(
 
         drillhole = Drillhole.create(workspace, **kwargs)
 
-    elif not np.allclose(collar, drillhole.collar.tolist()):  # type: ignore
+    elif not np.allclose(collar, drillhole.collar.tolist()):
         kwargs = {"name": find_copy_name(workspace, drillhole.name)}
         kwargs["parent"] = drillhole_group
         if collar:
@@ -200,10 +200,10 @@ def create_or_append_drillhole(
         drillhole = Drillhole.create(workspace, **kwargs)
 
     pg_type = "Interval table" if "TO" in lasfile.curves else "Depth table"
-    property_group = drillhole.find_or_create_property_group(  # type: ignore
+    property_group = drillhole.find_or_create_property_group(
         name=property_group, property_group_type=pg_type, association="DEPTH"
     )
-    drillhole = add_data(drillhole, lasfile, property_group)  # type: ignore
+    drillhole = add_data(drillhole, lasfile, property_group)
 
     return drillhole
 

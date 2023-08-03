@@ -132,7 +132,7 @@ def write_uijson(basepath: str | Path, mode: str = "export"):
         )
     )
     ifile = InputFile(ui_json=ui_json, validate=False)
-    ifile.path = basepath  # type: ignore
+    ifile.path = basepath
     ifile.write_ui_json(f"{mode}_to_las.ui.json", basepath)
 
     return ifile

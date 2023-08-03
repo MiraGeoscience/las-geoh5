@@ -59,13 +59,13 @@ def add_curve_data(file: LASFile, drillhole: Drillhole, group: PropertyGroup):
         objects of 'drillhole'.
     """
 
-    if group.depth_:  # type: ignore
-        file.append_curve("DEPTH", group.depth_.values, unit="m")  # type: ignore
+    if group.depth_:
+        file.append_curve("DEPTH", group.depth_.values, unit="m")
     else:
         file.append_curve(
-            "DEPTH", group.from_.values, unit="m", descr="FROM"  # type: ignore
+            "DEPTH", group.from_.values, unit="m", descr="FROM"
         )
-        file.append_curve("TO", group.to_.values, unit="m", descr="TO")  # type: ignore
+        file.append_curve("TO", group.to_.values, unit="m", descr="TO")
 
     properties = [drillhole.get_data(k)[0] for k in group.properties]
     for data in [
@@ -94,16 +94,16 @@ def add_survey_data(file: LASFile, drillhole: Drillhole) -> LASFile:
     """
 
     # Add survey data
-    file.append_curve("DEPTH", drillhole.surveys[:, 0], unit="m")  # type: ignore
+    file.append_curve("DEPTH", drillhole.surveys[:, 0], unit="m")
     file.append_curve(
         "DIP",
-        drillhole.surveys[:, 1],  # type: ignore
+        drillhole.surveys[:, 1],
         unit="degrees",
         descr="from horizontal",
     )
     file.append_curve(
         "AZIM",
-        drillhole.surveys[:, 2],  # type: ignore
+        drillhole.surveys[:, 2],
         unit="degrees",
         descr="from north (clockwise)",
     )
