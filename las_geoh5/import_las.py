@@ -187,8 +187,9 @@ def create_or_append_drillhole(
         isinstance(drillhole, Drillhole)
         and not np.allclose(collar, drillhole.collar.tolist())
     ):
+        name = name if drillhole is None else find_copy_name(workspace, name)
         kwargs = {
-            "name": find_copy_name(workspace, name),
+            "name": name,
             "parent": drillhole_group,
         }
         if collar:
