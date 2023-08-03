@@ -137,7 +137,7 @@ description = "Python API for geoh5, an open file format for geoscientific data"
 optional = false
 python-versions = "^3.8,<3.11"
 files = [
-    {file = "develop.tar.gz", hash = "sha256:f009f03869c741ad4c04f4fea5fe027d303e1fd5eff5cadf680d7c825f324b70"},
+    {file = "develop.tar.gz", hash = "sha256:1a811a8e649d7a7b76f9ded6e824e75bd59206b2d34e22df61ae98063c4eee11"},
 ]
 
 [package.dependencies]
