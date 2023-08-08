@@ -69,16 +69,21 @@ def add_curve_data(file: LASFile, drillhole: Drillhole, group):
         file.append_curve("DEPTH", group.from_.values, unit="m", descr="FROM")
         file.append_curve("TO", group.to_.values, unit="m", descr="TO")
 
+    # TODO: Find out why I'm getting different length arrays for data in the same property here
     properties = [drillhole.get_data(k)[0] for k in group.properties]
-    for data in [
-        k for k in properties if k.name not in ["FROM", "TO", "DEPTH", "DEPT"]
-    ]:
-        file.append_curve(data.name, data.values)
-        if isinstance(data, ReferencedData):
-            for k, v in data.value_map.map.items():  # pylint: disable=invalid-name
+    properties = [k for k in properties if len(k.values) == len(file["DEPTH"])]
+    properties = [k for k in properties if len(k.values) != 0]
+    for prop in properties:
+        if any(k in prop.name for k in ["FROM", "TO", "DEPT"]):
+            continue
+
+        file.append_curve(prop.name, prop.values)
+
+        if isinstance(prop, ReferencedData):
+            for k, v in prop.value_map.map.items():  # pylint: disable=invalid-name
                 file.params.append(
                     HeaderItem(
-                        mnemonic=f"{data.name} ({k})", value=v, descr="REFERENCE"
+                        mnemonic=f"{prop.name} ({k})", value=v, descr="REFERENCE"
                     )
                 )
 
@@ -143,6 +148,11 @@ def write_curves(
         file = LASFile()
         file = add_well_data(file, drillhole)
         file = add_curve_data(file, drillhole, group)
+
+        if not [
+            k for k in file.curves if k.mnemonic not in ["FROM", "TO", "DEPTH", "DEPT"]
+        ]:
+            continue
 
         if directory:
             subpath = basepath / group.name

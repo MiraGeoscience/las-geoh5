@@ -17,7 +17,7 @@ from geoh5py.objects import Drillhole
 from geoh5py.shared.utils import fetch_active_workspace
 from geoh5py.ui_json import InputFile
 from geoh5py.ui_json.constants import default_ui_json
-from geoh5py.ui_json.templates import file_parameter, group_parameter, string_parameter
+from geoh5py.ui_json.templates import group_parameter, string_parameter
 from tqdm import tqdm
 
 from las_geoh5.export_las import drillhole_to_las
@@ -76,11 +76,11 @@ def import_las(workspace: Workspace, basepath: str | Path, name: str | None = No
     ]
 
     for prop in property_group_folders:
-        lasfiles = [
-            lasio.read(f, mnemonic_case="preserve")
-            for f in prop.iterdir()
-            if f.suffix == ".las"
-        ]
+        lasfiles = []
+        for file in [k for k in prop.iterdir() if k.suffix == ".las"]:
+            print(file.name)
+            lasfiles.append(lasio.read(file, mnemonic_case="preserve"))
+
         las_to_drillhole(workspace, lasfiles, dh_group, prop.name, surveys)
 
     return dh_group
@@ -97,27 +97,20 @@ def write_uijson(basepath: str | Path, mode: str = "export"):
     """
 
     ui_json = deepcopy(default_ui_json)
-    update = {}
     name_parameter = string_parameter(label="Name", value="", optional="enabled")
+
     if mode == "export":
         drillhole_group = group_parameter(
             label="Drillhole group",
             group_type=("{825424fb-c2c6-4fea-9f2b-6cd00023d393}",),
         )
     elif mode == "import":
+        name_parameter["group"] = "Simple"
         drillhole_group = string_parameter(label="Drillhole group", value="")
-        name_parameter = string_parameter(label="Name", value="", optional="enabled")
         drillhole_group["groupOptional"] = True
         drillhole_group["enabled"] = False
         drillhole_group["group"] = "Simple"
-        name_parameter["group"] = "Simple"
 
-        update["name_parameter"] = name_parameter
-        update["data_files_parameter"] = file_parameter(
-            label="Data files",
-            file_type=("las",),
-            optional="disabled",
-        )
     else:
         raise ValueError("Mode argument must be 'import' or 'export'.")
 
@@ -130,7 +123,6 @@ def write_uijson(basepath: str | Path, mode: str = "export"):
                 "drillhole_group": drillhole_group,
                 "name": name_parameter,
             },
-            **update,
         )
     )
     ifile = InputFile(ui_json=ui_json, validate=False)
