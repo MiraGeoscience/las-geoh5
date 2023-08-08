@@ -18,6 +18,7 @@ from geoh5py.shared.utils import fetch_active_workspace
 from geoh5py.ui_json import InputFile
 from geoh5py.ui_json.constants import default_ui_json
 from geoh5py.ui_json.templates import file_parameter, group_parameter, string_parameter
+from tqdm import tqdm
 
 from las_geoh5.export_las import drillhole_to_las
 from las_geoh5.import_las import las_to_drillhole
@@ -42,7 +43,8 @@ def export_las(group: DrillholeGroup, basepath: str | Path, name: str | None = N
     if not subpath.exists():
         subpath.mkdir()
 
-    for drillhole in drillholes:
+    print(f"Exporting drillhole surveys and property group data to {str(subpath)}")
+    for drillhole in tqdm(drillholes):
         drillhole_to_las(drillhole, subpath)
 
 

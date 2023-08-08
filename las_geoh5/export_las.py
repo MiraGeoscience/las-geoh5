@@ -134,6 +134,12 @@ def write_curves(
         raise AttributeError("Drillhole doesn't have any associated property groups.")
 
     for group in drillhole.property_groups:
+        if group.property_group_type not in ["Interval table", "Depth table"]:
+            continue  # bypasses strike and dip groups
+
+        if group.name == "Static-Survey":
+            continue  # bypasses survey data handled elsewhere
+
         file = LASFile()
         file = add_well_data(file, drillhole)
         file = add_curve_data(file, drillhole, group)
