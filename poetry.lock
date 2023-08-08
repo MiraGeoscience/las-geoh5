@@ -147,7 +147,7 @@ Pillow = ">=8.0.1,<10.0.0"
 
 [package.source]
 type = "url"
-url = "https://github.com/MiraGeoscience/geoh5py/archive/refs/heads/develop.zip#sha256=None"
+url = "https://github.com/MiraGeoscience/geoh5py/archive/refs/heads/develop.zip#sha256="
 
 [[package]]
 name = "h5py"
@@ -658,4 +658,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9, <3.11"
-content-hash = "c7fd7948e55ab2be0b6118a54e06fcc13084581014fddfe82aa8624bc7e1e50d"
+content-hash = "288eccb6eb4bbe3bc5ce60d69dfe8ad616a39c62e3165b99eabafa3af1d5e17d"
