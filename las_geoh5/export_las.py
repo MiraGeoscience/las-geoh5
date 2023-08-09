@@ -69,9 +69,7 @@ def add_curve_data(file: LASFile, drillhole: Drillhole, group):
         file.append_curve("DEPTH", group.from_.values, unit="m", descr="FROM")
         file.append_curve("TO", group.to_.values, unit="m", descr="TO")
 
-    # TODO: Find out why I'm getting different length arrays for data in the same property here
     properties = [drillhole.get_data(k)[0] for k in group.properties]
-    properties = [k for k in properties if len(k.values) == len(file["DEPTH"])]
     properties = [k for k in properties if len(k.values) != 0]
     for prop in properties:
         if any(k in prop.name for k in ["FROM", "TO", "DEPT"]):

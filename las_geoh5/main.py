@@ -77,8 +77,8 @@ def import_las(workspace: Workspace, basepath: str | Path, name: str | None = No
 
     for prop in property_group_folders:
         lasfiles = []
-        for file in [k for k in prop.iterdir() if k.suffix == ".las"]:
-            print(file.name)
+        print("Importing property group data from {prop.name}")
+        for file in tqdm([k for k in prop.iterdir() if k.suffix == ".las"]):
             lasfiles.append(lasio.read(file, mnemonic_case="preserve"))
 
         las_to_drillhole(workspace, lasfiles, dh_group, prop.name, surveys)
