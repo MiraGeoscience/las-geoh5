@@ -14,6 +14,7 @@ import numpy as np
 from geoh5py import Workspace
 from geoh5py.groups import DrillholeGroup, PropertyGroup
 from geoh5py.objects import Drillhole
+from tqdm import tqdm
 
 
 def get_depths(lasfile: lasio.LASFile) -> dict[str, np.ndarray]:
@@ -157,6 +158,10 @@ def add_data(
             kwargs["value_map"] = value_map
             kwargs["type"] = "referenced"
 
+        existing_data = drillhole.workspace.get_entity(name)[0]
+        if existing_data:
+            kwargs["entity_type"] = existing_data.entity_type
+
         drillhole.add_data({name: kwargs}, property_group=property_group)
 
     return drillhole
@@ -235,7 +240,7 @@ def las_to_drillhole(
     if not isinstance(survey, list):
         survey = [survey] if survey else []
 
-    for datum in data:
+    for datum in tqdm(data):
         drillhole = create_or_append_drillhole(
             workspace, datum, drillhole_group, property_group
         )
