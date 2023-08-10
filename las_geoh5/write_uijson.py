@@ -8,6 +8,7 @@
 from __future__ import annotations
 
 import argparse
+import sys
 from copy import deepcopy
 from pathlib import Path
 
@@ -38,8 +39,6 @@ def write_uijson(basepath: str | Path, mode: str = "export"):
         name_parameter["group"] = "Simple"
         name_parameter["enabled"] = False
         drillhole_group = string_parameter(label="Drillhole group", value="")
-        # drillhole_group["groupOptional"] = True
-        # drillhole_group["enabled"] = True
         drillhole_group["group"] = "Simple"
 
     else:
@@ -63,7 +62,8 @@ def write_uijson(basepath: str | Path, mode: str = "export"):
     return ifile
 
 
-if __name__ == "__main__":
+def main(args):
+    print(args)
     parser = argparse.ArgumentParser(description="Write ui.json files.")
     parser.add_argument(
         "path", type=Path, help="Path to folder where ui.json files will be written."
@@ -74,9 +74,13 @@ if __name__ == "__main__":
         choices={"import", "export", "all"},
         help="Mode switching between 'import', 'export', and 'all' behaviour.",
     )
-    args = parser.parse_args()
+    args = parser.parse_args(args)
     if args.mode == "all":
-        for m in ["import", "export"]:
+        for m in ["import", "export"]:  # pylint: disable=invalid-name
             write_uijson(args.path, m)
     else:
         write_uijson(args.path, args.mode)
+
+
+if __name__ == "__main__":
+    main(sys.argv[1:])
