@@ -75,7 +75,10 @@ def test_create_or_append_drillhole(tmp_path):
         )
         write_curves(drillhole_a, tmp_path, directory=False)
 
-        file = lasio.read(Path(tmp_path / "dh1.las"), mnemonic_case="preserve")
+        file = lasio.read(
+            Path(tmp_path / f"dh1_{drillhole_a.property_groups[0].name}.las"),
+            mnemonic_case="preserve",
+        )
         assert "DEPTH" in [k.mnemonic for k in file.curves]
         file.append_curve("my_new_data", np.random.randn(50))
         drillhole = create_or_append_drillhole(workspace, file, drillhole_group)
@@ -84,7 +87,10 @@ def test_create_or_append_drillhole(tmp_path):
         assert drillhole.uid == drillhole_a.uid
         assert drillhole.get_data("my_new_data")
 
-        file = lasio.read(Path(tmp_path / "dh1.las"), mnemonic_case="preserve")
+        file = lasio.read(
+            Path(tmp_path / f"dh1_{drillhole_a.property_groups[0].name}.las"),
+            mnemonic_case="preserve",
+        )
         file.well["X"] = 10.0
         drillhole = create_or_append_drillhole(workspace, file, drillhole_group)
 
@@ -126,7 +132,9 @@ def test_add_survey(tmp_path):
         )
         drillhole_to_las(drillhole_a, tmp_path, directory=False)
         basepath = Path(tmp_path)
-        data = lasio.read(Path(basepath / "dh1.las"))
+        data = lasio.read(
+            Path(basepath / f"dh1_{drillhole_a.property_groups[0].name}.las")
+        )
         survey = Path(basepath / "dh1_survey.las")
         drillhole = las_to_drillhole(workspace, data, drillhole_group, survey=survey)
         assert np.allclose(drillhole.surveys, surveys)

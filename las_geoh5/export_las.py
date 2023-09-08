@@ -69,19 +69,20 @@ def add_curve_data(file: LASFile, drillhole: Drillhole, group):
         file.append_curve("DEPTH", group.from_.values, unit="m", descr="FROM")
         file.append_curve("TO", group.to_.values, unit="m", descr="TO")
 
-    properties = [drillhole.get_data(k)[0] for k in group.properties]
-    properties = [k for k in properties if len(k.values) != 0]
-    for prop in properties:
-        if any(k in prop.name for k in ["FROM", "TO", "DEPT"]):
+    properties = [] if group.properties is None else group.properties
+    data = [drillhole.get_data(k)[0] for k in properties]
+    filtered_data = [k for k in data if len(k.values) != 0]
+    for datum in filtered_data:
+        if any(k in datum.name for k in ["FROM", "TO", "DEPT"]):
             continue
 
-        file.append_curve(prop.name, prop.values)
+        file.append_curve(datum.name, datum.values)
 
-        if isinstance(prop, ReferencedData):
-            for k, v in prop.value_map.map.items():  # pylint: disable=invalid-name
+        if isinstance(datum, ReferencedData):
+            for k, v in datum.value_map.map.items():  # pylint: disable=invalid-name
                 file.params.append(
                     HeaderItem(
-                        mnemonic=f"{prop.name} ({k})", value=v, descr="REFERENCE"
+                        mnemonic=f"{datum.name} ({k})", value=v, descr="REFERENCE"
                     )
                 )
 
@@ -156,15 +157,13 @@ def write_curves(
             subpath = basepath / group.name
             if not subpath.exists():
                 subpath.mkdir()
+            filename = f"{drillhole.name}.las"
         else:
             subpath = basepath
-
-        survey_path = subpath / f"{drillhole.name}.las"
-        if survey_path.exists():
-            survey_path = subpath / f"{drillhole.name}_survey.las"
+            filename = f"{drillhole.name}_{group.name}.las"
 
         with open(
-            survey_path, "a", encoding="utf8"
+            subpath / filename, "a", encoding="utf8"
         ) as io:  # pylint: disable=invalid-name
             file.write(io)
 
@@ -194,9 +193,12 @@ def write_survey(
         basepath = basepath / "Surveys"
         if not basepath.exists():
             basepath.mkdir()
+        filename = f"{drillhole.name}.las"
+    else:
+        filename = f"{drillhole.name}_survey.las"
 
     with open(
-        basepath / f"{drillhole.name}.las", "a", encoding="utf8"
+        basepath / filename, "a", encoding="utf8"
     ) as io:  # pylint: disable=invalid-name
         file.write(io)
 
