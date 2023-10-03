@@ -5,11 +5,13 @@
 #  All rights reserved.
 #
 
-from las_geoh5.write_uijson import main
+from las_geoh5.uijson.write_uijson import main
 
 
 def test_write_ui_json(tmp_path):
-    main([str(tmp_path), "export"])
-    assert (tmp_path / "export_to_las.ui.json").exists()
-    main([str(tmp_path), "import"])
-    assert (tmp_path / "import_to_las.ui.json").exists()
+    main([str(tmp_path), "export_directories"])
+    assert (tmp_path / "export_las_directories.ui.json").exists()
+    main([str(tmp_path), "import_directories"])
+    assert (tmp_path / "import_las_directories.ui.json").exists()
+    main([str(tmp_path), "import_files"])
+    assert (tmp_path / "import_las_files.ui.json").exists()

@@ -17,8 +17,9 @@ from geoh5py.objects.drillhole import Drillhole
 from geoh5py.shared.utils import compare_entities
 from geoh5py.workspace import Workspace
 
-from las_geoh5 import export_las, import_las, write_uijson
+from las_geoh5.export_directories.driver import export_las_directory
 from las_geoh5.export_las import drillhole_to_las, write_curves
+from las_geoh5.import_directories.driver import import_las_directory
 from las_geoh5.import_las import (
     create_or_append_drillhole,
     get_collar,
@@ -146,7 +147,7 @@ def test_add_survey(tmp_path):
         assert np.allclose(drillhole.surveys, surveys)
 
 
-def setup_import_las(tmp_path):
+def setup_import_las_directory(tmp_path):
     n_data = 10
     with Workspace.create(Path(tmp_path / "test.geoh5")) as workspace:
         # Create a workspace
@@ -229,11 +230,13 @@ def setup_import_las(tmp_path):
     return workspace, dh_group
 
 
-def test_import_las(tmp_path):
-    workspace, dh_group = setup_import_las(tmp_path)
+def test_import_las_directory(tmp_path):
+    workspace, dh_group = setup_import_las_directory(tmp_path)
     workspace.open()
-    export_las(dh_group, tmp_path, name="dh_group")
-    dh_group2 = import_las(workspace, Path(tmp_path / "dh_group"), name="dh_group2")
+    export_las_directory(dh_group, tmp_path, name="dh_group")
+    dh_group2 = import_las_directory(
+        workspace, Path(tmp_path / "dh_group"), name="dh_group2"
+    )
 
     assert len(dh_group.children) == len(dh_group2.children)
     for child in dh_group.children:
@@ -266,7 +269,3 @@ def test_import_las(tmp_path):
                 )
 
     assert len(dh_group.property_group_ids) == len(dh_group2.property_group_ids)
-
-
-def test_write_uijson(tmp_path):
-    write_uijson(tmp_path)

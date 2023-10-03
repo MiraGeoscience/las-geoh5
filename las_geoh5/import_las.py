@@ -14,6 +14,7 @@ import numpy as np
 from geoh5py import Workspace
 from geoh5py.groups import DrillholeGroup, PropertyGroup
 from geoh5py.objects import Drillhole
+from geoh5py.shared import Entity
 from tqdm import tqdm
 
 
@@ -159,7 +160,7 @@ def add_data(
             kwargs["type"] = "referenced"
 
         existing_data = drillhole.workspace.get_entity(name)[0]
-        if existing_data:
+        if existing_data and isinstance(existing_data, Entity):
             kwargs["entity_type"] = existing_data.entity_type
 
         drillhole.add_data({name: kwargs}, property_group=property_group)
@@ -176,7 +177,7 @@ def create_or_append_drillhole(
     """
     Create a drillhole or append data to drillhole if it exists in workspace.
 
-    :param workspace: Project workspace.
+    :param workspace: Project workspace opened with read/write access.
     :param lasfile: Las file object.
     :param drillhole_group: Drillhole group container.
     :param group_name: Property group name.
