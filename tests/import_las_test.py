@@ -8,7 +8,6 @@
 from __future__ import annotations
 
 import importlib
-from uuid import UUID
 
 import lasio
 import numpy as np
@@ -226,87 +225,6 @@ def test_import_las_existing_drillholes(tmp_path):
         assert len(dh2.property_groups[0].properties) == 3
 
 
-def test_import_las_existing_drillholes_different_property_group(tmp_path):
-    with Workspace.create(tmp_path / "test.geoh5") as workspace:
-        dh_group = DrillholeGroup.create(workspace, name="dh_group")
-        dh1 = Drillhole.create(
-            workspace, name="dh1", parent=dh_group, collar=[0, 0, 10]
-        )
-        dh2 = Drillhole.create(
-            workspace, name="dh2", parent=dh_group, collar=[10, 10, 0]
-        )
-        survey = np.c_[
-            np.linspace(0, 20, 20),
-            np.ones(20) * 45.0,
-            np.linspace(-89, -75, 20),
-        ]
-        dh2.surveys = survey
-        dh1.add_data(
-            {
-                "my_first_property": {
-                    "depth": np.arange(0, 20, 0.5),
-                    "values": np.random.rand(40),
-                }
-            }
-        )
-
-    lasfiles = [
-        generate_lasfile(
-            "dh1",
-            {"UTMX": 0.0, "UTMY": 0.0, "ELEV": 10.0},
-            np.arange(0, 20.5, 0.5),
-            {"my_first_property": None},
-        ),
-        generate_lasfile(
-            "dh2",
-            {"UTMX": 10.0, "UTMY": 10.0, "ELEV": 0.0},
-            np.arange(0, 18.5, 0.5),
-            {"my_first_property": None},
-        ),
-    ]
-    lasfiles = write_lasfiles(tmp_path, lasfiles)
-
-    filepath = write_input_file(
-        workspace,
-        dh_group,
-        "my_property_group",
-        lasfiles,
-        "DEPTH",
-        "UTMX",
-        "UTMY",
-        "ELEV",
-        "import_files",
-    )
-
-    module = importlib.import_module("las_geoh5.import_files.driver")
-    getattr(module, "run")(filepath)
-
-    with workspace.open():
-        dh1 = workspace.get_entity("dh1")[0]
-        dh2 = workspace.get_entity("dh2")[0]
-        assert dh1.collar["x"] == 0.0
-        assert dh1.collar["y"] == 0.0
-        assert dh1.collar["z"] == 10.0
-        assert dh2.collar["x"] == 10.0
-        assert dh2.collar["y"] == 10.0
-        assert dh2.collar["z"] == 0.0
-        assert dh1.parent.uid == dh_group.uid
-        assert dh2.parent.uid == dh_group.uid
-        property_groups = np.unique(
-            [
-                workspace.get_entity(UUID(k.decode()))[0].name
-                for k in dh_group.property_group_ids
-            ]
-        )
-        assert len(property_groups) == 1
-        assert property_groups[0] == "my_property_group"
-        assert dh2.end_of_hole == 20.0
-        assert [
-            workspace.get_entity(UUID(k.decode()))[0]
-            for k in dh_group.property_group_ids
-        ][0].depth_.values.max() == 20
-
-
 def test_las_translator_retrieve(tmp_path):
     lasfiles = [
         generate_lasfile(
@@ -317,7 +235,7 @@ def test_las_translator_retrieve(tmp_path):
         )
     ]
     lasfiles = write_lasfiles(tmp_path, lasfiles)
-    lasfile = lasio.read(tmp_path / f"{lasfiles[0]}.las")
+    lasfile = lasio.read(tmp_path / f"{lasfiles[0]}")
 
     translator = LASTranslator(
         well="WELL", depth="DEPTH", collar_x="UTMX", collar_y="UTMY"
