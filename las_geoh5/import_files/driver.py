@@ -19,7 +19,7 @@ from las_geoh5.import_las import LASTranslator, las_to_drillhole
 def run(file: str):
     ifile = InputFile.read_ui_json(file)
 
-    # TODO: Once fix implemented in geohh5py can revert back to simply pulling
+    # TODO: Once fix implemented in geoh5py can revert back to simply pulling
     # drillhole group from input file rather that using get_entity.
     # dh_group = ifile.data["drillhole_group"]
 

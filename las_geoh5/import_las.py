@@ -124,10 +124,17 @@ def get_collar(
         try:
             collar.append(translator.retrieve(field, lasfile))
         except KeyError:
+            exclusions = ["STRT", "STOP", "STEP", "NULL"]
+            options = [
+                k.mnemonic
+                for k in lasfile.well
+                if k.value and k.mnemonic not in exclusions
+            ]
             warnings.warn(
                 f"{field.replace('_', ' ').capitalize()} field "
                 f"'{getattr(translator, field)}' not found in las file."
-                f"Setting coordinate to 0.0)"
+                f" Setting coordinate to 0.0. Non-null header fields include: "
+                f"{options}."
             )
 
             collar.append(0.0)

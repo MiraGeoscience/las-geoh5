@@ -50,7 +50,10 @@ def test_get_collar():
     lasfile = lasio.LASFile()
     lasfile.well.append(lasio.HeaderItem(mnemonic="X", value=10.0))
     lasfile.well.append(lasio.HeaderItem(mnemonic="Y", value=10.0))
-    msg = "Collar z field 'ELEV' not found in las file."
+    msg = (
+        "Collar z field 'ELEV' not found in las file. Setting coordinate to 0.0. "
+        r"Non-null header fields include: \['X', 'Y'\]."
+    )
     with pytest.warns(UserWarning, match=msg):
         get_collar(lasfile)
     assert np.allclose(get_collar(lasfile), [10.0, 10.0, 0.0])
