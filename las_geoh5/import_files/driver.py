@@ -25,6 +25,8 @@ def run(file: str):
 
     name = ifile.data["name"]
     files = ifile.data["files"]
+    if not isinstance(files, list):
+        files = [files]
     files = [lasio.read(file, mnemonic_case="preserve") for file in files]
     translator = LASTranslator(
         depth=ifile.data["depths_name"],
