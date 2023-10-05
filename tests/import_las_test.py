@@ -73,7 +73,7 @@ def write_input_file(  # pylint: disable=too-many-arguments
                 "geoh5": workspace,
                 "drillhole_group": drillhole_group,
                 "name": property_group_name,
-                "files": files,
+                "files": ";".join(files),
                 "depths_name": depths_name,
                 "collar_x_name": x_collar_name,
                 "collar_y_name": y_collar_name,
