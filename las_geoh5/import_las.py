@@ -124,9 +124,15 @@ def get_collar(
         try:
             collar.append(translator.retrieve(field, lasfile))
         except KeyError:
-            break
+            warnings.warn(
+                f"{field.replace('_', ' ').capitalize()} field "
+                f"'{getattr(translator, field)}' not found in las file."
+                f"Setting coordinate to 0.0)"
+            )
 
-    return collar if len(collar) == 3 else None
+            collar.append(0.0)
+
+    return collar
 
 
 def find_copy_name(workspace: Workspace, basename: str, start: int = 1):
