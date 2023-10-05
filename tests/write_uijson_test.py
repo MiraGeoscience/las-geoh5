@@ -7,6 +7,8 @@
 
 from las_geoh5.uijson.write_uijson import main
 
+# pylint: disable=R0801
+
 
 def test_write_ui_json(tmp_path):
     main([str(tmp_path), "export_directories"])
