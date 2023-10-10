@@ -14,7 +14,66 @@ import numpy as np
 from geoh5py import Workspace
 from geoh5py.groups import DrillholeGroup, PropertyGroup
 from geoh5py.objects import Drillhole
+from geoh5py.shared import Entity
 from tqdm import tqdm
+
+
+class LASTranslator:
+    """Translator for the weakly standardized LAS file standard."""
+
+    las_geoh5_standard = {
+        "well": "WELL",
+        "depth": "DEPTH",
+        "collar_x": "X",
+        "collar_y": "Y",
+        "collar_z": "ELEV",
+    }
+
+    def __init__(
+        self,
+        well: str = las_geoh5_standard["well"],
+        depth: str = las_geoh5_standard["depth"],
+        collar_x: str = las_geoh5_standard["collar_x"],
+        collar_y: str = las_geoh5_standard["collar_y"],
+        collar_z: str = las_geoh5_standard["collar_z"],
+    ):
+        self.well = well
+        self.depth = depth
+        self.collar_x = collar_x
+        self.collar_y = collar_y
+        self.collar_z = collar_z
+
+    def translate(self, field: str):
+        """
+        Return translated field name or rais KeyError if field not recognized.
+
+        :param field: Standardized field name.
+        :return: Name of corresponding field in las file.
+        """
+        if field not in self.las_geoh5_standard:
+            raise KeyError(f"'{field}' is not a recognized field.")
+
+        return getattr(self, field)
+
+    def retrieve(self, field, lasfile):
+        """
+        Access las data using translation.
+
+        :param field: Name of field to retrieve.
+        :param lasfile: lasio file object.
+        :return: data stored in las file under translated field name.
+        """
+        if getattr(self, field) in lasfile.well:
+            out = lasfile.well[getattr(self, field)].value
+        elif getattr(self, field) in lasfile.curves:
+            out = lasfile.curves[getattr(self, field)].data
+        elif getattr(self, field) in lasfile.params:
+            out = lasfile.params[getattr(self, field)].value
+        else:
+            msg = f"'{field}' field: '{getattr(self, field)}' not found in las file."
+            raise KeyError(msg)
+
+        return out
 
 
 def get_depths(lasfile: lasio.LASFile) -> dict[str, np.ndarray]:
@@ -46,7 +105,9 @@ def get_depths(lasfile: lasio.LASFile) -> dict[str, np.ndarray]:
     return out
 
 
-def get_collar(lasfile: lasio.LASFile) -> list | None:
+def get_collar(
+    lasfile: lasio.LASFile, translator: LASTranslator | None = None
+) -> list | None:
     """
     Returns collar data from las file or None if data missing.
 
@@ -54,15 +115,31 @@ def get_collar(lasfile: lasio.LASFile) -> list | None:
 
     :return: Collar data.
     """
+
+    if translator is None:
+        translator = LASTranslator()
+
     collar = []
-    for attr in ["X", "Y", "ELEV"]:
-        if hasattr(lasfile.well, attr):
-            collar.append(lasfile.well[attr].value)
+    for field in ["collar_x", "collar_y", "collar_z"]:
+        try:
+            collar.append(translator.retrieve(field, lasfile))
+        except KeyError:
+            exclusions = ["STRT", "STOP", "STEP", "NULL"]
+            options = [
+                k.mnemonic
+                for k in lasfile.well
+                if k.value and k.mnemonic not in exclusions
+            ]
+            warnings.warn(
+                f"{field.replace('_', ' ').capitalize()} field "
+                f"'{getattr(translator, field)}' not found in las file."
+                f" Setting coordinate to 0.0. Non-null header fields include: "
+                f"{options}."
+            )
 
-        else:
-            break
+            collar.append(0.0)
 
-    return collar if len(collar) == 3 else None
+    return collar
 
 
 def find_copy_name(workspace: Workspace, basename: str, start: int = 1):
@@ -143,6 +220,8 @@ def add_data(
     ]:
         name = curve.mnemonic
         if drillhole.get_data(name):
+            msg = f"Drillhole '{drillhole.name}' already contains '{name}' data"
+            warnings.warn(msg)
             continue
 
         kwargs["values"] = curve.data
@@ -159,7 +238,7 @@ def add_data(
             kwargs["type"] = "referenced"
 
         existing_data = drillhole.workspace.get_entity(name)[0]
-        if existing_data:
+        if existing_data and isinstance(existing_data, Entity):
             kwargs["entity_type"] = existing_data.entity_type
 
         drillhole.add_data({name: kwargs}, property_group=property_group)
@@ -172,11 +251,12 @@ def create_or_append_drillhole(
     lasfile: lasio.LASFile,
     drillhole_group: DrillholeGroup,
     group_name: str | None = None,
+    translator: LASTranslator | None = None,
 ) -> Drillhole:
     """
     Create a drillhole or append data to drillhole if it exists in workspace.
 
-    :param workspace: Project workspace.
+    :param workspace: Project workspace opened with read/write access.
     :param lasfile: Las file object.
     :param drillhole_group: Drillhole group container.
     :param group_name: Property group name.
@@ -184,8 +264,11 @@ def create_or_append_drillhole(
     :return: Created or augmented drillhole.
     """
 
-    name = lasfile.well["WELL"].value
-    collar = get_collar(lasfile)
+    if translator is None:
+        translator = LASTranslator()
+
+    name = translator.retrieve("well", lasfile)
+    collar = get_collar(lasfile, translator)
     drillhole = drillhole_group.get_entity(name)[0]  # type: ignore
 
     if not isinstance(drillhole, Drillhole) or (
@@ -222,6 +305,7 @@ def las_to_drillhole(
     drillhole_group: DrillholeGroup,
     property_group: str | None = None,
     survey: Path | list[Path] | None = None,
+    translator: LASTranslator | None = None,
 ) -> Drillhole:
     """
     Import a las file containing collocated datasets for a single drillhole.
@@ -239,10 +323,12 @@ def las_to_drillhole(
         data = [data]
     if not isinstance(survey, list):
         survey = [survey] if survey else []
+    if translator is None:
+        translator = LASTranslator()
 
     for datum in tqdm(data):
         drillhole = create_or_append_drillhole(
-            workspace, datum, drillhole_group, property_group
+            workspace, datum, drillhole_group, property_group, translator=translator
         )
         ind = [drillhole.name == s.name.rstrip(".las") for s in survey]
         if any(ind):
