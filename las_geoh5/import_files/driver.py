@@ -33,7 +33,7 @@ def run(file: str):
         collar_z=ifile.data["collar_z_name"],
     )
     with fetch_active_workspace(ifile.data["geoh5"], mode="a") as workspace:
-        dh_group = ifile.workspace.get_entity(ifile.data["drillhole_group"].name)[0]
+        dh_group = ifile.workspace.get_entity(ifile.data["drillhole_group"].uid)[0]
         las_to_drillhole(workspace, files, dh_group, name, translator=translator)
 
 
