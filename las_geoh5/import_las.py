@@ -105,9 +105,7 @@ def get_depths(lasfile: lasio.LASFile) -> dict[str, np.ndarray]:
     return out
 
 
-def get_collar(
-    lasfile: lasio.LASFile, translator: LASTranslator | None = None
-) -> list | None:
+def get_collar(lasfile: lasio.LASFile, translator: LASTranslator | None = None) -> list:
     """
     Returns collar data from las file or None if data missing.
 
@@ -121,8 +119,9 @@ def get_collar(
 
     collar = []
     for field in ["collar_x", "collar_y", "collar_z"]:
+        collar_coord = 0.0
         try:
-            collar.append(translator.retrieve(field, lasfile))
+            collar_coord = translator.retrieve(field, lasfile)
         except KeyError:
             exclusions = ["STRT", "STOP", "STEP", "NULL"]
             options = [
@@ -137,6 +136,11 @@ def get_collar(
                 f"{options}."
             )
 
+            collar_coord = 0.0
+
+        try:
+            collar.append(float(collar_coord))
+        except ValueError:
             collar.append(0.0)
 
     return collar
@@ -306,6 +310,7 @@ def las_to_drillhole(
     property_group: str | None = None,
     survey: Path | list[Path] | None = None,
     translator: LASTranslator | None = None,
+    skip_empty_header: bool = False,
 ) -> Drillhole:
     """
     Import a las file containing collocated datasets for a single drillhole.
@@ -327,6 +332,10 @@ def las_to_drillhole(
         translator = LASTranslator()
 
     for datum in tqdm(data):
+        collar = get_collar(datum, translator)
+        if all(k == 0 for k in collar) and skip_empty_header:
+            continue
+
         drillhole = create_or_append_drillhole(
             workspace, datum, drillhole_group, property_group, translator=translator
         )

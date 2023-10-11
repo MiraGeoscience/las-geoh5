@@ -32,9 +32,17 @@ def run(file: str):
         collar_y=ifile.data["collar_y_name"],
         collar_z=ifile.data["collar_z_name"],
     )
+    skip_empty_header = ifile.data["skip_empty_header"]
     with fetch_active_workspace(ifile.data["geoh5"], mode="a") as workspace:
         dh_group = ifile.workspace.get_entity(ifile.data["drillhole_group"].uid)[0]
-        las_to_drillhole(workspace, files, dh_group, name, translator=translator)
+        las_to_drillhole(
+            workspace,
+            files,
+            dh_group,
+            name,
+            translator=translator,
+            skip_empty_header=skip_empty_header,
+        )
 
 
 def import_las_files(workspace, dh_group, property_group_name, files):
