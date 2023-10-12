@@ -37,13 +37,9 @@ def run(file: str):
     start = time()
     ifile = InputFile.read_ui_json(file)
 
-    # TODO: Once fix implemented in geoh5py can revert back to simply pulling
-    # drillhole group from input file rather that using get_entity.
-    # dh_group = ifile.data["drillhole_group"]
-
     geoh5 = ifile.data["geoh5"]
     print(f"Importing las file data to workspace {geoh5.h5file.stem} . . .")
-    drillhole_group = ifile.data["drillhole_group"]
+    dh_group = ifile.data["drillhole_group"]
     name = ifile.data["name"]
     files = ifile.data["files"].split(";")
     begin_loading = time()
@@ -59,10 +55,9 @@ def run(file: str):
     )
     skip_empty_header = ifile.data["skip_empty_header"]
     with fetch_active_workspace(ifile.data["geoh5"], mode="a") as workspace:
-        dh_group = ifile.workspace.get_entity(drillhole_group.uid)[0]
         begin_saving = time()
         print(
-            f"Saving drillhole data into drillhole group {drillhole_group.name} "
+            f"Saving drillhole data into drillhole group {dh_group.name} "
             f"under property group {name}. . ."
         )
         las_to_drillhole(
