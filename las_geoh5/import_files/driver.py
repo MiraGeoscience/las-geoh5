@@ -40,7 +40,9 @@ def run(file: str):
         f"Importing las file data to workspace {ifile.data['geoh5'].h5file.stem} . . ."
     )
 
-    dh_group = ifile.data["drillhole_group"]
+    workspace = ifile.data["geoh5"]
+    # dh_group = ifile.data["drillhole_group"]
+    dh_group = workspace.get_entity(ifile.data["drillhole_group"].uid)[0]
     name = ifile.data["name"]
     files = ifile.data["files"].split(";")
     translator = LASTranslator(

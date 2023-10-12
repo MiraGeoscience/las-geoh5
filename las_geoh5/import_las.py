@@ -85,11 +85,13 @@ def get_depths(lasfile: lasio.LASFile) -> dict[str, np.ndarray]:
     :return: Depth data as 'from-to' interval or 'depth' locations.
     """
 
-    if "DEPTH" in lasfile.curves:
-        depths = lasfile["DEPTH"]
-    elif "DEPT" in lasfile.curves:
-        depths = lasfile["DEPT"]
-    else:
+    depths = None
+    for k in ["DEPTH", "DEPT", "Depth", "Dept"]:
+        if k in lasfile.curves:
+            depths = lasfile[k]
+            break
+
+    if depths is None:
         raise KeyError(
             "In order to import data to geoh5py format, .las files "
             "must contain a depth curve named 'DEPTH' or 'DEPT'."
