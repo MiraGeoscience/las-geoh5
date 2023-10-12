@@ -17,6 +17,7 @@ from geoh5py.groups import DrillholeGroup
 from geoh5py.objects import Drillhole
 from geoh5py.ui_json import InputFile
 
+from las_geoh5.import_files.driver import elapsed_time_logger
 from las_geoh5.import_las import LASTranslator
 
 
@@ -256,3 +257,14 @@ def test_las_translator_translate():
     assert translator.translate("collar_x") == "UTMX"
     with pytest.raises(KeyError, match="'not_a_field' is not a recognized field."):
         translator.translate("not_a_field")
+
+
+def test_elapsed_time_logger():
+    msg = elapsed_time_logger(0, 90, "Finished some task")
+    assert msg == "Finished some task. Time elapsed: 1m 30s."
+    msg = elapsed_time_logger(0, 59, "Finished another task.")
+    assert msg == "Finished another task. Time elapsed: 59.00s."
+    msg = elapsed_time_logger(0, 0.0001, "Done another task.")
+    assert msg == "Done another task. Time elapsed: 0.00s."
+    msg = elapsed_time_logger(0, 0.2345, "Boy I'm getting a lot done.")
+    assert msg == "Boy I'm getting a lot done. Time elapsed: 0.23s."
