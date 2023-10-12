@@ -36,17 +36,13 @@ def elapsed_time_logger(start, end, message):
 def run(file: str):
     start = time()
     ifile = InputFile.read_ui_json(file)
+    print(
+        f"Importing las file data to workspace {ifile.data['geoh5'].h5file.stem} . . ."
+    )
 
-    geoh5 = ifile.data["geoh5"]
-    print(f"Importing las file data to workspace {geoh5.h5file.stem} . . .")
     dh_group = ifile.data["drillhole_group"]
     name = ifile.data["name"]
     files = ifile.data["files"].split(";")
-    begin_loading = time()
-    print("Loading las files . . .")
-    files = [lasio.read(file, mnemonic_case="preserve") for file in files]
-    end_loading = time()
-    print(elapsed_time_logger(begin_loading, end_loading, "Finished loading las files"))
     translator = LASTranslator(
         depth=ifile.data["depths_name"],
         collar_x=ifile.data["collar_x_name"],
@@ -54,12 +50,19 @@ def run(file: str):
         collar_z=ifile.data["collar_z_name"],
     )
     skip_empty_header = ifile.data["skip_empty_header"]
+
+    print("Loading las files . . .")
+    begin_loading = time()
+    files = [lasio.read(file, mnemonic_case="preserve") for file in files]
+    end_loading = time()
+    print(elapsed_time_logger(begin_loading, end_loading, "Finished loading las files"))
+
     with fetch_active_workspace(ifile.data["geoh5"], mode="a") as workspace:
-        begin_saving = time()
         print(
             f"Saving drillhole data into drillhole group {dh_group.name} "
             f"under property group {name}. . ."
         )
+        begin_saving = time()
         las_to_drillhole(
             workspace,
             files,
@@ -69,7 +72,6 @@ def run(file: str):
             skip_empty_header=skip_empty_header,
         )
         end_saving = time()
-
         print(
             elapsed_time_logger(
                 begin_saving, end_saving, "Finished saving drillhole data"
@@ -78,12 +80,6 @@ def run(file: str):
 
     end = time()
     print(elapsed_time_logger(start, end, "All done."))
-
-
-def import_las_files(workspace, dh_group, property_group_name, files):
-    for file in files:
-        lasfile = lasio.read(file)
-        las_to_drillhole(workspace, lasfile, dh_group, property_group_name)
 
 
 if __name__ == "__main__":
