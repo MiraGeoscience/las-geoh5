@@ -8,6 +8,7 @@
 from __future__ import annotations
 
 import sys
+from multiprocessing import Pool
 from time import time
 
 import lasio
@@ -55,14 +56,18 @@ def run(file: str):
     )
     skip_empty_header = ifile.data["skip_empty_header"]
 
-    print("Loading las files . . .")
-    begin_loading = time()
-    lasfiles = []
-    for file in tqdm(files):
-        lasfiles.append(lasio.read(file, mnemonic_case="preserve"))
-    # files = [lasio.read(file, mnemonic_case="preserve") for file in files]
-    end_loading = time()
-    print(elapsed_time_logger(begin_loading, end_loading, "Finished loading las files"))
+    print("Reading las files . . .")
+    begin_reading = time()
+    with Pool() as pool:
+        futures = []
+        for file in tqdm(files):
+            futures.append(
+                pool.apply_async(lasio.read, (file,), {"mnemonic_case": "preserve"})
+            )
+
+        lasfiles = [future.get() for future in futures]
+    end_reading = time()
+    print(elapsed_time_logger(begin_reading, end_reading, "Finished reading las files"))
 
     with fetch_active_workspace(ifile.data["geoh5"], mode="a") as geoh5:
         dh_group = geoh5.get_entity(ifile.data["drillhole_group"].uid)[0]
