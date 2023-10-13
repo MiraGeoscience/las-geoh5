@@ -11,8 +11,10 @@ import sys
 from time import time
 
 import lasio
+from geoh5py import Workspace
 from geoh5py.shared.utils import fetch_active_workspace
 from geoh5py.ui_json import InputFile
+from tqdm import tqdm
 
 from las_geoh5.import_las import LASTranslator, las_to_drillhole
 
@@ -40,9 +42,9 @@ def run(file: str):
         f"Importing las file data to workspace {ifile.data['geoh5'].h5file.stem} . . ."
     )
 
-    workspace = ifile.data["geoh5"]
+    workspace = Workspace()
+
     # dh_group = ifile.data["drillhole_group"]
-    dh_group = workspace.get_entity(ifile.data["drillhole_group"].uid)[0]
     name = ifile.data["name"]
     files = ifile.data["files"].split(";")
     translator = LASTranslator(
@@ -55,11 +57,16 @@ def run(file: str):
 
     print("Loading las files . . .")
     begin_loading = time()
-    files = [lasio.read(file, mnemonic_case="preserve") for file in files]
+    lasfiles = []
+    for file in tqdm(files):
+        lasfiles.append(lasio.read(file, mnemonic_case="preserve"))
+    # files = [lasio.read(file, mnemonic_case="preserve") for file in files]
     end_loading = time()
     print(elapsed_time_logger(begin_loading, end_loading, "Finished loading las files"))
 
-    with fetch_active_workspace(ifile.data["geoh5"], mode="a") as workspace:
+    with fetch_active_workspace(ifile.data["geoh5"], mode="a") as geoh5:
+        dh_group = geoh5.get_entity(ifile.data["drillhole_group"].uid)[0]
+        dh_group = dh_group.copy(parent=workspace, copy_children=True)
         print(
             f"Saving drillhole data into drillhole group {dh_group.name} "
             f"under property group {name}. . ."
@@ -67,7 +74,7 @@ def run(file: str):
         begin_saving = time()
         las_to_drillhole(
             workspace,
-            files,
+            lasfiles,
             dh_group,
             name,
             translator=translator,
@@ -82,6 +89,10 @@ def run(file: str):
 
     end = time()
     print(elapsed_time_logger(start, end, "All done."))
+
+    geoh5_path = geoh5.h5file
+    geoh5_path.unlink()
+    workspace.save_as(geoh5_path)
 
 
 if __name__ == "__main__":
