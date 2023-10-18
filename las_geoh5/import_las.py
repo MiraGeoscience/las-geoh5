@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import warnings
 from pathlib import Path
+from typing import Any
 
 import lasio
 import numpy as np
@@ -220,7 +221,8 @@ def add_data(
     :return: Updated drillhole object.
     """
 
-    kwargs = get_depths(lasfile)
+    depths = get_depths(lasfile)
+    kwargs: dict[str, Any] = dict(**depths)
     for curve in [
         k for k in lasfile.curves if k.mnemonic not in ["DEPT", "DEPTH", "TO"]
     ]:
@@ -312,7 +314,7 @@ def create_or_append_drillhole(
     return drillhole
 
 
-def las_to_drillhole(
+def las_to_drillhole(  # pylint: disable=too-many-arguments
     workspace: Workspace,
     data: lasio.LASFile | list[lasio.LASFile],
     drillhole_group: DrillholeGroup,
@@ -320,7 +322,7 @@ def las_to_drillhole(
     survey: Path | list[Path] | None = None,
     translator: LASTranslator | None = None,
     skip_empty_header: bool = False,
-) -> Drillhole:
+):
     """
     Import a las file containing collocated datasets for a single drillhole.
 
@@ -352,5 +354,3 @@ def las_to_drillhole(
         if any(ind):
             survey_path = survey[np.where(ind)[0][0]]
             drillhole = add_survey(survey_path, drillhole)
-
-    return drillhole
