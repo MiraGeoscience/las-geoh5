@@ -222,7 +222,7 @@ def add_data(
     """
 
     depths = get_depths(lasfile)
-    kwargs: dict[str, Any] = dict(**depths)
+    kwargs: dict[str, Any] = {**depths}
     for curve in [
         k for k in lasfile.curves if k.mnemonic not in ["DEPT", "DEPTH", "TO"]
     ]:
@@ -342,6 +342,7 @@ def las_to_drillhole(  # pylint: disable=too-many-arguments
     if translator is None:
         translator = LASTranslator()
 
+    drillhole = None
     for datum in tqdm(data):
         collar = get_collar(datum, translator)
         if all(k == 0 for k in collar) and skip_empty_header:
@@ -354,3 +355,5 @@ def las_to_drillhole(  # pylint: disable=too-many-arguments
         if any(ind):
             survey_path = survey[np.where(ind)[0][0]]
             drillhole = add_survey(survey_path, drillhole)
+
+    return drillhole

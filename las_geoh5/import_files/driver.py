@@ -69,7 +69,7 @@ def run(filepath: str):  # pylint: disable=too-many-locals
             f"under property group {ifile.data['name']}. . ."
         )
         begin_saving = time()
-        las_to_drillhole(
+        _ = las_to_drillhole(
             geoh5,
             lasfiles,
             dh_group,
