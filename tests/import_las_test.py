@@ -171,9 +171,6 @@ def test_import_las_existing_drillholes(tmp_path):
             np.linspace(-89, -75, 20),
         ]
         dh2.surveys = survey
-        property_group = dh1.find_or_create_property_group(
-            name="my_property_group", association="DEPTH"
-        )
         dh1.add_data(
             {
                 "my_other_property": {
@@ -181,7 +178,7 @@ def test_import_las_existing_drillholes(tmp_path):
                     "values": np.random.rand(11),
                 },
             },
-            property_group=property_group,
+            property_group="my_property_group",
         )
 
     lasfiles = write_lasfiles(tmp_path, TEST_FILES)

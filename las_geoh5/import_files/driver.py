@@ -12,6 +12,7 @@ from multiprocessing import Pool
 from time import time
 
 import lasio
+from geoh5py import Workspace
 from geoh5py.shared.utils import fetch_active_workspace
 from geoh5py.ui_json import InputFile
 from tqdm import tqdm
@@ -62,15 +63,17 @@ def run(filepath: str):  # pylint: disable=too-many-locals
     end_reading = time()
     print(elapsed_time_logger(begin_reading, end_reading, "Finished reading las files"))
 
+    workspace = Workspace()
     with fetch_active_workspace(ifile.data["geoh5"], mode="a") as geoh5:
         dh_group = geoh5.get_entity(ifile.data["drillhole_group"].uid)[0]
+        dh_group = dh_group.copy(parent=workspace, copy_children=True)
         print(
             f"Saving drillhole data into drillhole group {dh_group.name} "
             f"under property group {ifile.data['name']}. . ."
         )
         begin_saving = time()
         _ = las_to_drillhole(
-            geoh5,
+            workspace,
             lasfiles,
             dh_group,
             ifile.data["name"],
@@ -86,6 +89,10 @@ def run(filepath: str):  # pylint: disable=too-many-locals
 
     end = time()
     print(elapsed_time_logger(start, end, "All done."))
+
+    geoh5_path = geoh5.h5file
+    geoh5_path.unlink()
+    workspace.save_as(geoh5_path)
 
 
 if __name__ == "__main__":
