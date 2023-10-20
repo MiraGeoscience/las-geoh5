@@ -7,6 +7,7 @@
 
 from __future__ import annotations
 
+import logging
 import sys
 from multiprocessing import Pool
 from time import time
@@ -17,6 +18,12 @@ from geoh5py.ui_json import InputFile
 from tqdm import tqdm
 
 from las_geoh5.import_las import LASTranslator, las_to_drillhole
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("Import Files")
+stream_handler = logging.StreamHandler()
+stream_handler.setLevel(logging.INFO)
+logger.addHandler(stream_handler)
 
 
 def elapsed_time_logger(start, end, message):
@@ -38,8 +45,9 @@ def elapsed_time_logger(start, end, message):
 def run(filepath: str):  # pylint: disable=too-many-locals
     start = time()
     ifile = InputFile.read_ui_json(filepath)
-    print(
-        f"Importing las file data to workspace {ifile.data['geoh5'].h5file.stem} . . ."
+
+    logger.info(
+        f"Importing las file data to workspace {ifile.data['geoh5'].h5file.stem}."
     )
 
     translator = LASTranslator(
