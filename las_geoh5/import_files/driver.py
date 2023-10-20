@@ -19,10 +19,12 @@ from tqdm import tqdm
 
 from las_geoh5.import_las import LASTranslator, las_to_drillhole
 
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("Import Files")
+logger.setLevel(logging.INFO)
 stream_handler = logging.StreamHandler()
 stream_handler.setLevel(logging.INFO)
+formatter = logging.Formatter("%(asctime)s : %(name)s : %(levelname)s : %(message)s")
+stream_handler.setFormatter(formatter)
 logger.addHandler(stream_handler)
 
 
@@ -47,7 +49,7 @@ def run(filepath: str):  # pylint: disable=too-many-locals
     ifile = InputFile.read_ui_json(filepath)
 
     logger.info(
-        f"Importing las file data to workspace {ifile.data['geoh5'].h5file.stem}."
+        "Importing las file data to workspace %s.", ifile.data["geoh5"].h5file.stem
     )
 
     translator = LASTranslator(
@@ -74,8 +76,9 @@ def run(filepath: str):  # pylint: disable=too-many-locals
     with fetch_active_workspace(ifile.data["geoh5"], mode="a") as geoh5:
         dh_group = geoh5.get_entity(ifile.data["drillhole_group"].uid)[0]
         logger.info(
-            f"Saving drillhole data into drillhole group {dh_group.name} "
-            f"under property group {ifile.data['name']}"
+            "Saving drillhole data into drillhole group %s under property group %s",
+            dh_group.name,
+            ifile.data["name"],
         )
         begin_saving = time()
         _ = las_to_drillhole(

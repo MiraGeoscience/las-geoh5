@@ -93,7 +93,7 @@ def get_depths(lasfile: lasio.LASFile) -> dict[str, np.ndarray]:
             break
 
     if depths is None:
-        raise KeyError(
+        raise ValueError(
             "In order to import data to geoh5py format, .las files "
             "must contain a depth curve named 'DEPTH' or 'DEPT'."
         )
@@ -249,14 +249,15 @@ def add_data(
         if existing_data and isinstance(existing_data, Entity):
             kwargs["entity_type"] = existing_data.entity_type
 
-        try:
-            drillhole.add_data({name: kwargs}, property_group=property_group)
-        except ValueError as err:
-            msg = (
-                f"ValueError raised trying to add data '{name}' to "
-                f"drillhole '{drillhole.name}' with message:\n{err.args[0]}."
-            )
-            warnings.warn(msg)
+        drillhole.add_data({name: kwargs}, property_group=property_group)
+        # try:
+        #     drillhole.add_data({name: kwargs}, property_group=property_group)
+        # except ValueError as err:
+        #     msg = (
+        #         f"ValueError raised trying to add data '{name}' to "
+        #         f"drillhole '{drillhole.name}' with message:\n{err.args[0]}."
+        #     )
+        #     warnings.warn(msg)
 
     return drillhole
 
