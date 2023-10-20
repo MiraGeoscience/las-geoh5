@@ -57,24 +57,25 @@ def run(filepath: str):  # pylint: disable=too-many-locals
         collar_z=ifile.data["collar_z_name"],
     )
 
-    print("Reading las files . . .")
     begin_reading = time()
     with Pool() as pool:
         futures = []
-        for file in tqdm(ifile.data["files"].split(";")):
+        for file in tqdm(ifile.data["files"].split(";"), desc="Reading las files"):
             futures.append(
                 pool.apply_async(lasio.read, (file,), {"mnemonic_case": "preserve"})
             )
 
         lasfiles = [future.get() for future in futures]
     end_reading = time()
-    print(elapsed_time_logger(begin_reading, end_reading, "Finished reading las files"))
+    logger.info(
+        elapsed_time_logger(begin_reading, end_reading, "Finished reading las files")
+    )
 
     with fetch_active_workspace(ifile.data["geoh5"], mode="a") as geoh5:
         dh_group = geoh5.get_entity(ifile.data["drillhole_group"].uid)[0]
-        print(
+        logger.info(
             f"Saving drillhole data into drillhole group {dh_group.name} "
-            f"under property group {ifile.data['name']}. . ."
+            f"under property group {ifile.data['name']}"
         )
         begin_saving = time()
         _ = las_to_drillhole(
@@ -86,14 +87,14 @@ def run(filepath: str):  # pylint: disable=too-many-locals
             skip_empty_header=ifile.data["skip_empty_header"],
         )
         end_saving = time()
-        print(
+        logger.info(
             elapsed_time_logger(
                 begin_saving, end_saving, "Finished saving drillhole data"
             )
         )
 
     end = time()
-    print(elapsed_time_logger(start, end, "All done."))
+    logger.info(elapsed_time_logger(start, end, "All done."))
 
 
 if __name__ == "__main__":
