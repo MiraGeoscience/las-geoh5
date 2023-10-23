@@ -42,7 +42,7 @@ def test_get_depths():
     assert "from-to" in depths and len(depths) == 1
     assert np.allclose(depths["from-to"], np.c_[np.arange(0, 10), np.arange(1, 11)])
     lasfile = lasio.LASFile()
-    with pytest.raises(KeyError, match="curve named 'DEPTH' or 'DEPT'."):
+    with pytest.raises(ValueError, match="curve named 'DEPTH' or 'DEPT'."):
         get_depths(lasfile)
 
 
@@ -59,6 +59,28 @@ def test_get_collar():
     assert np.allclose(get_collar(lasfile), [10.0, 10.0, 0.0])
     lasfile.well.append(lasio.HeaderItem(mnemonic="ELEV", value=10.0))
     assert np.allclose(get_collar(lasfile), [10.0, 10.0, 10.0])
+
+
+def test_get_collar_not_in_header():
+    lasfile = lasio.LASFile()
+    lasfile.params.append(lasio.HeaderItem(mnemonic="X", value=10.0))
+    lasfile.params.append(lasio.HeaderItem(mnemonic="Y", value=10.0))
+    lasfile.params.append(lasio.HeaderItem(mnemonic="ELEV", value=10.0))
+    collar = get_collar(lasfile)
+    assert np.allclose(collar, [10.0, 10.0, 10.0])
+
+
+def test_get_collar_skip_non_float():
+    lasfile = lasio.LASFile()
+    lasfile.well.append(lasio.HeaderItem(mnemonic="X", value="10.0"))
+    lasfile.well.append(lasio.HeaderItem(mnemonic="Y", value="10.0"))
+    lasfile.params.append(lasio.HeaderItem(mnemonic="ELEV", value="10.0"))
+    collar = get_collar(lasfile)
+    assert np.allclose(collar, [10.0, 10.0, 10.0])
+    lasfile.well["X"] = "not a float"
+    lasfile.params["ELEV"] = "also not a float"
+    collar = get_collar(lasfile)
+    assert np.allclose(collar, [0.0, 10.0, 0.0])
 
 
 def test_create_or_append_drillhole(tmp_path):
