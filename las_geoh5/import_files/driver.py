@@ -7,17 +7,25 @@
 
 from __future__ import annotations
 
+import logging
 import sys
 from multiprocessing import Pool
 from time import time
 
 import lasio
-from geoh5py import Workspace
 from geoh5py.shared.utils import fetch_active_workspace
 from geoh5py.ui_json import InputFile
 from tqdm import tqdm
 
 from las_geoh5.import_las import LASTranslator, las_to_drillhole
+
+logger = logging.getLogger("Import Files")
+logger.setLevel(logging.INFO)
+stream_handler = logging.StreamHandler()
+stream_handler.setLevel(logging.INFO)
+formatter = logging.Formatter("%(asctime)s : %(name)s : %(levelname)s : %(message)s")
+stream_handler.setFormatter(formatter)
+logger.addHandler(stream_handler)
 
 
 def elapsed_time_logger(start, end, message):
@@ -39,8 +47,9 @@ def elapsed_time_logger(start, end, message):
 def run(filepath: str):  # pylint: disable=too-many-locals
     start = time()
     ifile = InputFile.read_ui_json(filepath)
-    print(
-        f"Importing las file data to workspace {ifile.data['geoh5'].h5file.stem} . . ."
+
+    logger.info(
+        "Importing las file data to workspace %s.", ifile.data["geoh5"].h5file.stem
     )
 
     translator = LASTranslator(
@@ -50,30 +59,30 @@ def run(filepath: str):  # pylint: disable=too-many-locals
         collar_z=ifile.data["collar_z_name"],
     )
 
-    print("Reading las files . . .")
     begin_reading = time()
     with Pool() as pool:
         futures = []
-        for file in tqdm(ifile.data["files"].split(";")):
+        for file in tqdm(ifile.data["files"].split(";"), desc="Reading las files"):
             futures.append(
                 pool.apply_async(lasio.read, (file,), {"mnemonic_case": "preserve"})
             )
 
         lasfiles = [future.get() for future in futures]
     end_reading = time()
-    print(elapsed_time_logger(begin_reading, end_reading, "Finished reading las files"))
+    logger.info(
+        elapsed_time_logger(begin_reading, end_reading, "Finished reading las files")
+    )
 
-    workspace = Workspace()
     with fetch_active_workspace(ifile.data["geoh5"], mode="a") as geoh5:
         dh_group = geoh5.get_entity(ifile.data["drillhole_group"].uid)[0]
-        dh_group = dh_group.copy(parent=workspace, copy_children=True)
-        print(
-            f"Saving drillhole data into drillhole group {dh_group.name} "
-            f"under property group {ifile.data['name']}. . ."
+        logger.info(
+            "Saving drillhole data into drillhole group %s under property group %s",
+            dh_group.name,
+            ifile.data["name"],
         )
         begin_saving = time()
         _ = las_to_drillhole(
-            workspace,
+            geoh5,
             lasfiles,
             dh_group,
             ifile.data["name"],
@@ -81,18 +90,14 @@ def run(filepath: str):  # pylint: disable=too-many-locals
             skip_empty_header=ifile.data["skip_empty_header"],
         )
         end_saving = time()
-        print(
+        logger.info(
             elapsed_time_logger(
                 begin_saving, end_saving, "Finished saving drillhole data"
             )
         )
 
     end = time()
-    print(elapsed_time_logger(start, end, "All done."))
-
-    geoh5_path = geoh5.h5file
-    geoh5_path.unlink()
-    workspace.save_as(geoh5_path)
+    logger.info(elapsed_time_logger(start, end, "All done."))
 
 
 if __name__ == "__main__":

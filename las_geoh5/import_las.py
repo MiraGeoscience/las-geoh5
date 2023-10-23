@@ -93,7 +93,7 @@ def get_depths(lasfile: lasio.LASFile) -> dict[str, np.ndarray]:
             break
 
     if depths is None:
-        raise KeyError(
+        raise ValueError(
             "In order to import data to geoh5py format, .las files "
             "must contain a depth curve named 'DEPTH' or 'DEPT'."
         )
@@ -249,6 +249,7 @@ def add_data(
         if existing_data and isinstance(existing_data, Entity):
             kwargs["entity_type"] = existing_data.entity_type
 
+        # drillhole.add_data({name: kwargs}, property_group=property_group)
         try:
             drillhole.add_data({name: kwargs}, property_group=property_group)
         except ValueError as err:
@@ -275,6 +276,7 @@ def create_or_append_drillhole(
     :param lasfile: Las file object.
     :param drillhole_group: Drillhole group container.
     :param group_name: Property group name.
+    :param translator: Translator for las file.
 
     :return: Created or augmented drillhole.
     """
@@ -331,6 +333,8 @@ def las_to_drillhole(  # pylint: disable=too-many-arguments
     :param drillhole_group: Drillhole group container.
     :param property_group: Property group name.
     :param survey: Path to a survey file stored as .csv or .las format.
+    :param translator: Translator for las file.
+    :param skip_empty_header: Skip empty header data.
 
     :return: A :obj:`geoh5py.objects.Drillhole` object
     """
