@@ -63,6 +63,7 @@ def write_input_file(  # pylint: disable=too-many-arguments
     y_collar_name,
     z_collar_name,
     module_name,
+    skip_empty_header=False,
 ):
     basepath = workspace.h5file.parent
     module = importlib.import_module(f"las_geoh5.{module_name}.uijson")
@@ -79,6 +80,7 @@ def write_input_file(  # pylint: disable=too-many-arguments
                 "collar_x_name": x_collar_name,
                 "collar_y_name": y_collar_name,
                 "collar_z_name": z_collar_name,
+                "skip_empty_header": skip_empty_header,
             }
         )
         ifile.write_ui_json("import_las_files.ui.json", str(basepath))
@@ -268,3 +270,47 @@ def test_elapsed_time_logger():
     assert msg == "Done another task. Time elapsed: 0.00s."
     msg = elapsed_time_logger(0, 0.2345, "Boy I'm getting a lot done.")
     assert msg == "Boy I'm getting a lot done. Time elapsed: 0.23s."
+
+
+def test_skip_empty_header_option(tmp_path):
+    with Workspace.create(tmp_path / "test.geoh5") as workspace:
+        dh_group = DrillholeGroup.create(workspace, name="dh_group")
+
+    files = [
+        generate_lasfile(
+            "dh1",
+            {"UTMX": 0.0, "UTMY": 0.0, "ELEV": 10.0},
+            np.arange(0, 11, 1),
+            {"my_property": np.zeros(11)},
+        ),
+        generate_lasfile(
+            "dh2",
+            {},
+            np.arange(0, 11, 1),
+            {"my_property": np.random.rand(11)},
+        ),
+    ]
+    lasfiles = write_lasfiles(tmp_path, files)
+    filepath = write_input_file(
+        workspace,
+        dh_group,
+        "my_property_group",
+        lasfiles,
+        "DEPTH",
+        "UTMX",
+        "UTMY",
+        "ELEV",
+        "import_files",
+        skip_empty_header=True,
+    )
+
+    module = importlib.import_module("las_geoh5.import_files.driver")
+    getattr(module, "run")(filepath)
+
+    with workspace.open():
+        dh1 = workspace.get_entity("dh1")[0]
+        assert dh1.collar["x"] == 0.0
+        assert dh1.collar["y"] == 0.0
+        assert dh1.collar["z"] == 10.0
+        dh1 = workspace.get_entity("dh2")[0]
+        assert not dh1
