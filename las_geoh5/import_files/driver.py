@@ -13,6 +13,7 @@ from multiprocessing import Pool
 from time import time
 
 import lasio
+from geoh5py import Workspace
 from geoh5py.shared.utils import fetch_active_workspace
 from geoh5py.ui_json import InputFile
 from tqdm import tqdm
@@ -59,6 +60,7 @@ def run(filepath: str):  # pylint: disable=too-many-locals
         collar_z=ifile.data["collar_z_name"],
     )
 
+    workspace = Workspace()
     begin_reading = time()
     with Pool() as pool:
         futures = []
@@ -75,6 +77,7 @@ def run(filepath: str):  # pylint: disable=too-many-locals
 
     with fetch_active_workspace(ifile.data["geoh5"], mode="a") as geoh5:
         dh_group = geoh5.get_entity(ifile.data["drillhole_group"].uid)[0]
+        dh_group = dh_group.copy(parent=workspace)
         logger.info(
             "Saving drillhole data into drillhole group %s under property group %s",
             dh_group.name,
@@ -82,7 +85,7 @@ def run(filepath: str):  # pylint: disable=too-many-locals
         )
         begin_saving = time()
         _ = las_to_drillhole(
-            geoh5,
+            workspace,
             lasfiles,
             dh_group,
             ifile.data["name"],
@@ -98,6 +101,11 @@ def run(filepath: str):  # pylint: disable=too-many-locals
 
     end = time()
     logger.info(elapsed_time_logger(start, end, "All done."))
+
+    geoh5_path = geoh5.h5file
+    geoh5.h5file.unlink()
+    workspace.save_as(geoh5_path)
+    workspace.close()
 
 
 if __name__ == "__main__":
