@@ -87,9 +87,9 @@ def get_depths(lasfile: lasio.LASFile) -> dict[str, np.ndarray]:
     """
 
     depths = None
-    for k in ["DEPTH", "DEPT", "Depth", "Dept"]:
-        if k in lasfile.curves:
-            depths = lasfile[k]
+    for name, curve in lasfile.curves.items():
+        if name.lower() in ["depth", "dept"]:
+            depths = curve.data
             break
 
     if depths is None:
@@ -249,7 +249,6 @@ def add_data(
         if existing_data and isinstance(existing_data, Entity):
             kwargs["entity_type"] = existing_data.entity_type
 
-        # drillhole.add_data({name: kwargs}, property_group=property_group)
         try:
             drillhole.add_data({name: kwargs}, property_group=property_group)
         except ValueError as err:
@@ -258,6 +257,10 @@ def add_data(
                 f"drillhole '{drillhole.name}' with message:\n{err.args[0]}."
             )
             warnings.warn(msg)
+
+        # TODO: Increment property group name if it already exists and the depth
+        # Sampling is different.  Could try removing the try/except block once
+        # done and see if error start to appear.
 
     return drillhole
 
