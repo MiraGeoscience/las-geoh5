@@ -17,6 +17,7 @@ from geoh5py.groups import DrillholeGroup
 from geoh5py.objects import Drillhole
 from geoh5py.ui_json import InputFile
 
+from las_geoh5.import_files.driver import elapsed_time_logger
 from las_geoh5.import_las import LASTranslator
 
 
@@ -62,6 +63,7 @@ def write_input_file(  # pylint: disable=too-many-arguments
     y_collar_name,
     z_collar_name,
     module_name,
+    skip_empty_header=False,
 ):
     basepath = workspace.h5file.parent
     module = importlib.import_module(f"las_geoh5.{module_name}.uijson")
@@ -78,6 +80,7 @@ def write_input_file(  # pylint: disable=too-many-arguments
                 "collar_x_name": x_collar_name,
                 "collar_y_name": y_collar_name,
                 "collar_z_name": z_collar_name,
+                "skip_empty_header": skip_empty_header,
             }
         )
         ifile.write_ui_json("import_las_files.ui.json", str(basepath))
@@ -256,3 +259,58 @@ def test_las_translator_translate():
     assert translator.translate("collar_x") == "UTMX"
     with pytest.raises(KeyError, match="'not_a_field' is not a recognized field."):
         translator.translate("not_a_field")
+
+
+def test_elapsed_time_logger():
+    msg = elapsed_time_logger(0, 90, "Finished some task")
+    assert msg == "Finished some task. Time elapsed: 1m 30s."
+    msg = elapsed_time_logger(0, 59, "Finished another task.")
+    assert msg == "Finished another task. Time elapsed: 59.00s."
+    msg = elapsed_time_logger(0, 0.0001, "Done another task.")
+    assert msg == "Done another task. Time elapsed: 0.00s."
+    msg = elapsed_time_logger(0, 0.2345, "Boy I'm getting a lot done.")
+    assert msg == "Boy I'm getting a lot done. Time elapsed: 0.23s."
+
+
+def test_skip_empty_header_option(tmp_path):
+    with Workspace.create(tmp_path / "test.geoh5") as workspace:
+        dh_group = DrillholeGroup.create(workspace, name="dh_group")
+
+    files = [
+        generate_lasfile(
+            "dh1",
+            {"UTMX": 0.0, "UTMY": 0.0, "ELEV": 10.0},
+            np.arange(0, 11, 1),
+            {"my_property": np.zeros(11)},
+        ),
+        generate_lasfile(
+            "dh2",
+            {},
+            np.arange(0, 11, 1),
+            {"my_property": np.random.rand(11)},
+        ),
+    ]
+    lasfiles = write_lasfiles(tmp_path, files)
+    filepath = write_input_file(
+        workspace,
+        dh_group,
+        "my_property_group",
+        lasfiles,
+        "DEPTH",
+        "UTMX",
+        "UTMY",
+        "ELEV",
+        "import_files",
+        skip_empty_header=True,
+    )
+
+    module = importlib.import_module("las_geoh5.import_files.driver")
+    getattr(module, "run")(filepath)
+
+    with workspace.open():
+        dh1 = workspace.get_entity("dh1")[0]
+        assert dh1.collar["x"] == 0.0
+        assert dh1.collar["y"] == 0.0
+        assert dh1.collar["z"] == 10.0
+        dh1 = workspace.get_entity("dh2")[0]
+        assert not dh1

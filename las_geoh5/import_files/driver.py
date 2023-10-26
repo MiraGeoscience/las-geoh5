@@ -7,41 +7,97 @@
 
 from __future__ import annotations
 
+import logging
 import sys
+from multiprocessing import Pool
+from time import time
 
 import lasio
 from geoh5py.shared.utils import fetch_active_workspace
 from geoh5py.ui_json import InputFile
+from tqdm import tqdm
 
 from las_geoh5.import_las import LASTranslator, las_to_drillhole
 
+logger = logging.getLogger("Import Files")
+logger.setLevel(logging.INFO)
+stream_handler = logging.StreamHandler()
+stream_handler.setLevel(logging.INFO)
+formatter = logging.Formatter("%(asctime)s : %(name)s : %(levelname)s : %(message)s")
+stream_handler.setFormatter(formatter)
+logger.addHandler(stream_handler)
 
-def run(file: str):
-    ifile = InputFile.read_ui_json(file)
 
-    # TODO: Once fix implemented in geoh5py can revert back to simply pulling
-    # drillhole group from input file rather that using get_entity.
-    # dh_group = ifile.data["drillhole_group"]
+def elapsed_time_logger(start, end, message):
+    if message[-1] != ".":
+        message += "."
 
-    name = ifile.data["name"]
-    files = ifile.data["files"].split(";")
-    files = [lasio.read(file, mnemonic_case="preserve") for file in files]
+    elapsed = end - start
+    minutes = elapsed // 60
+    seconds = elapsed % 60
+
+    if minutes >= 1:
+        out = f"{message} Time elapsed: {minutes}m {seconds}s."
+    else:
+        out = f"{message} Time elapsed: {seconds:.2f}s."
+
+    return out
+
+
+def run(filepath: str):  # pylint: disable=too-many-locals
+    start = time()
+    ifile = InputFile.read_ui_json(filepath)
+
+    logger.info(
+        "Importing las file data to workspace %s.", ifile.data["geoh5"].h5file.stem
+    )
+
     translator = LASTranslator(
         depth=ifile.data["depths_name"],
         collar_x=ifile.data["collar_x_name"],
         collar_y=ifile.data["collar_y_name"],
         collar_z=ifile.data["collar_z_name"],
     )
-    with fetch_active_workspace(ifile.data["geoh5"], mode="a") as workspace:
-        dh_group = ifile.workspace.get_entity(ifile.data["drillhole_group"].uid)[0]
 
-        las_to_drillhole(workspace, files, dh_group, name, translator=translator)
+    begin_reading = time()
+    with Pool() as pool:
+        futures = []
+        for file in tqdm(ifile.data["files"].split(";"), desc="Reading las files"):
+            futures.append(
+                pool.apply_async(lasio.read, (file,), {"mnemonic_case": "preserve"})
+            )
 
+        lasfiles = [future.get() for future in futures]
+    end_reading = time()
+    logger.info(
+        elapsed_time_logger(begin_reading, end_reading, "Finished reading las files")
+    )
 
-def import_las_files(workspace, dh_group, property_group_name, files):
-    for file in files:
-        lasfile = lasio.read(file)
-        las_to_drillhole(workspace, lasfile, dh_group, property_group_name)
+    with fetch_active_workspace(ifile.data["geoh5"], mode="a") as geoh5:
+        dh_group = geoh5.get_entity(ifile.data["drillhole_group"].uid)[0]
+        logger.info(
+            "Saving drillhole data into drillhole group %s under property group %s",
+            dh_group.name,
+            ifile.data["name"],
+        )
+        begin_saving = time()
+        _ = las_to_drillhole(
+            geoh5,
+            lasfiles,
+            dh_group,
+            ifile.data["name"],
+            translator=translator,
+            skip_empty_header=ifile.data["skip_empty_header"],
+        )
+        end_saving = time()
+        logger.info(
+            elapsed_time_logger(
+                begin_saving, end_saving, "Finished saving drillhole data"
+            )
+        )
+
+    end = time()
+    logger.info(elapsed_time_logger(start, end, "All done."))
 
 
 if __name__ == "__main__":

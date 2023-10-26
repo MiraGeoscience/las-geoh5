@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import warnings
 from pathlib import Path
+from typing import Any
 
 import lasio
 import numpy as np
@@ -85,12 +86,14 @@ def get_depths(lasfile: lasio.LASFile) -> dict[str, np.ndarray]:
     :return: Depth data as 'from-to' interval or 'depth' locations.
     """
 
-    if "DEPTH" in lasfile.curves:
-        depths = lasfile["DEPTH"]
-    elif "DEPT" in lasfile.curves:
-        depths = lasfile["DEPT"]
-    else:
-        raise KeyError(
+    depths = None
+    for name, curve in lasfile.curves.items():
+        if name.lower() in ["depth", "dept"]:
+            depths = curve.data
+            break
+
+    if depths is None:
+        raise ValueError(
             "In order to import data to geoh5py format, .las files "
             "must contain a depth curve named 'DEPTH' or 'DEPT'."
         )
@@ -105,9 +108,7 @@ def get_depths(lasfile: lasio.LASFile) -> dict[str, np.ndarray]:
     return out
 
 
-def get_collar(
-    lasfile: lasio.LASFile, translator: LASTranslator | None = None
-) -> list | None:
+def get_collar(lasfile: lasio.LASFile, translator: LASTranslator | None = None) -> list:
     """
     Returns collar data from las file or None if data missing.
 
@@ -121,8 +122,9 @@ def get_collar(
 
     collar = []
     for field in ["collar_x", "collar_y", "collar_z"]:
+        collar_coord = 0.0
         try:
-            collar.append(translator.retrieve(field, lasfile))
+            collar_coord = translator.retrieve(field, lasfile)
         except KeyError:
             exclusions = ["STRT", "STOP", "STEP", "NULL"]
             options = [
@@ -137,6 +139,11 @@ def get_collar(
                 f"{options}."
             )
 
+            collar_coord = 0.0
+
+        try:
+            collar.append(float(collar_coord))
+        except ValueError:
             collar.append(0.0)
 
     return collar
@@ -214,7 +221,8 @@ def add_data(
     :return: Updated drillhole object.
     """
 
-    kwargs = get_depths(lasfile)
+    depths = get_depths(lasfile)
+    kwargs: dict[str, Any] = {**depths}
     for curve in [
         k for k in lasfile.curves if k.mnemonic not in ["DEPT", "DEPTH", "TO"]
     ]:
@@ -241,7 +249,18 @@ def add_data(
         if existing_data and isinstance(existing_data, Entity):
             kwargs["entity_type"] = existing_data.entity_type
 
-        drillhole.add_data({name: kwargs}, property_group=property_group)
+        try:
+            drillhole.add_data({name: kwargs}, property_group=property_group)
+        except ValueError as err:
+            msg = (
+                f"ValueError raised trying to add data '{name}' to "
+                f"drillhole '{drillhole.name}' with message:\n{err.args[0]}."
+            )
+            warnings.warn(msg)
+
+        # TODO: Increment property group name if it already exists and the depth
+        # Sampling is different.  Could try removing the try/except block once
+        # done and see if error start to appear.
 
     return drillhole
 
@@ -260,6 +279,7 @@ def create_or_append_drillhole(
     :param lasfile: Las file object.
     :param drillhole_group: Drillhole group container.
     :param group_name: Property group name.
+    :param translator: Translator for las file.
 
     :return: Created or augmented drillhole.
     """
@@ -299,14 +319,15 @@ def create_or_append_drillhole(
     return drillhole
 
 
-def las_to_drillhole(
+def las_to_drillhole(  # pylint: disable=too-many-arguments
     workspace: Workspace,
     data: lasio.LASFile | list[lasio.LASFile],
     drillhole_group: DrillholeGroup,
     property_group: str | None = None,
     survey: Path | list[Path] | None = None,
     translator: LASTranslator | None = None,
-) -> Drillhole:
+    skip_empty_header: bool = False,
+):
     """
     Import a las file containing collocated datasets for a single drillhole.
 
@@ -315,6 +336,8 @@ def las_to_drillhole(
     :param drillhole_group: Drillhole group container.
     :param property_group: Property group name.
     :param survey: Path to a survey file stored as .csv or .las format.
+    :param translator: Translator for las file.
+    :param skip_empty_header: Skip empty header data.
 
     :return: A :obj:`geoh5py.objects.Drillhole` object
     """
@@ -326,7 +349,12 @@ def las_to_drillhole(
     if translator is None:
         translator = LASTranslator()
 
+    drillhole = None
     for datum in tqdm(data):
+        collar = get_collar(datum, translator)
+        if all(k == 0 for k in collar) and skip_empty_header:
+            continue
+
         drillhole = create_or_append_drillhole(
             workspace, datum, drillhole_group, property_group, translator=translator
         )
