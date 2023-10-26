@@ -209,7 +209,7 @@ def add_survey(survey: str | Path, drillhole: Drillhole) -> Drillhole:
 def add_data(
     drillhole: Drillhole,
     lasfile: lasio.LASFile,
-    property_group: PropertyGroup,
+    group_name: str,
 ) -> Drillhole:
     """
     Add data from las file curves to drillhole.
@@ -250,7 +250,7 @@ def add_data(
             kwargs["entity_type"] = existing_data.entity_type
 
         try:
-            drillhole.add_data({name: kwargs}, property_group=property_group)
+            drillhole.add_data({name: kwargs}, property_group=group_name)
         except ValueError as err:
             msg = (
                 f"ValueError raised trying to add data '{name}' to "
@@ -310,11 +310,7 @@ def create_or_append_drillhole(
             f"Drillhole {name} exists in workspace but is not a Drillhole object."
         )
 
-    pg_type = "Interval table" if "TO" in lasfile.curves else "Depth table"
-    property_group = drillhole.find_or_create_property_group(
-        name=group_name, property_group_type=pg_type, association="DEPTH"
-    )
-    drillhole = add_data(drillhole, lasfile, property_group)
+    drillhole = add_data(drillhole, lasfile, group_name)
 
     return drillhole
 
