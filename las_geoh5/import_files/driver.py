@@ -15,7 +15,7 @@ from time import time
 import lasio
 from geoh5py import Workspace
 from geoh5py.shared.utils import fetch_active_workspace
-from geoh5py.ui_json import InputFile
+from geoh5py.ui_json import InputFile, monitored_directory_copy
 from tqdm import tqdm
 
 from las_geoh5.import_las import LASTranslator, las_to_drillhole
@@ -78,33 +78,38 @@ def run(filepath: str):  # pylint: disable=too-many-locals
     with fetch_active_workspace(ifile.data["geoh5"], mode="a") as geoh5:
         dh_group = geoh5.get_entity(ifile.data["drillhole_group"].uid)[0]
         dh_group = dh_group.copy(parent=workspace)
-        logger.info(
-            "Saving drillhole data into drillhole group %s under property group %s",
-            dh_group.name,
-            ifile.data["name"],
-        )
-        begin_saving = time()
-        _ = las_to_drillhole(
-            workspace,
-            lasfiles,
-            dh_group,
-            ifile.data["name"],
-            translator=translator,
-            skip_empty_header=ifile.data["skip_empty_header"],
-        )
-        end_saving = time()
-        logger.info(
-            elapsed_time_logger(
-                begin_saving, end_saving, "Finished saving drillhole data"
-            )
-        )
 
+    logger.info(
+        "Saving drillhole data into drillhole group %s under property group %s",
+        dh_group.name,
+        ifile.data["name"],
+    )
+    begin_saving = time()
+    _ = las_to_drillhole(
+        workspace,
+        lasfiles,
+        dh_group,
+        ifile.data["name"],
+        translator=translator,
+        skip_empty_header=ifile.data["skip_empty_header"],
+    )
+    end_saving = time()
+    logger.info(
+        elapsed_time_logger(begin_saving, end_saving, "Finished saving drillhole data")
+    )
     end = time()
     logger.info(elapsed_time_logger(start, end, "All done."))
 
-    geoh5_path = geoh5.h5file
-    geoh5.h5file.unlink()
-    workspace.save_as(geoh5_path)
+    if ifile.data["monitoring_directory"]:
+        monitored_directory_copy(
+            ifile.data["monitoring_directory"],
+            dh_group,
+        )
+    else:
+        geoh5_path = geoh5.h5file
+        geoh5.h5file.unlink()
+        workspace.save_as(geoh5_path)
+
     workspace.close()
 
 
