@@ -37,9 +37,10 @@ repos:
     rev: v1.6.1
     hooks:
     -   id: mypy
-        additional_dependencies: [types-toml]
-        args: [--ignore-missing-imports, --scripts-are-modules, --show-error-context,
-               --show-column-numbers]
+        additional_dependencies: [
+            types-toml,
+            tomli, # to read config from pyproject.toml
+        ]
 -   repo: https://github.com/codingjoe/relint
     rev: 3.1.0
     hooks:
@@ -93,3 +94,4 @@ repos:
     rev: v1.10.0
     hooks:
     -   id: rst-backticks
+        exclude: ^THIRD_PARTY_SOFTWARE.rst$
