@@ -58,13 +58,14 @@ repos:
         name: Check copyright
         entry: python devtools/check-copyright.py
         language: python
-        types: [python]
-        exclude: (^setup.py$|(docs|assets)/)
+        files: (^LICENSE|README.rst|\.py|\.pyi)$
+        types: [text]
+        exclude: (^setup.py$|^\.|\b(docs|assets)/)
 -   repo: https://github.com/codespell-project/codespell
     rev: v2.2.5
     hooks:
     -   id: codespell
-        exclude: (\.ipynb$|poetry.lock)
+        exclude: (-lock\.ya?ml|\benvironments/.*\.ya?ml|\.ipynb|^THIRD_PARTY_SOFTWARE\.rst)$
         entry: codespell -I .codespellignore
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.4.0
@@ -86,6 +87,7 @@ repos:
     rev: v6.1.2
     hooks:
     -   id: rstcheck
+        exclude: ^THIRD_PARTY_SOFTWARE.rst$
         additional_dependencies: [sphinx]
 -   repo: https://github.com/pre-commit/pygrep-hooks
     rev: v1.10.0
