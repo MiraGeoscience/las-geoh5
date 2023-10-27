@@ -19,7 +19,7 @@ tqdm = "^4.64.0"
 pylint = "*"
 pytest = "*"
 pytest-cov = "*"
-toml = "*"
+tomli = "*"
 
 [tool.isort]
 # settings for compatibility between ``isort`` and ``black`` formatting
