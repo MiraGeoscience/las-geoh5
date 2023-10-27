@@ -12,8 +12,8 @@ python = "^3.9, <3.11"
 geoh5py = {version ="~0.8.0rc1", source = "pypi", allow-prereleases = true}
 
 ## pip dependencies
-lasio = {version = "~0.31", source = "pypi", allow-prereleases = true}
 tqdm = {version = "^4.64.0"}
+lasio = "~0.31"
 
 [tool.poetry.dev-dependencies]
 pylint = "*"
