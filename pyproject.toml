@@ -11,15 +11,16 @@ python = "^3.9, <3.11"
 geoh5py = { url = "https://github.com/MiraGeoscience/geoh5py/archive/refs/heads/GEOPY-1032.zip#sha256=" }
 #geoh5py = {version ="~0.8.0rc1", source = "pypi", allow-prereleases = true}
 
+
 ## pip dependencies
-lasio = {version = "~0.31", source = "pypi", allow-prereleases = true}
-tqdm = {version = "^4.64.0"}
+lasio = "~0.31"
+tqdm = "^4.64.0"
 
 [tool.poetry.dev-dependencies]
 pylint = "*"
 pytest = "*"
 pytest-cov = "*"
-toml = "*"
+tomli = "*"
 
 [tool.isort]
 # settings for compatibility between ``isort`` and ``black`` formatting
@@ -28,11 +29,43 @@ include_trailing_comma = true
 force_grid_wrap = 0
 use_parentheses = true
 line_length = 88
-# auto-updated by seed-isort-config
-known_third_party = ["geoh5py", "lasio", "numpy", "pytest", "toml", "tqdm"]
 
 [tool.black]
 # defaults are just fine
+
+[tool.mypy]
+warn_unused_configs = true
+ignore_missing_imports = true
+scripts_are_modules = true
+show_error_context = true
+show_column_numbers = true
+check_untyped_defs = true
+
+plugins = [
+    #    'numpy.typing.mypy_plugin'
+]
+
+[tool.pytest.ini_options]
+addopts = "--cov las_geoh5 --cov-report html --cov-report term-missing:skip-covered"
+
+[tool.coverage.run]
+branch = true
+source = ["las_geoh5"]
+omit = []
+
+[tool.coverage.report]
+exclude_lines = [
+    "raise NotImplementedError",
+    "pass",
+    "if TYPE_CHECKING",
+    "pragma: no cover"
+]
+
+fail_under = 80
+
+[tool.coverage.html]
+skip_empty = true
+skip_covered = true
 
 [build-system]
 requires = ["poetry-core>=1.0.0", "setuptools"]
