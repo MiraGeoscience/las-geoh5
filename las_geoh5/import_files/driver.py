@@ -50,7 +50,8 @@ def run(filepath: str):  # pylint: disable=too-many-locals
     ifile = InputFile.read_ui_json(filepath)
 
     logger.info(
-        "Importing las file data to workspace %s.", ifile.data["geoh5"].h5file.stem
+        "Importing las file data to workspace %s.geoh5.",
+        ifile.data["geoh5"].h5file.stem,
     )
 
     translator = LASTranslator(
@@ -62,6 +63,7 @@ def run(filepath: str):  # pylint: disable=too-many-locals
 
     workspace = Workspace()
     begin_reading = time()
+
     with Pool() as pool:
         futures = []
         for file in tqdm(ifile.data["files"].split(";"), desc="Reading las files"):
@@ -70,6 +72,7 @@ def run(filepath: str):  # pylint: disable=too-many-locals
             )
 
         lasfiles = [future.get() for future in futures]
+
     end_reading = time()
     logger.info(
         elapsed_time_logger(begin_reading, end_reading, "Finished reading las files")
@@ -85,7 +88,7 @@ def run(filepath: str):  # pylint: disable=too-many-locals
         ifile.data["name"],
     )
     begin_saving = time()
-    _ = las_to_drillhole(
+    las_to_drillhole(
         workspace,
         lasfiles,
         dh_group,

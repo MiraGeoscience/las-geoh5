@@ -8,9 +8,9 @@
 from __future__ import annotations
 
 import sys
-import lasio
 from pathlib import Path
 
+import lasio
 from geoh5py import Workspace
 from geoh5py.groups import DrillholeGroup
 from geoh5py.shared.utils import fetch_active_workspace

@@ -13,7 +13,7 @@ from typing import Any
 import lasio
 import numpy as np
 from geoh5py import Workspace
-from geoh5py.groups import DrillholeGroup, PropertyGroup
+from geoh5py.groups import DrillholeGroup
 from geoh5py.objects import Drillhole
 from geoh5py.shared import Entity
 from tqdm import tqdm
@@ -222,7 +222,35 @@ def add_data(
     """
 
     depths = get_depths(lasfile)
-    kwargs: dict[str, Any] = {**depths}
+    if "depth" in depths:
+        method_name = "validate_depth_data"
+        locations = depths["depth"]
+    else:
+        method_name = "validate_interval_data"
+        locations = depths["from-to"]
+
+    try:
+        property_group = getattr(drillhole, method_name)(
+            "noname",
+            locations,
+            np.zeros_like(locations),
+            property_group=group_name,
+            collocation_distance=1e-4,
+        )
+    except ValueError as err:
+        msg = (
+            f"validate_depth_data call failed with message:\n{err.args[0]}. "
+            f"Skipping import for drillhole {drillhole.name}."
+        )
+        warnings.warn(msg)
+
+        # TODO: Increment property group name if it already exists and the depth
+        # Sampling is different.  Could try removing the try/except block once
+        # done and see if error start to appear.
+
+        return drillhole
+
+    kwargs: dict[str, Any] = {}
     for curve in [
         k for k in lasfile.curves if k.mnemonic not in ["DEPT", "DEPTH", "TO"]
     ]:
@@ -232,35 +260,24 @@ def add_data(
             warnings.warn(msg)
             continue
 
-        kwargs["values"] = curve.data
+        kwargs[name] = {"values": curve.data, "association": "DEPTH"}
 
         is_referenced = any(name in k.mnemonic for k in lasfile.params)
         is_referenced &= any(k.descr == "REFERENCE" for k in lasfile.params)
         if is_referenced:
-            kwargs["values"] = kwargs["values"].astype(int)
+            kwargs[name]["values"] = kwargs[name]["values"].astype(int)
             value_map = {
                 k.mnemonic: k.value for k in lasfile.params if name in k.mnemonic
             }
             value_map = {int(k.split()[1][1:-1]): v for k, v in value_map.items()}
-            kwargs["value_map"] = value_map
-            kwargs["type"] = "referenced"
+            kwargs[name]["value_map"] = value_map
+            kwargs[name]["type"] = "referenced"
 
         existing_data = drillhole.workspace.get_entity(name)[0]
         if existing_data and isinstance(existing_data, Entity):
-            kwargs["entity_type"] = existing_data.entity_type
+            kwargs[name]["entity_type"] = existing_data.entity_type
 
-        try:
-            drillhole.add_data({name: kwargs}, property_group=group_name)
-        except ValueError as err:
-            msg = (
-                f"ValueError raised trying to add data '{name}' to "
-                f"drillhole '{drillhole.name}' with message:\n{err.args[0]}."
-            )
-            warnings.warn(msg)
-
-        # TODO: Increment property group name if it already exists and the depth
-        # Sampling is different.  Could try removing the try/except block once
-        # done and see if error start to appear.
+    drillhole.add_data(kwargs, property_group=property_group)
 
     return drillhole
 
@@ -269,7 +286,7 @@ def create_or_append_drillhole(
     workspace: Workspace,
     lasfile: lasio.LASFile,
     drillhole_group: DrillholeGroup,
-    group_name: str | None = None,
+    group_name: str,
     translator: LASTranslator | None = None,
 ) -> Drillhole:
     """
@@ -319,7 +336,7 @@ def las_to_drillhole(  # pylint: disable=too-many-arguments
     workspace: Workspace,
     data: lasio.LASFile | list[lasio.LASFile],
     drillhole_group: DrillholeGroup,
-    property_group: str | None = None,
+    property_group: str,
     survey: Path | list[Path] | None = None,
     translator: LASTranslator | None = None,
     skip_empty_header: bool = False,
@@ -345,7 +362,6 @@ def las_to_drillhole(  # pylint: disable=too-many-arguments
     if translator is None:
         translator = LASTranslator()
 
-    drillhole = None
     for datum in tqdm(data):
         collar = get_collar(datum, translator)
         if all(k == 0 for k in collar) and skip_empty_header:
@@ -357,6 +373,4 @@ def las_to_drillhole(  # pylint: disable=too-many-arguments
         ind = [drillhole.name == s.name.rstrip(".las") for s in survey]
         if any(ind):
             survey_path = survey[np.where(ind)[0][0]]
-            drillhole = add_survey(survey_path, drillhole)
-
-    return drillhole
+            _ = add_survey(survey_path, drillhole)
