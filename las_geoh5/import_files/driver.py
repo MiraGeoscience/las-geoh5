@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import logging
 import sys
+from multiprocessing import Pool
 from pathlib import Path
 from shutil import move
 from time import time
@@ -65,18 +66,14 @@ def run(filepath: str):  # pylint: disable=too-many-locals
     workspace = Workspace()
     begin_reading = time()
 
-    lasfiles = []
-    for file in ifile.data["files"].split(";"):
-        lasfiles.append(lasio.read(file, mnemonic_case="preserve"))
+    with Pool() as pool:
+        futures = []
+        for file in tqdm(ifile.data["files"].split(";"), desc="Reading las files"):
+            futures.append(
+                pool.apply_async(lasio.read, (file,), {"mnemonic_case": "preserve"})
+            )
 
-    # with Pool() as pool:
-    #     futures = []
-    #     for file in tqdm(ifile.data["files"].split(";"), desc="Reading las files"):
-    #         futures.append(
-    #             pool.apply_async(lasio.read, (file,), {"mnemonic_case": "preserve"})
-    #         )
-    #
-    #     lasfiles = [future.get() for future in futures]
+        lasfiles = [future.get() for future in futures]
 
     end_reading = time()
     logger.info(
