@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import logging
 import sys
-from multiprocessing import Pool
 from time import time
 
 import lasio
