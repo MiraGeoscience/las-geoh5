@@ -3,6 +3,21 @@ name = "las-geoh5"
 version = "0.0.1"
 description = "Las/Geoh5 conversion"
 authors = ["Mira Geoscience <support@mirageoscience.com>"]
+keywords = ["geology", "geophysics", "earth sciences"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX",
+    "Operating System :: Unix",
+    "Operating System :: MacOS",
+    "Natural Language :: English",
+]
 
 [tool.poetry.dependencies]
 python = "^3.9, <3.11"
