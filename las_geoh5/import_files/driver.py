@@ -64,14 +64,18 @@ def run(filepath: str):  # pylint: disable=too-many-locals
     workspace = Workspace()
     begin_reading = time()
 
-    with Pool() as pool:
-        futures = []
-        for file in tqdm(ifile.data["files"].split(";"), desc="Reading las files"):
-            futures.append(
-                pool.apply_async(lasio.read, (file,), {"mnemonic_case": "preserve"})
-            )
+    lasfiles = []
+    for file in ifile.data["files"].split(";"):
+        lasfiles.append(lasio.read(file, mnemonic_case="preserve"))
 
-        lasfiles = [future.get() for future in futures]
+    # with Pool() as pool:
+    #     futures = []
+    #     for file in tqdm(ifile.data["files"].split(";"), desc="Reading las files"):
+    #         futures.append(
+    #             pool.apply_async(lasio.read, (file,), {"mnemonic_case": "preserve"})
+    #         )
+    #
+    #     lasfiles = [future.get() for future in futures]
 
     end_reading = time()
     logger.info(
@@ -104,9 +108,10 @@ def run(filepath: str):  # pylint: disable=too-many-locals
     logger.info(elapsed_time_logger(start, end, "All done."))
 
     if ifile.data["monitoring_directory"]:
-        monitored_directory_copy(
+        temp_geoh5_path = monitored_directory_copy(
             ifile.data["monitoring_directory"],
             dh_group,
+            copy_children=False,
         )
     else:
         geoh5_path = geoh5.h5file
