@@ -8,8 +8,9 @@ authors = ["Mira Geoscience <support@mirageoscience.com>"]
 python = "^3.9, <3.11"
 
 ## dependencies on github repos
-#geoh5py = { url = "https://github.com/MiraGeoscience/geoh5py/archive/refs/heads/release/0.8.0.zip#sha256=" }
-geoh5py = {version ="~0.8.0rc1", allow-prereleases = true}
+geoh5py = { url = "https://github.com/MiraGeoscience/geoh5py/archive/refs/heads/release/0.8.0.zip#sha256=" }
+#geoh5py = {version ="~0.8.0rc1", source = "pypi", allow-prereleases = true}
+
 
 ## pip dependencies
 lasio = "~0.31"

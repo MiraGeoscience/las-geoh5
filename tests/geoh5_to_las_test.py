@@ -110,7 +110,7 @@ def test_create_or_append_drillhole(tmp_path):
         )
         assert "DEPTH" in [k.mnemonic for k in file.curves]
         file.append_curve("my_new_data", np.random.randn(50))
-        drillhole = create_or_append_drillhole(workspace, file, drillhole_group)
+        drillhole = create_or_append_drillhole(workspace, file, drillhole_group, "test")
 
         # New data is appended to existing drillhole
         assert drillhole.uid == drillhole_a.uid
@@ -121,14 +121,14 @@ def test_create_or_append_drillhole(tmp_path):
             mnemonic_case="preserve",
         )
         file.well["X"] = 10.0
-        drillhole = create_or_append_drillhole(workspace, file, drillhole_group)
+        drillhole = create_or_append_drillhole(workspace, file, drillhole_group, "test")
 
         # New data should be placed in a new drillhole object with augmented name
         assert drillhole.uid != drillhole_a.uid
         assert drillhole.name == "dh1 (1)"
 
         file.well["WELL"] = "dh2"
-        drillhole = create_or_append_drillhole(workspace, file, drillhole_group)
+        drillhole = create_or_append_drillhole(workspace, file, drillhole_group, "test")
         # Same data should be read into a new
         assert workspace.get_entity("dh2")
 
@@ -165,13 +165,15 @@ def test_add_survey(tmp_path):
             Path(basepath / f"dh1_{drillhole_a.property_groups[0].name}.las")
         )
         survey = Path(basepath / "dh1_survey.las")
-        drillhole = las_to_drillhole(workspace, data, drillhole_group, survey=survey)
+        las_to_drillhole(workspace, data, drillhole_group, "test", survey=survey)
+        drillhole = workspace.get_entity("dh1")[0]
         assert np.allclose(drillhole.surveys, surveys)
 
         survey.unlink()
         survey = Path(basepath / "dh1_survey.csv")
         np.savetxt(survey, surveys, delimiter=",", header="depth, dip, azimuth")
-        drillhole = las_to_drillhole(workspace, data, drillhole_group, survey=survey)
+        las_to_drillhole(workspace, data, drillhole_group, "test", survey=survey)
+        drillhole = workspace.get_entity("dh1")[0]
         assert np.allclose(drillhole.surveys, surveys)
 
 
