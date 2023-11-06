@@ -2,8 +2,10 @@
 #
 #  This file is part of las-geoh5 project.
 #
-#  All rights reserved.
+#  las-geoh5 is distributed under the terms and conditions of the MIT License
+#  (see LICENSE file at the root of this source code package).
 #
+
 from __future__ import annotations
 
 import warnings
@@ -16,6 +18,7 @@ from geoh5py import Workspace
 from geoh5py.groups import DrillholeGroup
 from geoh5py.objects import Drillhole
 from geoh5py.shared import Entity
+from tqdm import tqdm
 
 
 class LASTranslator:
