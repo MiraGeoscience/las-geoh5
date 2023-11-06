@@ -10,12 +10,14 @@ from __future__ import annotations
 import logging
 import sys
 from multiprocessing import Pool
+from pathlib import Path
+from shutil import move
 from time import time
 
 import lasio
 from geoh5py import Workspace
 from geoh5py.shared.utils import fetch_active_workspace
-from geoh5py.ui_json import InputFile, monitored_directory_copy
+from geoh5py.ui_json import InputFile
 from tqdm import tqdm
 
 from las_geoh5.import_las import LASTranslator, las_to_drillhole
@@ -78,7 +80,7 @@ def run(filepath: str):  # pylint: disable=too-many-locals
         elapsed_time_logger(begin_reading, end_reading, "Finished reading las files")
     )
 
-    with fetch_active_workspace(ifile.data["geoh5"], mode="a") as geoh5:
+    with fetch_active_workspace(ifile.data["geoh5"]) as geoh5:
         dh_group = geoh5.get_entity(ifile.data["drillhole_group"].uid)[0]
         dh_group = dh_group.copy(parent=workspace)
 
@@ -104,10 +106,16 @@ def run(filepath: str):  # pylint: disable=too-many-locals
     logger.info(elapsed_time_logger(start, end, "All done."))
 
     if ifile.data["monitoring_directory"]:
-        monitored_directory_copy(
-            ifile.data["monitoring_directory"],
-            dh_group,
+        working_path = Path(ifile.data["monitoring_directory"]) / ".working"
+        working_path.mkdir(exist_ok=True)
+        temp_geoh5 = f"temp{time():.3f}.geoh5"
+        workspace.save_as(working_path / temp_geoh5)
+        workspace.close()
+        move(
+            working_path / temp_geoh5,
+            Path(ifile.data["monitoring_directory"]) / temp_geoh5,
         )
+
     else:
         geoh5_path = geoh5.h5file
         geoh5.h5file.unlink()

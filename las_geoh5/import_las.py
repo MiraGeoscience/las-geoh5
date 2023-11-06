@@ -251,9 +251,9 @@ def add_data(
         return drillhole
 
     kwargs: dict[str, Any] = {}
-    for curve in [
-        k for k in lasfile.curves if k.mnemonic not in ["DEPT", "DEPTH", "TO"]
-    ]:
+    for curve in tqdm(
+        [k for k in lasfile.curves if k.mnemonic not in ["DEPT", "DEPTH", "TO"]]
+    ):
         name = curve.mnemonic
         if drillhole.get_data(name):
             msg = f"Drillhole '{drillhole.name}' already contains '{name}' data"
