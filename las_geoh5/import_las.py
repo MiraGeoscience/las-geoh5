@@ -16,7 +16,6 @@ from geoh5py import Workspace
 from geoh5py.groups import DrillholeGroup
 from geoh5py.objects import Drillhole
 from geoh5py.shared import Entity
-from tqdm import tqdm
 
 
 class LASTranslator:
@@ -362,7 +361,7 @@ def las_to_drillhole(  # pylint: disable=too-many-arguments
     if translator is None:
         translator = LASTranslator()
 
-    for datum in tqdm(data):
+    for datum in data:
         collar = get_collar(datum, translator)
         if all(k == 0 for k in collar) and skip_empty_header:
             continue
