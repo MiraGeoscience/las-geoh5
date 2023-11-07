@@ -6,7 +6,7 @@ license = "MIT"
 readme = "README.rst"
 homepage = "https://mirageoscience.com"
 authors = ["Mira Geoscience <support@mirageoscience.com>"]
-keywords = ["geology", "geophysics", "earth sciences"]
+keywords = ["geology", "geophysics", "earth sciences", "io", "data", "interoperability"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Science/Research",
