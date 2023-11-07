@@ -2,8 +2,10 @@
 #
 #  This file is part of las-geoh5 project.
 #
-#  All rights reserved.
+#  las-geoh5 is distributed under the terms and conditions of the MIT License
+#  (see LICENSE file at the root of this source code package).
 #
+
 from __future__ import annotations
 
 import warnings
@@ -362,7 +364,7 @@ def las_to_drillhole(  # pylint: disable=too-many-arguments
     if translator is None:
         translator = LASTranslator()
 
-    for datum in tqdm(data):
+    for datum in data:
         collar = get_collar(datum, translator)
         if all(k == 0 for k in collar) and skip_empty_header:
             continue

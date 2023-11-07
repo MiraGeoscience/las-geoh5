@@ -1,16 +1,32 @@
 [tool.poetry]
 name = "las-geoh5"
-version = "0.0.1"
+version = "0.1.0"
 description = "Las/Geoh5 conversion"
+license = "MIT"
+readme = "README.rst"
+homepage = "https://mirageoscience.com"
 authors = ["Mira Geoscience <support@mirageoscience.com>"]
+keywords = ["geology", "geophysics", "earth sciences", "io", "data", "interoperability"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX",
+    "Operating System :: Unix",
+    "Operating System :: MacOS",
+    "Natural Language :: English",
+]
 
 [tool.poetry.dependencies]
 python = "^3.9, <3.11"
 
 ## dependencies on github repos
-geoh5py = { url = "https://github.com/MiraGeoscience/geoh5py/archive/refs/heads/release/0.8.0.zip#sha256=" }
-#geoh5py = {version ="~0.8.0rc1", source = "pypi", allow-prereleases = true}
-
+#geoh5py = { url = "https://github.com/MiraGeoscience/geoh5py/archive/refs/heads/release/0.8.0.zip#sha256=" }
+geoh5py = {version ="~0.8.0rc3", allow-prereleases = true}
 
 ## pip dependencies
 lasio = "~0.31"
