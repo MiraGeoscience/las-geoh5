@@ -1,13 +1,15 @@
 [tool.poetry]
 name = "las-geoh5"
-version = "0.0.1"
+version = "0.2.0-alpha.1"
 description = "Las/Geoh5 conversion"
+license = "MIT"
+readme = "README.rst"
+homepage = "https://mirageoscience.com"
 authors = ["Mira Geoscience <support@mirageoscience.com>"]
-keywords = ["geology", "geophysics", "earth sciences"]
+keywords = ["geology", "geophysics", "earth sciences", "io", "data", "interoperability"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: MIT License",
     "Programming Language :: Python",
     "Topic :: Scientific/Engineering",
     "Topic :: Scientific/Engineering :: Mathematics",
@@ -43,8 +45,6 @@ include_trailing_comma = true
 force_grid_wrap = 0
 use_parentheses = true
 line_length = 88
-# auto-updated by seed-isort-config
-known_third_party = ["geoh5py", "lasio", "numpy", "pytest", "toml", "tqdm"]
 
 [tool.black]
 # defaults are just fine
