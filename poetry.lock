@@ -122,19 +122,22 @@ test = ["pytest (>=6)"]
 
 [[package]]
 name = "geoh5py"
-version = "0.8.0rc3"
+version = "0.8.0-rc.3"
 description = "Python API for geoh5, an open file format for geoscientific data"
 optional = false
-python-versions = ">=3.8,<3.11"
+python-versions = "^3.8,<3.11"
 files = [
-    {file = "geoh5py-0.8.0rc3-py3-none-any.whl", hash = "sha256:76625e1fccdf20f102d310c2bfae989bfb3995fb24b5f8091ada0c5e1474184c"},
-    {file = "geoh5py-0.8.0rc3.tar.gz", hash = "sha256:2ec5a62423369d9a4f32b4b1529fa44dc54cb324e0754888fa05f3543d299a43"},
+    {file = "GEOPY-1147.zip", hash = "sha256:76af1410f26018b49a06e3ce8f1bb83f5fc58b9697decac3a2edc0822b192783"},
 ]
 
 [package.dependencies]
 h5py = ">=3.2.1,<4.0.0"
 numpy = ">=1.23.5,<1.24.0"
 Pillow = ">=10.0.1,<11.0.0"
+
+[package.source]
+type = "url"
+url = "https://github.com/MiraGeoscience/geoh5py/archive/refs/heads/GEOPY-1147.zip#sha256="
 
 [[package]]
 name = "h5py"
@@ -347,13 +350,13 @@ tests = ["check-manifest", "coverage", "defusedxml", "markdown2", "olefile", "pa
 
 [[package]]
 name = "platformdirs"
-version = "4.0.0"
+version = "4.1.0"
 description = "A small Python package for determining appropriate platform-specific dirs, e.g. a \"user data dir\"."
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.8"
 files = [
-    {file = "platformdirs-4.0.0-py3-none-any.whl", hash = "sha256:118c954d7e949b35437270383a3f2531e99dd93cf7ce4dc8340d3356d30f173b"},
-    {file = "platformdirs-4.0.0.tar.gz", hash = "sha256:cb633b2bcf10c51af60beb0ab06d2f1d69064b43abf4c185ca6b28865f3f9731"},
+    {file = "platformdirs-4.1.0-py3-none-any.whl", hash = "sha256:11c8f37bcca40db96d8144522d925583bdb7a31f7b0e37e3ed4318400a8e2380"},
+    {file = "platformdirs-4.1.0.tar.gz", hash = "sha256:906d548203468492d432bcb294d4bc2fff751bf84971fbb2c10918cc206ee420"},
 ]
 
 [package.extras]
@@ -497,4 +500,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9, <3.11"
-content-hash = "e8a7aea4b9f195da412303f6ded5148448571a37b22caea1ec6c9fd851a0718c"
+content-hash = "797a53c963a537809314bc33b739b3b01b5da04ef003dc7cbeaddc5c44895c38"

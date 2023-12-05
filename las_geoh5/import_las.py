@@ -164,7 +164,7 @@ def find_copy_name(workspace: Workspace, basename: str, start: int = 1):
     name = f"{basename} ({start})"
     obj = workspace.get_entity(name)
     if obj and obj[0] is not None:
-        find_copy_name(workspace, basename, start=start + 1)
+        name = find_copy_name(workspace, basename, start=start + 1)
     return name
 
 
@@ -230,13 +230,17 @@ def add_data(
         method_name = "validate_interval_data"
         locations = depths["from-to"]
 
-    # try:
-    property_group = getattr(drillhole, method_name)(
-        locations,
-        np.zeros_like(locations),
-        property_group=group_name,
-        collocation_distance=1e-4,
-    )
+    try:
+        property_group = getattr(drillhole, method_name)(
+            locations,
+            np.zeros_like(locations),
+            property_group=group_name,
+            collocation_distance=1e-4,
+        )
+    except ValueError:
+        group_name = find_copy_name(drillhole.workspace, group_name)
+        property_group = drillhole.find_or_create_property_group(group_name)
+
 
     kwargs: dict[str, Any] = {}
     for curve in [
