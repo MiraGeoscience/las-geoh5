@@ -241,7 +241,6 @@ def add_data(
         group_name = find_copy_name(drillhole.workspace, group_name)
         property_group = drillhole.find_or_create_property_group(group_name)
 
-
     kwargs: dict[str, Any] = {}
     for curve in [
         k for k in lasfile.curves if k.mnemonic not in ["DEPT", "DEPTH", "TO"]
