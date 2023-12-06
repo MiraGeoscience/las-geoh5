@@ -127,9 +127,6 @@ venv.bak/
 /.idea/*
 !/.idea/scopes/
 !/.idea/copyright/
-/las_geoh5/.idea/*
-!/las_geoh5/.idea/scopes/
-!/las_geoh5/.idea/copyright/
 
 # mypy
 .mypy_cache/
