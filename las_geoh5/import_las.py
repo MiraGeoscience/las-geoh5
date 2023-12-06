@@ -18,7 +18,6 @@ from geoh5py import Workspace
 from geoh5py.groups import DrillholeGroup
 from geoh5py.objects import Drillhole
 from geoh5py.shared import Entity
-from tqdm import tqdm
 
 
 class LASTranslator:
@@ -165,7 +164,7 @@ def find_copy_name(workspace: Workspace, basename: str, start: int = 1):
     name = f"{basename} ({start})"
     obj = workspace.get_entity(name)
     if obj and obj[0] is not None:
-        find_copy_name(workspace, basename, start=start + 1)
+        name = find_copy_name(workspace, basename, start=start + 1)
     return name
 
 
@@ -233,29 +232,19 @@ def add_data(
 
     try:
         property_group = getattr(drillhole, method_name)(
-            "noname",
             locations,
             np.zeros_like(locations),
             property_group=group_name,
             collocation_distance=1e-4,
         )
-    except ValueError as err:
-        msg = (
-            f"validate_depth_data call failed with message:\n{err.args[0]}. "
-            f"Skipping import for drillhole {drillhole.name}."
-        )
-        warnings.warn(msg)
-
-        # TODO: Increment property group name if it already exists and the depth
-        # Sampling is different.  Could try removing the try/except block once
-        # done and see if error start to appear.
-
-        return drillhole
+    except ValueError:
+        group_name = find_copy_name(drillhole.workspace, group_name)
+        property_group = drillhole.find_or_create_property_group(group_name)
 
     kwargs: dict[str, Any] = {}
-    for curve in tqdm(
-        [k for k in lasfile.curves if k.mnemonic not in ["DEPT", "DEPTH", "TO"]]
-    ):
+    for curve in [
+        k for k in lasfile.curves if k.mnemonic not in ["DEPT", "DEPTH", "TO"]
+    ]:
         name = curve.mnemonic
         if drillhole.get_data(name):
             msg = f"Drillhole '{drillhole.name}' already contains '{name}' data"
