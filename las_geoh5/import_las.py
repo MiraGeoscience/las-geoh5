@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 Mira Geoscience Ltd.
+#  Copyright (c) 2024 Mira Geoscience Ltd.
 #
 #  This file is part of las-geoh5 project.
 #
@@ -223,23 +223,15 @@ def add_data(
     """
 
     depths = get_depths(lasfile)
+    property_group_kwargs = {}
     if "depth" in depths:
         method_name = "validate_depth_data"
         locations = depths["depth"]
+        property_group_kwargs["property_group_type"] = "Depth table"
     else:
         method_name = "validate_interval_data"
         locations = depths["from-to"]
-
-    try:
-        property_group = getattr(drillhole, method_name)(
-            locations,
-            np.zeros_like(locations),
-            property_group=group_name,
-            collocation_distance=1e-4,
-        )
-    except ValueError:
-        group_name = find_copy_name(drillhole.workspace, group_name)
-        property_group = drillhole.find_or_create_property_group(group_name)
+        property_group_kwargs["property_group_type"] = "Interval table"
 
     kwargs: dict[str, Any] = {}
     for curve in [
@@ -247,8 +239,6 @@ def add_data(
     ]:
         name = curve.mnemonic
         if drillhole.get_data(name):
-            msg = f"Drillhole '{drillhole.name}' already contains '{name}' data"
-            warnings.warn(msg)
             continue
 
         kwargs[name] = {"values": curve.data, "association": "DEPTH"}
@@ -268,7 +258,21 @@ def add_data(
         if existing_data and isinstance(existing_data, Entity):
             kwargs[name]["entity_type"] = existing_data.entity_type
 
-    drillhole.add_data(kwargs, property_group=property_group)
+    if kwargs:
+        try:
+            property_group = getattr(drillhole, method_name)(
+                locations,
+                np.zeros_like(locations),
+                property_group=group_name,
+                collocation_distance=1e-4,
+            )
+        except ValueError:
+            group_name = find_copy_name(drillhole.workspace, group_name)
+            property_group = drillhole.find_or_create_property_group(
+                group_name, **property_group_kwargs
+            )
+
+        drillhole.add_data(kwargs, property_group=property_group)
 
     return drillhole
 
@@ -365,3 +369,5 @@ def las_to_drillhole(  # pylint: disable=too-many-arguments
         if any(ind):
             survey_path = survey[np.where(ind)[0][0]]
             _ = add_survey(survey_path, drillhole)
+
+    return
