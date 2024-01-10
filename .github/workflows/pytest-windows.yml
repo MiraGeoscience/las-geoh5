@@ -55,7 +55,7 @@ jobs:
         id: cache
         env:
           # Increase this value to reset cache if poetry.lock has not changed
-          CACHE_NUMBER: 2
+          CACHE_NUMBER: 1
         with:
           path: .venv
           key: venv-${{ runner.os }}-${{ steps.full-python-version.outputs.version }}-${{ hashFiles('**/poetry.lock') }}-{{ env.CACHE_NUMBER }}
