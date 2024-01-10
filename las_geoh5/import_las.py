@@ -369,5 +369,3 @@ def las_to_drillhole(  # pylint: disable=too-many-arguments
         if any(ind):
             survey_path = survey[np.where(ind)[0][0]]
             _ = add_survey(survey_path, drillhole)
-
-    return
