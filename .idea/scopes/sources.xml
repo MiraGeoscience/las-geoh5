@@ -1,3 +1,3 @@
 <component name="DependencyValidationManager">
-  <scope name="sources" pattern="(file:las-geoh5//*||file:devtools/*||file:tests//*||file:README*.rst)&amp;&amp;!file:*//htmlcov//*&amp;&amp;!file:*//.coverage&amp;&amp;!file:*//.*//*" />
+  <scope name="sources" pattern="(file:las_geoh5//*||file:devtools/*||file:tests//*||file:README*.rst)&amp;&amp;!file:*//htmlcov//*&amp;&amp;!file:*//.coverage&amp;&amp;!file:*//.*//*" />
 </component>
