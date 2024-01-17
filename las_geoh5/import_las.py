@@ -228,10 +228,12 @@ def add_data(
         method_name = "validate_depth_data"
         locations = depths["depth"]
         property_group_kwargs["property_group_type"] = "Depth table"
+        property_group_kwargs["association"] = "DEPTH"
     else:
         method_name = "validate_interval_data"
         locations = depths["from-to"]
         property_group_kwargs["property_group_type"] = "Interval table"
+        property_group_kwargs["association"] = "FROM-TO"
 
     kwargs: dict[str, Any] = {}
     for curve in [
@@ -239,9 +241,10 @@ def add_data(
     ]:
         name = curve.mnemonic
         if drillhole.get_data(name):
-            continue
+            name = find_copy_name(drillhole.workspace, name)
 
         kwargs[name] = {"values": curve.data, "association": "DEPTH"}
+        kwargs[name].update(depths)
 
         is_referenced = any(name in k.mnemonic for k in lasfile.params)
         is_referenced &= any(k.descr == "REFERENCE" for k in lasfile.params)

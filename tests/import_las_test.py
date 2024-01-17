@@ -146,7 +146,7 @@ def test_import_las_new_drillholes(tmp_path):
         assert dh1.property_groups[0].name == "my_property_group"
         assert len(dh1.property_groups) == 1
         assert dh1.property_groups[0].depth_.values.max() == 10.0
-        assert len(dh1.property_groups[0].properties) == 2
+        assert len(dh1.property_groups[0].properties) == 3
 
         dh2 = workspace.get_entity("dh2")[0]
         assert dh2.collar["x"] == 10.0
@@ -213,7 +213,7 @@ def test_import_las_existing_drillholes(tmp_path):
         assert dh1.property_groups[0].name == "my_property_group"
         assert len(dh1.property_groups) == 1
         assert dh1.property_groups[0].depth_.values.max() == 10.0
-        assert len(dh1.property_groups[0].properties) == 3
+        assert len(dh1.property_groups[0].properties) == 4
 
         dh2 = workspace.get_entity("dh2")[0]
         assert dh2.collar["x"] == 10.0
@@ -338,6 +338,47 @@ def test_add_data_increments_property_group(tmp_path):
 
     assert len(drillhole.property_groups) == 2
     assert [k.name in ["my group", "my group (1)"] for k in drillhole.property_groups]
+
+    file = LASFile()
+    file.well["WELL"] = drillhole.name
+    file.append_curve("DEPTH", np.linspace(0, 10, 7), unit="m")
+    file.append_curve("my other new data", np.random.rand(7))
+
+    drillhole = add_data(drillhole, file, "my group")
+
+    assert len(drillhole.property_groups) == 3
+    assert [
+        k.name in ["my group", "my group (1)", "my group (2)"]
+        for k in drillhole.property_groups
+    ]
+
+
+def test_add_data_increments_data_name(tmp_path):
+    workspace = Workspace(tmp_path / "test.geoh5")
+    dh_group = DrillholeGroup.create(workspace, name="dh_group")
+    drillhole = Drillhole.create(
+        workspace,
+        collar=np.r_[0.0, 0.0, 0.0],
+        parent=dh_group,
+        name="dh1",
+    )
+    drillhole.add_data(
+        {"my data": {"depth": np.linspace(0, 10, 11), "values": np.random.rand(11)}},
+        property_group="my group",
+    )
+
+    file = LASFile()
+    file.well["WELL"] = drillhole.name
+    file.append_curve("DEPTH", np.linspace(0, 10, 9), unit="m")
+    file.append_curve("my data", np.random.rand(9))
+
+    drillhole = add_data(drillhole, file, "my group")
+
+    assert len(drillhole.property_groups) == 2
+    assert [k.name in ["my group", "my group (1)"] for k in drillhole.property_groups]
+    assert all(
+        k in [c.name for c in drillhole.children] for k in ["my data", "my data (1)"]
+    )
 
     file = LASFile()
     file.well["WELL"] = drillhole.name
