@@ -18,7 +18,6 @@ from geoh5py import Workspace
 from geoh5py.groups import DrillholeGroup
 from geoh5py.objects import Drillhole
 from geoh5py.shared import Entity
-from tqdm import tqdm
 
 
 class LASTranslator:
@@ -165,7 +164,7 @@ def find_copy_name(workspace: Workspace, basename: str, start: int = 1):
     name = f"{basename} ({start})"
     obj = workspace.get_entity(name)
     if obj and obj[0] is not None:
-        find_copy_name(workspace, basename, start=start + 1)
+        name = find_copy_name(workspace, basename, start=start + 1)
     return name
 
 
@@ -224,45 +223,28 @@ def add_data(
     """
 
     depths = get_depths(lasfile)
+    property_group_kwargs = {}
     if "depth" in depths:
         method_name = "validate_depth_data"
         locations = depths["depth"]
+        property_group_kwargs["property_group_type"] = "Depth table"
+        property_group_kwargs["association"] = "DEPTH"
     else:
         method_name = "validate_interval_data"
         locations = depths["from-to"]
-
-    try:
-        property_group = getattr(drillhole, method_name)(
-            "noname",
-            locations,
-            np.zeros_like(locations),
-            property_group=group_name,
-            collocation_distance=1e-4,
-        )
-    except ValueError as err:
-        msg = (
-            f"validate_depth_data call failed with message:\n{err.args[0]}. "
-            f"Skipping import for drillhole {drillhole.name}."
-        )
-        warnings.warn(msg)
-
-        # TODO: Increment property group name if it already exists and the depth
-        # Sampling is different.  Could try removing the try/except block once
-        # done and see if error start to appear.
-
-        return drillhole
+        property_group_kwargs["property_group_type"] = "Interval table"
+        property_group_kwargs["association"] = "FROM-TO"
 
     kwargs: dict[str, Any] = {}
-    for curve in tqdm(
-        [k for k in lasfile.curves if k.mnemonic not in ["DEPT", "DEPTH", "TO"]]
-    ):
+    for curve in [
+        k for k in lasfile.curves if k.mnemonic not in ["DEPT", "DEPTH", "TO"]
+    ]:
         name = curve.mnemonic
         if drillhole.get_data(name):
-            msg = f"Drillhole '{drillhole.name}' already contains '{name}' data"
-            warnings.warn(msg)
-            continue
+            name = find_copy_name(drillhole.workspace, name)
 
         kwargs[name] = {"values": curve.data, "association": "DEPTH"}
+        kwargs[name].update(depths)
 
         is_referenced = any(name in k.mnemonic for k in lasfile.params)
         is_referenced &= any(k.descr == "REFERENCE" for k in lasfile.params)
@@ -279,7 +261,21 @@ def add_data(
         if existing_data and isinstance(existing_data, Entity):
             kwargs[name]["entity_type"] = existing_data.entity_type
 
-    drillhole.add_data(kwargs, property_group=property_group)
+    if kwargs:
+        try:
+            property_group = getattr(drillhole, method_name)(
+                locations,
+                np.zeros_like(locations),
+                property_group=group_name,
+                collocation_distance=1e-4,
+            )
+        except ValueError:
+            group_name = find_copy_name(drillhole.workspace, group_name)
+            property_group = drillhole.find_or_create_property_group(
+                group_name, **property_group_kwargs
+            )
+
+        drillhole.add_data(kwargs, property_group=property_group)
 
     return drillhole
 
