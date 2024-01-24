@@ -21,6 +21,7 @@ from geoh5py import Workspace
 from geoh5py.groups import DrillholeGroup
 from geoh5py.objects import Drillhole
 from geoh5py.shared import Entity
+from geoh5py.shared.concatenation import ConcatenatedDrillhole
 
 
 class LASTranslator:
