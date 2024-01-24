@@ -20,7 +20,7 @@ from geoh5py.ui_json import InputFile
 from lasio import LASFile
 
 from las_geoh5.import_files.driver import elapsed_time_logger
-from las_geoh5.import_las import LASTranslator, add_data
+from las_geoh5.import_las import LASTranslator, add_data, add_survey
 
 
 def generate_lasfile(
@@ -392,3 +392,45 @@ def test_add_data_increments_data_name(tmp_path):
         k.name in ["my group", "my group (1)", "my group (2)"]
         for k in drillhole.property_groups
     ]
+
+
+def test_add_survey_csv(tmp_path):
+    with Workspace.create(tmp_path / "test.geoh5") as workspace:
+        dh_group = DrillholeGroup.create(workspace, name="dh_group")
+        dh = Drillhole.create(workspace, name="dh", parent=dh_group)
+
+        survey = np.c_[
+            np.linspace(0, 100, 10), np.ones(10) * 45.0, np.linspace(-89, -75, 10)
+        ]
+
+        np.savetxt(
+            tmp_path / "survey.csv", survey, header="DEPTH, DIP, AZIMUTH", delimiter=","
+        )
+
+        add_survey(tmp_path / "survey.csv", dh)
+        assert np.allclose(dh.surveys, survey)
+
+
+def test_add_survey_lasfile(tmp_path):
+    with Workspace.create(tmp_path / "test.geoh5") as workspace:
+        dh_group = DrillholeGroup.create(workspace, name="dh_group")
+        dh = Drillhole.create(workspace, name="dh", parent=dh_group)
+
+        survey = np.c_[
+            np.arange(0, 100, 10), np.ones(10) * 45.0, np.linspace(-89, -75, 10)
+        ]
+
+        survey_file = (
+            generate_lasfile(
+                "dh1",
+                {"UTMX": 0.0, "UTMY": 0.0, "ELEV": 10.0},
+                np.arange(0, 100, 10),
+                {"DIP": survey[:, 1], "AZIM": survey[:, 2]},
+            ),
+        )
+
+        _ = write_lasfiles(tmp_path, survey_file)
+        survey_path = tmp_path / "dh1.las"
+
+        add_survey(survey_path, dh)
+        assert np.allclose(dh.surveys, survey)
