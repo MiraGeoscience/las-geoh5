@@ -10,10 +10,7 @@ from __future__ import annotations
 
 import warnings
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
-
-if TYPE_CHECKING:
-    from geoh5py.shared.concatenation import ConcatenatedDrillhole
+from typing import Any
 
 import lasio
 import numpy as np
