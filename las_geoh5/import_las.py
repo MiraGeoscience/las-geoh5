@@ -18,6 +18,7 @@ from geoh5py import Workspace
 from geoh5py.groups import DrillholeGroup
 from geoh5py.objects import Drillhole
 from geoh5py.shared import Entity
+from geoh5py.shared.concatenation import ConcatenatedDrillhole
 
 
 class LASTranslator:
@@ -168,7 +169,9 @@ def find_copy_name(workspace: Workspace, basename: str, start: int = 1):
     return name
 
 
-def add_survey(survey: str | Path, drillhole: Drillhole) -> Drillhole:
+def add_survey(
+    survey: str | Path, drillhole: ConcatenatedDrillhole
+) -> ConcatenatedDrillhole:
     """
     Import survey data from csv or las format and add to drillhole.
 
@@ -208,10 +211,10 @@ def add_survey(survey: str | Path, drillhole: Drillhole) -> Drillhole:
 
 
 def add_data(
-    drillhole: Drillhole,
+    drillhole: ConcatenatedDrillhole,
     lasfile: lasio.LASFile,
     group_name: str,
-) -> Drillhole:
+) -> ConcatenatedDrillhole:
     """
     Add data from las file curves to drillhole.
 
@@ -225,12 +228,10 @@ def add_data(
     depths = get_depths(lasfile)
     property_group_kwargs = {}
     if "depth" in depths:
-        method_name = "validate_depth_data"
         locations = depths["depth"]
         property_group_kwargs["property_group_type"] = "Depth table"
         property_group_kwargs["association"] = "DEPTH"
     else:
-        method_name = "validate_interval_data"
         locations = depths["from-to"]
         property_group_kwargs["property_group_type"] = "Interval table"
         property_group_kwargs["association"] = "FROM-TO"
@@ -262,18 +263,14 @@ def add_data(
             kwargs[name]["entity_type"] = existing_data.entity_type
 
     if kwargs:
-        try:
-            property_group = getattr(drillhole, method_name)(
-                locations,
-                np.zeros_like(locations),
-                property_group=group_name,
-                collocation_distance=1e-4,
-            )
-        except ValueError:
-            group_name = find_copy_name(drillhole.workspace, group_name)
-            property_group = drillhole.find_or_create_property_group(
-                group_name, **property_group_kwargs
-            )
+        if drillhole.property_groups is not None:
+            groups = [g for g in drillhole.property_groups if g.name == group_name]
+            if groups and not groups[0].is_collocated(locations, 0.01):
+                group_name = find_copy_name(drillhole.workspace, group_name)
+
+        property_group = drillhole.find_or_create_property_group(
+            group_name, **property_group_kwargs
+        )
 
         drillhole.add_data(kwargs, property_group=property_group)
 
@@ -286,7 +283,7 @@ def create_or_append_drillhole(
     drillhole_group: DrillholeGroup,
     group_name: str,
     translator: LASTranslator | None = None,
-) -> Drillhole:
+) -> ConcatenatedDrillhole:
     """
     Create a drillhole or append data to drillhole if it exists in workspace.
 
@@ -320,7 +317,7 @@ def create_or_append_drillhole(
 
         drillhole = Drillhole.create(workspace, **kwargs)
 
-    if not isinstance(drillhole, Drillhole):
+    if not isinstance(drillhole, ConcatenatedDrillhole):
         raise TypeError(
             f"Drillhole {name} exists in workspace but is not a Drillhole object."
         )
