@@ -188,8 +188,8 @@ def add_survey(
         file = lasio.read(survey, mnemonic_case="preserve")
         try:
             surveys = np.c_[get_depths(file)["depth"], file["DIP"], file["AZIM"]]
-            if len(drillhole.surveys) == 1:  # type: ignore
-                drillhole.surveys = surveys  # type: ignore
+            if len(drillhole.surveys) == 1:
+                drillhole.surveys = surveys
         except KeyError:
             warnings.warn(
                 "Attempted survey import failed because data read from "
@@ -199,7 +199,7 @@ def add_survey(
     else:
         surveys = np.genfromtxt(survey, delimiter=",", skip_header=0)
         if surveys.shape[1] == 3:
-            drillhole.surveys = surveys  # type: ignore
+            drillhole.surveys = surveys
         else:
             warnings.warn(
                 "Attempted survey import failed because data read from "
