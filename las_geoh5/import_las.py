@@ -264,9 +264,17 @@ def add_data(
 
     if kwargs:
         if drillhole.property_groups is not None:
-            groups = [g for g in drillhole.property_groups if g.name == group_name]
-            if groups and not groups[0].is_collocated(locations, 0.01):
-                group_name = find_copy_name(drillhole.workspace, group_name)
+            root_name_matches = [
+                g for g in drillhole.property_groups if group_name in g.name
+            ]
+            if root_name_matches:
+                group = [
+                    g for g in root_name_matches if g.is_collocated(locations, 0.01)
+                ]
+                if group:
+                    group_name = group[0].name
+                else:
+                    group_name = find_copy_name(drillhole.workspace, group_name)
 
         property_group = drillhole.find_or_create_property_group(
             group_name, **property_group_kwargs
