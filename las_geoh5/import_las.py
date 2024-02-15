@@ -276,16 +276,7 @@ def add_data(
                 else:
                     group_name = find_copy_name(drillhole.workspace, group_name)
 
-        property_group = drillhole.find_or_create_property_group(
-            group_name, **property_group_kwargs
-        )
-
-        drillhole.add_data(kwargs, property_group=property_group)
-        if not property_group.properties:
-            raise ValueError(
-                f"Property group: {property_group.name} for drillhole {drillhole.name}"
-                f" does not contain any properties."
-            )
+        drillhole.add_data(kwargs, property_group=group_name)
 
     return drillhole
 
