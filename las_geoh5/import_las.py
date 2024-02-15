@@ -281,6 +281,11 @@ def add_data(
         )
 
         drillhole.add_data(kwargs, property_group=property_group)
+        if not property_group.properties:
+            raise ValueError(
+                f"Property group: {property_group.name} for drillhole {drillhole.name}"
+                f" does not contain any properties."
+            )
 
     return drillhole
 
@@ -308,6 +313,12 @@ def create_or_append_drillhole(
         translator = LASTranslator()
 
     name = translator.retrieve("well", lasfile)
+    if not name:
+        name = "Unknown"
+        warnings.warn(
+            "No well name provided for las file. Saving drillhole with "
+            "name 'Unknown'."
+        )
     collar = get_collar(lasfile, translator)
     drillhole = drillhole_group.get_entity(name)[0]  # type: ignore
 
