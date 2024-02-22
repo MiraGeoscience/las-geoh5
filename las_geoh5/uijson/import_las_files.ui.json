@@ -69,5 +69,10 @@
         "label": "Skip empty header",
         "value": false,
         "tooltip": "Importing files without collar information results in drillholes placed at the origin. Check this box to skip these files."
+    },
+    "warnings": {
+        "label": "Warnings",
+        "value": true,
+        "tooltip": "Show warnings during import."
     }
 }

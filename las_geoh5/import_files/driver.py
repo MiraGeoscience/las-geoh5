@@ -98,6 +98,7 @@ def run(filepath: str):  # pylint: disable=too-many-locals
         ifile.data["name"],
         translator=translator,
         skip_empty_header=ifile.data["skip_empty_header"],
+        log_warnings=ifile.data["warnings"],
     )
     end_saving = time()
     logger.info(
