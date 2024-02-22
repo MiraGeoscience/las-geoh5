@@ -22,6 +22,7 @@ from las_geoh5.export_directories.driver import export_las_directory
 from las_geoh5.export_las import drillhole_to_las, write_curves
 from las_geoh5.import_directories.driver import import_las_directory
 from las_geoh5.import_las import (
+    add_data,
     create_or_append_drillhole,
     get_collar,
     get_depths,
@@ -300,3 +301,39 @@ def test_import_las_directory(tmp_path):
                 )
 
     assert len(dh_group.property_group_ids) == len(dh_group2.property_group_ids)
+
+
+def test_collocation_tolerance(tmp_path):
+    ws = Workspace(tmp_path / "test.geoh5")
+    dh_group = DrillholeGroup.create(ws, name="dh_group")
+    group_name = "my_property_group"
+
+    drillhole = Drillhole.create(
+        ws,
+        collar=np.r_[0.0, 10.0, 10],
+        parent=dh_group,
+        name="dh1",
+    )
+    drillhole.add_data(
+        {
+            "my_data": {
+                "depth": np.arange(0, 10.0),
+                "values": np.random.randn(10),
+            },
+        },
+        property_group=group_name,
+    )
+
+    lasfile = lasio.LASFile()
+    lasfile.append_curve("DEPTH", np.arange(0, 10) + 0.05)
+
+    data = add_data(drillhole, lasfile, group_name, collocation_tolerance=0.1)
+
+    assert data.property_groups[0].name == group_name
+
+    lasfile = lasio.LASFile()
+    lasfile.append_curve("DEPTH", np.arange(0, 10) + 0.05)
+
+    data = add_data(drillhole, lasfile, group_name, collocation_tolerance=0.01)
+
+    assert data.property_groups

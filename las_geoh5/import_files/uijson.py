@@ -56,6 +56,11 @@ ui_json = dict(
             "optional": True,
             "enabled": False,
         },
+        "collocation_tolerance": {
+            "label": "Collocation tolerance",
+            "value": 0.01,
+            "tooltip": "Tolerance for determining collocation of data locations and ultimately deciding if incoming data should belong to an existing property group.",
+        },
         "skip_empty_header": {
             "label": "Skip empty header",
             "value": False,

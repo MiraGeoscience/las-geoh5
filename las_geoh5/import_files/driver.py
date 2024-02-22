@@ -99,6 +99,7 @@ def run(filepath: str):  # pylint: disable=too-many-locals
         translator=translator,
         skip_empty_header=ifile.data["skip_empty_header"],
         log_warnings=ifile.data["warnings"],
+        collocation_tolerance=ifile.data["collocation_tolerance"],
     )
     end_saving = time()
     logger.info(

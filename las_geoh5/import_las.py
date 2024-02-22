@@ -227,6 +227,7 @@ def add_data(
     drillhole: ConcatenatedDrillhole,
     lasfile: lasio.LASFile,
     group_name: str,
+    collocation_tolerance: float = 0.01,
 ) -> ConcatenatedDrillhole:
     """
     Add data from las file curves to drillhole.
@@ -278,7 +279,7 @@ def add_data(
     if kwargs:
         if drillhole.property_groups is not None:
             groups = [g for g in drillhole.property_groups if g.name == group_name]
-            if groups and not groups[0].is_collocated(locations, 0.01):
+            if groups and not groups[0].is_collocated(locations, collocation_tolerance):
                 group_name = find_copy_name(drillhole.workspace, group_name)
 
         property_group = drillhole.find_or_create_property_group(
@@ -297,6 +298,7 @@ def create_or_append_drillhole(
     group_name: str,
     translator: LASTranslator | None = None,
     log_warnings: bool = True,
+    collocation_tolerance: float = 0.01,
 ) -> ConcatenatedDrillhole:
     """
     Create a drillhole or append data to drillhole if it exists in workspace.
@@ -337,7 +339,9 @@ def create_or_append_drillhole(
             f"Drillhole {name} exists in workspace but is not a Drillhole object."
         )
 
-    drillhole = add_data(drillhole, lasfile, group_name)
+    drillhole = add_data(
+        drillhole, lasfile, group_name, collocation_tolerance=collocation_tolerance
+    )
 
     return drillhole
 
@@ -351,6 +355,7 @@ def las_to_drillhole(  # pylint: disable=too-many-arguments
     translator: LASTranslator | None = None,
     skip_empty_header: bool = False,
     log_warnings: bool = True,
+    collocation_tolerance: float = 0.01,
 ):
     """
     Import a las file containing collocated datasets for a single drillhole.
@@ -363,6 +368,8 @@ def las_to_drillhole(  # pylint: disable=too-many-arguments
     :param translator: Translator for las file.
     :param skip_empty_header: Skip empty header data.
     :param log_warnings: Logs warnings if True
+    :param collocation_tolerance: Tolerance for determining collocation
+        of data locations.
 
     :return: A :obj:`geoh5py.objects.Drillhole` object
     """
@@ -386,6 +393,7 @@ def las_to_drillhole(  # pylint: disable=too-many-arguments
             property_group,
             translator=translator,
             log_warnings=log_warnings,
+            collocation_tolerance=collocation_tolerance,
         )
         ind = [drillhole.name == s.name.rstrip(".las") for s in survey]
         if any(ind):
