@@ -458,7 +458,7 @@ def test_warning_no_well_name(tmp_path):
 
     assert not lasfile.header["Well"]["Well"].value
     match = (
-        "No well name provided for las file. " "Saving drillhole with name 'Unknown'"
+        "No well name provided for las file. Saving drillhole with name 'Unknown'"
     )
     with pytest.warns(UserWarning, match=match):
         create_or_append_drillhole(ws, lasfile, dh_group, "my_property_group")
