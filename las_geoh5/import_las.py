@@ -278,15 +278,21 @@ def add_data(
 
     if kwargs:
         if drillhole.property_groups is not None:
-            groups = [g for g in drillhole.property_groups if g.name == group_name]
-            if groups and not groups[0].is_collocated(locations, collocation_tolerance):
-                group_name = find_copy_name(drillhole.workspace, group_name)
+            root_name_matches = [
+                g for g in drillhole.property_groups if group_name in g.name
+            ]
+            if root_name_matches:
+                group = [
+                    g
+                    for g in root_name_matches
+                    if g.is_collocated(locations, collocation_tolerance)
+                ]
+                if group:
+                    group_name = group[0].name
+                else:
+                    group_name = find_copy_name(drillhole.workspace, group_name)
 
-        property_group = drillhole.find_or_create_property_group(
-            group_name, **property_group_kwargs
-        )
-
-        drillhole.add_data(kwargs, property_group=property_group)
+        drillhole.add_data(kwargs, property_group=group_name)
 
     return drillhole
 
@@ -317,7 +323,12 @@ def create_or_append_drillhole(
         translator = LASTranslator()
 
     name = translator.retrieve("well", lasfile)
-    collar = get_collar(lasfile, translator, log_warnings)
+    if not name and log_warnings:
+        warnings.warn(
+            "No well name provided for las file. Saving drillhole with "
+            "name 'Unknown'."
+        )
+    collar = get_collar(lasfile, translator)
     drillhole = drillhole_group.get_entity(name)[0]  # type: ignore
 
     if not isinstance(drillhole, Drillhole) or (

@@ -20,7 +20,12 @@ from geoh5py.ui_json import InputFile
 from lasio import LASFile
 
 from las_geoh5.import_files.driver import elapsed_time_logger
-from las_geoh5.import_las import LASTranslator, add_data, add_survey
+from las_geoh5.import_las import (
+    LASTranslator,
+    add_data,
+    add_survey,
+    create_or_append_drillhole,
+)
 
 
 def generate_lasfile(
@@ -434,3 +439,26 @@ def test_add_survey_lasfile(tmp_path):
 
         add_survey(survey_path, dh)
         assert np.allclose(dh.surveys, survey)
+
+
+def test_warning_no_well_name(tmp_path):
+    ws = Workspace(tmp_path / "test.geoh5")
+    dh_group = DrillholeGroup.create(ws, name="dh_group")
+
+    lasfiles = [
+        generate_lasfile(
+            "",
+            {"X": 0.0, "Y": 10.0, "ELEV": 10.0},
+            np.arange(0, 10, 0.5),
+            {"my_first_property": None},
+        )
+    ]
+    lasfiles = write_lasfiles(tmp_path, lasfiles)
+    lasfile = lasio.read(tmp_path / f"{lasfiles[0]}")
+
+    assert not lasfile.header["Well"]["Well"].value
+    match = (
+        "No well name provided for las file. Saving drillhole with name 'Unknown'"
+    )
+    with pytest.warns(UserWarning, match=match):
+        create_or_append_drillhole(ws, lasfile, dh_group, "my_property_group")
