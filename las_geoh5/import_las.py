@@ -305,7 +305,6 @@ def create_or_append_drillhole(
 
     name = translator.retrieve("well", lasfile)
     if not name:
-        name = "Unknown"
         warnings.warn(
             "No well name provided for las file. Saving drillhole with "
             "name 'Unknown'."
