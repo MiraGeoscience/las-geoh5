@@ -308,13 +308,13 @@ def test_collocation_tolerance(tmp_path):
     dh_group = DrillholeGroup.create(ws, name="dh_group")
     group_name = "my_property_group"
 
-    drillhole = Drillhole.create(
+    dh1 = Drillhole.create(
         ws,
         collar=np.r_[0.0, 10.0, 10],
         parent=dh_group,
         name="dh1",
     )
-    drillhole.add_data(
+    dh1.add_data(
         {
             "my_data": {
                 "depth": np.arange(0, 10.0),
@@ -326,14 +326,20 @@ def test_collocation_tolerance(tmp_path):
 
     lasfile = lasio.LASFile()
     lasfile.append_curve("DEPTH", np.arange(0, 10) + 0.05)
+    lasfile.append_curve("my_new_data", np.random.randn(10))
 
-    data = add_data(drillhole, lasfile, group_name, collocation_tolerance=0.1)
+    dh1 = add_data(dh1, lasfile, group_name, collocation_tolerance=0.1)
 
-    assert data.property_groups[0].name == group_name
+    assert dh1.property_groups[0].name == group_name
 
     lasfile = lasio.LASFile()
     lasfile.append_curve("DEPTH", np.arange(0, 10) + 0.05)
+    lasfile.append_curve("my_other_new_data", np.random.randn(10))
 
-    data = add_data(drillhole, lasfile, group_name, collocation_tolerance=0.01)
+    dh1 = add_data(dh1, lasfile, group_name, collocation_tolerance=0.01)
 
-    assert data.property_groups
+    assert len(dh1.property_groups) == 2
+    assert all(
+        k.name in ["my_property_group", "my_property_group (1)"]
+        for k in dh1.property_groups
+    )
