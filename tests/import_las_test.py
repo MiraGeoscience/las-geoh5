@@ -457,8 +457,6 @@ def test_warning_no_well_name(tmp_path):
     lasfile = lasio.read(tmp_path / f"{lasfiles[0]}")
 
     assert not lasfile.header["Well"]["Well"].value
-    match = (
-        "No well name provided for las file. Saving drillhole with name 'Unknown'"
-    )
+    match = "No well name provided for las file. Saving drillhole with name 'Unknown'"
     with pytest.warns(UserWarning, match=match):
         create_or_append_drillhole(ws, lasfile, dh_group, "my_property_group")
