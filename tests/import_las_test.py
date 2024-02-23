@@ -20,6 +20,7 @@ from geoh5py.ui_json import InputFile
 from lasio import LASFile
 
 from las_geoh5.import_files.driver import elapsed_time_logger
+from las_geoh5.import_files.params import NameOptions
 from las_geoh5.import_las import (
     LASTranslator,
     add_data,
@@ -245,22 +246,30 @@ def test_las_translator_retrieve(tmp_path):
     lasfile = lasio.read(tmp_path / f"{lasfiles[0]}")
 
     translator = LASTranslator(
-        well="WELL", depth="DEPTH", collar_x="UTMX", collar_y="UTMY"
+        NameOptions(
+            well_name="well",
+            depth_name="DEPTH",
+            collar_x_name="UTMX",
+            collar_y_name="UTMY",
+            collar_z_name="ELEV",
+        )
     )
-    assert translator.retrieve("collar_x", lasfile) == 0.0
-    assert translator.retrieve("collar_y", lasfile) == 10.0
-    assert translator.retrieve("well", lasfile) == "dh1"
-    assert np.allclose(translator.retrieve("depth", lasfile), np.arange(0, 10, 0.5))
+    assert translator.retrieve("collar_x_name", lasfile) == 0.0
+    assert translator.retrieve("collar_y_name", lasfile) == 10.0
+    assert translator.retrieve("well_name", lasfile) == "dh1"
+    assert np.allclose(
+        translator.retrieve("depth_name", lasfile), np.arange(0, 10, 0.5)
+    )
 
     with pytest.raises(
-        KeyError, match="'collar_z' field: 'ELEV' not found in las file."
+        KeyError, match="'collar_z_name' field: 'ELEV' not found in las file."
     ):
-        translator.retrieve("collar_z", lasfile)
+        translator.retrieve("collar_z_name", lasfile)
 
 
 def test_las_translator_translate():
-    translator = LASTranslator(collar_x="UTMX")
-    assert translator.translate("collar_x") == "UTMX"
+    translator = LASTranslator(NameOptions(collar_x_name="UTMX"))
+    assert translator.translate("collar_x_name") == "UTMX"
     with pytest.raises(KeyError, match="'not_a_field' is not a recognized field."):
         translator.translate("not_a_field")
 
@@ -457,8 +466,12 @@ def test_warning_no_well_name(tmp_path):
     lasfile = lasio.read(tmp_path / f"{lasfiles[0]}")
 
     assert not lasfile.header["Well"]["Well"].value
-    match = (
-        "No well name provided for las file. Saving drillhole with name 'Unknown'"
-    )
+    match = "No well name provided for las file. Saving drillhole with name 'Unknown'"
     with pytest.warns(UserWarning, match=match):
-        create_or_append_drillhole(ws, lasfile, dh_group, "my_property_group")
+        create_or_append_drillhole(
+            ws,
+            lasfile,
+            dh_group,
+            "my_property_group",
+            translator=LASTranslator(NameOptions()),
+        )

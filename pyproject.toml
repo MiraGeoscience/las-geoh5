@@ -23,6 +23,7 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = "^3.9, <3.11"
+pydantic = {version = "~2.5", optional = true}
 
 ## dependencies on github repos
 geoh5py = {git = "https://github.com/MiraGeoscience/geoh5py.git", branch = "develop"}
