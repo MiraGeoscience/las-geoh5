@@ -283,7 +283,7 @@ def add_data(
     return drillhole
 
 
-def create_or_append_drillhole(
+def create_or_append_drillhole(  # pylint: disable=too-many-arguments
     workspace: Workspace,
     lasfile: lasio.LASFile,
     drillhole_group: DrillholeGroup,
