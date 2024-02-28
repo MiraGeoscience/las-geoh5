@@ -38,7 +38,7 @@ class LASTranslator:
 
         :return: Name of corresponding field in las file.
         """
-        if field not in self.names.dict():
+        if field not in dict(self.names):
             raise KeyError(f"'{field}' is not a recognized field.")
 
         return getattr(self.names, field)
@@ -309,7 +309,7 @@ def create_or_append_drillhole(  # pylint: disable=too-many-arguments
     if translator is None:
         translator = LASTranslator(NameOptions())
 
-    name = translator.retrieve("well", lasfile)
+    name = translator.retrieve("well_name", lasfile)
     if not name and logger is not None:
         logger.warning(
             "No well name provided for las file. "
@@ -345,7 +345,7 @@ def create_or_append_drillhole(  # pylint: disable=too-many-arguments
     return drillhole
 
 
-def las_to_drillhole(
+def las_to_drillhole(  # pylint: disable=too-many-arguments
     workspace: Workspace,
     data: lasio.LASFile | list[lasio.LASFile],
     drillhole_group: DrillholeGroup,

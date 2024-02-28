@@ -9,6 +9,7 @@
 from __future__ import annotations
 
 import importlib
+import logging
 
 import lasio
 import numpy as np
@@ -450,7 +451,8 @@ def test_add_survey_lasfile(tmp_path):
         assert np.allclose(dh.surveys, survey)
 
 
-def test_warning_no_well_name(tmp_path):
+def test_warning_no_well_name(tmp_path, caplog):
+    logger = logging.getLogger("las_geoh5.import_las")
     ws = Workspace(tmp_path / "test.geoh5")
     dh_group = DrillholeGroup.create(ws, name="dh_group")
 
@@ -467,11 +469,14 @@ def test_warning_no_well_name(tmp_path):
 
     assert not lasfile.header["Well"]["Well"].value
     match = "No well name provided for las file. Saving drillhole with name 'Unknown'"
-    with pytest.warns(UserWarning, match=match):
+    with caplog.at_level(logging.WARNING):
         create_or_append_drillhole(
             ws,
             lasfile,
             dh_group,
             "my_property_group",
             translator=LASTranslator(NameOptions()),
+            logger=logger,
         )
+
+        assert match in caplog.text
