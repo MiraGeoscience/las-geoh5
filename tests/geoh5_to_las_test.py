@@ -6,6 +6,7 @@
 #  (see LICENSE file at the root of this source code package).
 #
 
+import logging
 import random
 import string
 from pathlib import Path
@@ -47,16 +48,15 @@ def test_get_depths():
         get_depths(lasfile)
 
 
-def test_get_collar():
+def test_get_collar(caplog):
+    logger = logging.getLogger("las_geoh5.import_las")
     lasfile = lasio.LASFile()
     lasfile.well.append(lasio.HeaderItem(mnemonic="X", value=10.0))
     lasfile.well.append(lasio.HeaderItem(mnemonic="Y", value=10.0))
-    msg = (
-        "Collar z field 'ELEV' not found in las file. Setting coordinate to 0.0. "
-        r"Non-null header fields include: \['X', 'Y'\]."
-    )
-    with pytest.warns(UserWarning, match=msg):
-        get_collar(lasfile)
+    msg = "Collar z field 'ELEV' not found in las file"
+    with caplog.at_level(logging.WARNING):
+        get_collar(lasfile, logger=logger)
+        assert msg in caplog.text
     assert np.allclose(get_collar(lasfile), [10.0, 10.0, 0.0])
     lasfile.well.append(lasio.HeaderItem(mnemonic="ELEV", value=10.0))
     assert np.allclose(get_collar(lasfile), [10.0, 10.0, 10.0])

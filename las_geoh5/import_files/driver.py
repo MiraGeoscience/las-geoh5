@@ -48,7 +48,7 @@ def elapsed_time_logger(start, end, message):
     return out
 
 
-def run(filepath: str):  # pylint: disable=too-many-locals
+def run(filepath: str, warnings: bool = True):  # pylint: disable=too-many-locals
     start = time()
     ifile = InputFile.read_ui_json(filepath)
 
@@ -98,7 +98,7 @@ def run(filepath: str):  # pylint: disable=too-many-locals
         ifile.data["name"],
         translator=translator,
         skip_empty_header=ifile.data["skip_empty_header"],
-        log_warnings=ifile.data["warnings"],
+        logger=logger if warnings else None,
     )
     end_saving = time()
     logger.info(
