@@ -443,7 +443,7 @@ def test_add_survey_lasfile(tmp_path):
 
 
 def test_warning_no_well_name(tmp_path, caplog):
-    logger = logging.getLogger("las_geoh5")
+    logger = logging.getLogger("las_geoh5.import_files.driver")
     ws = Workspace(tmp_path / "test.geoh5")
     dh_group = DrillholeGroup.create(ws, name="dh_group")
 
