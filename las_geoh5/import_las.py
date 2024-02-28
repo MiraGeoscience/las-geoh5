@@ -28,6 +28,7 @@ class LASTranslator:
 
     class Standards(Enum):
         """Standardized field names for las files."""
+
         WELL = "well"
         DEPTH = "depth"
         X = "collar_x"
