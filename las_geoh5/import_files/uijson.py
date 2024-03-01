@@ -66,5 +66,10 @@ ui_json = dict(
                 ""
             ),
         },
+        "warnings": {
+            "label": "Warnings",
+            "value": True,
+            "tooltip": "Show warnings during import.",
+        },
     }
 )
