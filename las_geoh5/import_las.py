@@ -8,7 +8,8 @@
 
 from __future__ import annotations
 
-import warnings
+import logging
+from enum import Enum
 from pathlib import Path
 from typing import Any
 
@@ -19,41 +20,43 @@ from geoh5py.groups import DrillholeGroup
 from geoh5py.objects import Drillhole
 from geoh5py.shared import Entity
 from geoh5py.shared.concatenation import ConcatenatedDrillhole
+from tqdm import tqdm
 
 
 class LASTranslator:
     """Translator for the weakly standardized LAS file standard."""
 
-    las_geoh5_standard = {
-        "well": "WELL",
-        "depth": "DEPTH",
-        "collar_x": "X",
-        "collar_y": "Y",
-        "collar_z": "ELEV",
-    }
+    class Standards(Enum):
+        """Standardized field names for las files."""
+
+        WELL = "well"
+        DEPTH = "depth"
+        X = "collar_x"
+        Y = "collar_y"
+        ELEV = "collar_z"
 
     def __init__(
         self,
-        well: str = las_geoh5_standard["well"],
-        depth: str = las_geoh5_standard["depth"],
-        collar_x: str = las_geoh5_standard["collar_x"],
-        collar_y: str = las_geoh5_standard["collar_y"],
-        collar_z: str = las_geoh5_standard["collar_z"],
+        well: str | None = None,
+        depth: str | None = None,
+        collar_x: str | None = None,
+        collar_y: str | None = None,
+        collar_z: str | None = None,
     ):
-        self.well = well
-        self.depth = depth
-        self.collar_x = collar_x
-        self.collar_y = collar_y
-        self.collar_z = collar_z
+        self.well = well or self.Standards.WELL.name
+        self.depth = depth or self.Standards.DEPTH.name
+        self.collar_x = collar_x or self.Standards.X.name
+        self.collar_y = collar_y or self.Standards.Y.name
+        self.collar_z = collar_z or self.Standards.ELEV.name
 
     def translate(self, field: str):
         """
-        Return translated field name or rais KeyError if field not recognized.
+        Return translated field name or raise KeyError if field not recognized.
 
         :param field: Standardized field name.
         :return: Name of corresponding field in las file.
         """
-        if field not in self.las_geoh5_standard:
+        if field not in [s.value for s in self.Standards]:
             raise KeyError(f"'{field}' is not a recognized field.")
 
         return getattr(self, field)
@@ -110,11 +113,17 @@ def get_depths(lasfile: lasio.LASFile) -> dict[str, np.ndarray]:
     return out
 
 
-def get_collar(lasfile: lasio.LASFile, translator: LASTranslator | None = None) -> list:
+def get_collar(
+    lasfile: lasio.LASFile,
+    translator: LASTranslator | None = None,
+    logger: logging.Logger | None = None,
+) -> list:
     """
     Returns collar data from las file or None if data missing.
 
     :param lasfile: Las file object.
+    :param translator: Translator for las file.
+    :param logger: Logger object if warnings are enabled.
 
     :return: Collar data.
     """
@@ -134,12 +143,13 @@ def get_collar(lasfile: lasio.LASFile, translator: LASTranslator | None = None) 
                 for k in lasfile.well
                 if k.value and k.mnemonic not in exclusions
             ]
-            warnings.warn(
-                f"{field.replace('_', ' ').capitalize()} field "
-                f"'{getattr(translator, field)}' not found in las file."
-                f" Setting coordinate to 0.0. Non-null header fields include: "
-                f"{options}."
-            )
+            if logger is not None:
+                logger.warning(
+                    f"{field.replace('_', ' ').capitalize()} field "
+                    f"'{getattr(translator, field)}' not found in las file."
+                    f" Setting coordinate to 0.0. Non-null header fields include: "
+                    f"{options}."
+                )
 
             collar_coord = 0.0
 
@@ -170,13 +180,16 @@ def find_copy_name(workspace: Workspace, basename: str, start: int = 1):
 
 
 def add_survey(
-    survey: str | Path, drillhole: ConcatenatedDrillhole
+    survey: str | Path,
+    drillhole: ConcatenatedDrillhole,
+    logger: logging.Logger | None = None,
 ) -> ConcatenatedDrillhole:
     """
     Import survey data from csv or las format and add to drillhole.
 
     :param survey: Path to a survey file stored as .csv or .las format.
     :param drillhole: Drillhole object to append data to.
+    :param logger: logger object if warning are enabled.
 
     :return: Updated drillhole object.
     """
@@ -191,21 +204,23 @@ def add_survey(
             if len(drillhole.surveys) == 1:
                 drillhole.surveys = surveys
         except KeyError:
-            warnings.warn(
-                "Attempted survey import failed because data read from "
-                ".las file did not contain the expected 3 curves 'DEPTH'"
-                ", 'DIP', 'AZIM'."
-            )
+            if logger is not None:
+                logger.warning(
+                    "Attempted survey import failed because data read from "
+                    ".las file did not contain the expected 3 curves 'DEPTH'"
+                    ", 'DIP', 'AZIM'."
+                )
     else:
         surveys = np.genfromtxt(survey, delimiter=",", skip_header=0)
         if surveys.shape[1] == 3:
             drillhole.surveys = surveys
         else:
-            warnings.warn(
-                "Attempted survey import failed because data read from "
-                "comma separated file did not contain the expected 3 "
-                "columns of depth/dip/azimuth."
-            )
+            if logger is not None:
+                logger.warning(
+                    "Attempted survey import failed because data read from "
+                    "comma separated file did not contain the expected 3 "
+                    "columns of depth/dip/azimuth."
+                )
 
     return drillhole
 
@@ -287,6 +302,7 @@ def create_or_append_drillhole(
     drillhole_group: DrillholeGroup,
     group_name: str,
     translator: LASTranslator | None = None,
+    logger: logging.Logger | None = None,
 ) -> ConcatenatedDrillhole:
     """
     Create a drillhole or append data to drillhole if it exists in workspace.
@@ -296,6 +312,7 @@ def create_or_append_drillhole(
     :param drillhole_group: Drillhole group container.
     :param group_name: Property group name.
     :param translator: Translator for las file.
+    :param logger: Logger object if warnings are enabled.
 
     :return: Created or augmented drillhole.
     """
@@ -304,12 +321,12 @@ def create_or_append_drillhole(
         translator = LASTranslator()
 
     name = translator.retrieve("well", lasfile)
-    if not name:
-        warnings.warn(
+    if not name and logger is not None:
+        logger.warning(
             "No well name provided for las file. Saving drillhole with "
             "name 'Unknown'."
         )
-    collar = get_collar(lasfile, translator)
+    collar = get_collar(lasfile, translator, logger)
     drillhole = drillhole_group.get_entity(name)[0]  # type: ignore
 
     if not isinstance(drillhole, Drillhole) or (
@@ -344,6 +361,7 @@ def las_to_drillhole(  # pylint: disable=too-many-arguments
     survey: Path | list[Path] | None = None,
     translator: LASTranslator | None = None,
     skip_empty_header: bool = False,
+    logger: logging.Logger | None = None,
 ):
     """
     Import a las file containing collocated datasets for a single drillhole.
@@ -355,6 +373,7 @@ def las_to_drillhole(  # pylint: disable=too-many-arguments
     :param survey: Path to a survey file stored as .csv or .las format.
     :param translator: Translator for las file.
     :param skip_empty_header: Skip empty header data.
+    :param logger: Logger object if warnings are enabled.
 
     :return: A :obj:`geoh5py.objects.Drillhole` object
     """
@@ -366,15 +385,20 @@ def las_to_drillhole(  # pylint: disable=too-many-arguments
     if translator is None:
         translator = LASTranslator()
 
-    for datum in data:
-        collar = get_collar(datum, translator)
+    for datum in tqdm(data, desc="Adding drillholes and data to workspace"):
+        collar = get_collar(datum, translator, logger)
         if all(k == 0 for k in collar) and skip_empty_header:
             continue
 
         drillhole = create_or_append_drillhole(
-            workspace, datum, drillhole_group, property_group, translator=translator
+            workspace,
+            datum,
+            drillhole_group,
+            property_group,
+            translator=translator,
+            logger=logger,
         )
         ind = [drillhole.name == s.name.rstrip(".las") for s in survey]
         if any(ind):
             survey_path = survey[np.where(ind)[0][0]]
-            _ = add_survey(survey_path, drillhole)
+            _ = add_survey(survey_path, drillhole, logger)
