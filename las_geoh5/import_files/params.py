@@ -31,9 +31,11 @@ class NameOptions(BaseModel):
     collar_y_name: str = "Y"
     collar_z_name: str = "ELEV"
 
-    @model_validator(mode='before')
+    @model_validator(mode="before")
+    @classmethod
     def skip_none_value(cls, data: dict) -> dict:
-        return {k:v for k,v in data.items() if v is not None}
+        return {k: v for k, v in data.items() if v is not None}
+
 
 class ImportOptions(BaseModel):
     """
