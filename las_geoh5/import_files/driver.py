@@ -90,7 +90,7 @@ def run(filepath: str):  # pylint: disable=too-many-locals
     )
     begin_saving = time()
 
-    name_options = NameOptions(**{k: v for k, v in ifile.data.items() if v is not None})
+    name_options = NameOptions(**ifile.data)
     import_options = ImportOptions(names=name_options, **ifile.data)
     las_to_drillhole(
         workspace,

@@ -5,10 +5,9 @@
 #  All rights reserved.
 #
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, model_validator
 
 LAS_GEOH5_STANDARD = {
-    "well_name": "WELL",
     "depth_name": "DEPTH",
     "collar_x_name": "X",
     "collar_y_name": "Y",
@@ -26,12 +25,15 @@ class NameOptions(BaseModel):
     :param collar_z_name: Name of the collar z field.
     """
 
-    well_name: str = LAS_GEOH5_STANDARD["well_name"]
-    depth_name: str = LAS_GEOH5_STANDARD["depth_name"]
-    collar_x_name: str = LAS_GEOH5_STANDARD["collar_x_name"]
-    collar_y_name: str = LAS_GEOH5_STANDARD["collar_y_name"]
-    collar_z_name: str = LAS_GEOH5_STANDARD["collar_z_name"]
+    well_name: str = "WELL"
+    depth_name: str = "DEPTH"
+    collar_x_name: str = "X"
+    collar_y_name: str = "Y"
+    collar_z_name: str = "ELEV"
 
+    @model_validator(mode='before')
+    def skip_none_value(cls, data: dict) -> dict:
+        return {k:v for k,v in data.items() if v is not None}
 
 class ImportOptions(BaseModel):
     """
