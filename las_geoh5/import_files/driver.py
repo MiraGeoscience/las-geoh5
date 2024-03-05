@@ -21,7 +21,8 @@ from geoh5py.shared.utils import fetch_active_workspace
 from geoh5py.ui_json import InputFile
 from tqdm import tqdm
 
-from las_geoh5.import_las import LASTranslator, las_to_drillhole
+from las_geoh5.import_files.params import ImportOptions, NameOptions
+from las_geoh5.import_las import las_to_drillhole
 
 logger = logging.getLogger("Import Files")
 logger.setLevel(logging.INFO)
@@ -61,13 +62,6 @@ def run(filepath: str):  # pylint: disable=too-many-locals
         ifile.data["geoh5"].h5file.stem,
     )
 
-    translator = LASTranslator(
-        depth=ifile.data["depths_name"],
-        collar_x=ifile.data["collar_x_name"],
-        collar_y=ifile.data["collar_y_name"],
-        collar_z=ifile.data["collar_z_name"],
-    )
-
     workspace = Workspace()
     begin_reading = time()
 
@@ -95,14 +89,15 @@ def run(filepath: str):  # pylint: disable=too-many-locals
         ifile.data["name"],
     )
     begin_saving = time()
+
+    name_options = NameOptions(**ifile.data)
+    import_options = ImportOptions(names=name_options, **ifile.data)
     las_to_drillhole(
         workspace,
         lasfiles,
         dh_group,
         ifile.data["name"],
-        translator=translator,
-        skip_empty_header=ifile.data["skip_empty_header"],
-        logger=logger if ifile.data["warnings"] else None,
+        options=import_options,
     )
     end_saving = time()
     logger.info(

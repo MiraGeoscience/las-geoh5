@@ -9,7 +9,6 @@
 from __future__ import annotations
 
 import logging
-from enum import Enum
 from pathlib import Path
 from typing import Any
 
@@ -22,61 +21,45 @@ from geoh5py.shared import Entity
 from geoh5py.shared.concatenation import ConcatenatedDrillhole
 from tqdm import tqdm
 
+from las_geoh5.import_files.params import ImportOptions, NameOptions
+
 
 class LASTranslator:
     """Translator for the weakly standardized LAS file standard."""
 
-    class Standards(Enum):
-        """Standardized field names for las files."""
-
-        WELL = "well"
-        DEPTH = "depth"
-        X = "collar_x"
-        Y = "collar_y"
-        ELEV = "collar_z"
-
-    def __init__(
-        self,
-        well: str | None = None,
-        depth: str | None = None,
-        collar_x: str | None = None,
-        collar_y: str | None = None,
-        collar_z: str | None = None,
-    ):
-        self.well = well or self.Standards.WELL.name
-        self.depth = depth or self.Standards.DEPTH.name
-        self.collar_x = collar_x or self.Standards.X.name
-        self.collar_y = collar_y or self.Standards.Y.name
-        self.collar_z = collar_z or self.Standards.ELEV.name
+    def __init__(self, names: NameOptions):
+        self.names = names
 
     def translate(self, field: str):
         """
-        Return translated field name or raise KeyError if field not recognized.
+        Return translated field name or rais KeyError if field not recognized.
 
         :param field: Standardized field name.
+
         :return: Name of corresponding field in las file.
         """
-        if field not in [s.value for s in self.Standards]:
+        if field not in dict(self.names):
             raise KeyError(f"'{field}' is not a recognized field.")
 
-        return getattr(self, field)
+        return getattr(self.names, field)
 
-    def retrieve(self, field, lasfile):
+    def retrieve(self, field: str, lasfile: lasio.LASFile):
         """
         Access las data using translation.
 
         :param field: Name of field to retrieve.
         :param lasfile: lasio file object.
+
         :return: data stored in las file under translated field name.
         """
-        if getattr(self, field) in lasfile.well:
-            out = lasfile.well[getattr(self, field)].value
-        elif getattr(self, field) in lasfile.curves:
-            out = lasfile.curves[getattr(self, field)].data
-        elif getattr(self, field) in lasfile.params:
-            out = lasfile.params[getattr(self, field)].value
+        if getattr(self.names, field) in lasfile.well:
+            out = lasfile.well[getattr(self.names, field)].value
+        elif getattr(self.names, field) in lasfile.curves:
+            out = lasfile.curves[getattr(self.names, field)].data
+        elif getattr(self.names, field) in lasfile.params:
+            out = lasfile.params[getattr(self.names, field)].value
         else:
-            msg = f"'{field}' field: '{getattr(self, field)}' not found in las file."
+            msg = f"'{field}' field: '{getattr(self.names, field)}' not found in las file."
             raise KeyError(msg)
 
         return out
@@ -129,10 +112,10 @@ def get_collar(
     """
 
     if translator is None:
-        translator = LASTranslator()
+        translator = LASTranslator(names=NameOptions())
 
     collar = []
-    for field in ["collar_x", "collar_y", "collar_z"]:
+    for field in ["collar_x_name", "collar_y_name", "collar_z_name"]:
         collar_coord = 0.0
         try:
             collar_coord = translator.retrieve(field, lasfile)
@@ -146,7 +129,7 @@ def get_collar(
             if logger is not None:
                 logger.warning(
                     f"{field.replace('_', ' ').capitalize()} field "
-                    f"'{getattr(translator, field)}' not found in las file."
+                    f"'{getattr(translator.names, field)}' not found in las file."
                     f" Setting coordinate to 0.0. Non-null header fields include: "
                     f"{options}."
                 )
@@ -229,13 +212,15 @@ def add_data(
     drillhole: ConcatenatedDrillhole,
     lasfile: lasio.LASFile,
     group_name: str,
+    collocation_tolerance: float = 0.01,
 ) -> ConcatenatedDrillhole:
     """
     Add data from las file curves to drillhole.
 
     :param drillhole: Drillhole object to append data to.
     :param lasfile: Las file object.
-    :param property_group: Property group.
+    :param group_name: Property group name.
+    :param collocation_tolerance: Tolerance for determining collocation of data.
 
     :return: Updated drillhole object.
     """
@@ -284,7 +269,9 @@ def add_data(
             ]
             if root_name_matches:
                 group = [
-                    g for g in root_name_matches if g.is_collocated(locations, 0.01)
+                    g
+                    for g in root_name_matches
+                    if g.is_collocated(locations, collocation_tolerance)
                 ]
                 if group:
                     group_name = group[0].name
@@ -296,12 +283,13 @@ def add_data(
     return drillhole
 
 
-def create_or_append_drillhole(
+def create_or_append_drillhole(  # pylint: disable=too-many-arguments
     workspace: Workspace,
     lasfile: lasio.LASFile,
     drillhole_group: DrillholeGroup,
     group_name: str,
     translator: LASTranslator | None = None,
+    collocation_tolerance: float = 0.01,
     logger: logging.Logger | None = None,
 ) -> ConcatenatedDrillhole:
     """
@@ -312,20 +300,22 @@ def create_or_append_drillhole(
     :param drillhole_group: Drillhole group container.
     :param group_name: Property group name.
     :param translator: Translator for las file.
+    :param collocation_tolerance: Tolerance for determining collocation of data.
     :param logger: Logger object if warnings are enabled.
 
     :return: Created or augmented drillhole.
     """
 
     if translator is None:
-        translator = LASTranslator()
+        translator = LASTranslator(NameOptions())
 
-    name = translator.retrieve("well", lasfile)
+    name = translator.retrieve("well_name", lasfile)
     if not name and logger is not None:
         logger.warning(
-            "No well name provided for las file. Saving drillhole with "
-            "name 'Unknown'."
+            "No well name provided for las file. "
+            "Saving drillhole with name 'Unknown'."
         )
+
     collar = get_collar(lasfile, translator, logger)
     drillhole = drillhole_group.get_entity(name)[0]  # type: ignore
 
@@ -348,7 +338,9 @@ def create_or_append_drillhole(
             f"Drillhole {name} exists in workspace but is not a Drillhole object."
         )
 
-    drillhole = add_data(drillhole, lasfile, group_name)
+    drillhole = add_data(
+        drillhole, lasfile, group_name, collocation_tolerance=collocation_tolerance
+    )
 
     return drillhole
 
@@ -359,9 +351,8 @@ def las_to_drillhole(  # pylint: disable=too-many-arguments
     drillhole_group: DrillholeGroup,
     property_group: str,
     survey: Path | list[Path] | None = None,
-    translator: LASTranslator | None = None,
-    skip_empty_header: bool = False,
     logger: logging.Logger | None = None,
+    options: ImportOptions | None = None,
 ):
     """
     Import a las file containing collocated datasets for a single drillhole.
@@ -371,23 +362,26 @@ def las_to_drillhole(  # pylint: disable=too-many-arguments
     :param drillhole_group: Drillhole group container.
     :param property_group: Property group name.
     :param survey: Path to a survey file stored as .csv or .las format.
-    :param translator: Translator for las file.
-    :param skip_empty_header: Skip empty header data.
     :param logger: Logger object if warnings are enabled.
+    :param options: Import options covering name translations, collocation
+        tolerance, and warnings control.
 
     :return: A :obj:`geoh5py.objects.Drillhole` object
     """
+
+    if options is None:
+        options = ImportOptions()
+
+    translator = LASTranslator(names=options.names)
 
     if not isinstance(data, list):
         data = [data]
     if not isinstance(survey, list):
         survey = [survey] if survey else []
-    if translator is None:
-        translator = LASTranslator()
 
     for datum in tqdm(data, desc="Adding drillholes and data to workspace"):
         collar = get_collar(datum, translator, logger)
-        if all(k == 0 for k in collar) and skip_empty_header:
+        if all(k == 0 for k in collar) and options.skip_empty_header:
             continue
 
         drillhole = create_or_append_drillhole(
@@ -397,6 +391,7 @@ def las_to_drillhole(  # pylint: disable=too-many-arguments
             property_group,
             translator=translator,
             logger=logger,
+            collocation_tolerance=options.collocation_tolerance,
         )
         ind = [drillhole.name == s.name.rstrip(".las") for s in survey]
         if any(ind):
