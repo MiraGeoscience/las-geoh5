@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 Mira Geoscience Ltd.
+#  Copyright (c) 2024 Mira Geoscience Ltd.
 #
 #  This file is part of las-geoh5 project.
 #
@@ -17,6 +17,7 @@ from geoh5py.groups import DrillholeGroup
 from geoh5py.shared.utils import fetch_active_workspace
 from geoh5py.ui_json import InputFile
 
+from las_geoh5.import_files.params import ImportOptions
 from las_geoh5.import_las import las_to_drillhole
 
 
@@ -63,7 +64,14 @@ def import_las_directory(
         for file in [k for k in prop.iterdir() if k.suffix == ".las"]:
             lasfiles.append(lasio.read(file, mnemonic_case="preserve"))
         print(f"Importing property group data from to {prop.name}")
-        las_to_drillhole(workspace, lasfiles, dh_group, prop.name, surveys)
+        las_to_drillhole(
+            workspace,
+            lasfiles,
+            dh_group,
+            prop.name,
+            surveys,
+            options=ImportOptions(),
+        )
 
     return dh_group
 
