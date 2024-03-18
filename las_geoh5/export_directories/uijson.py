@@ -6,32 +6,29 @@
 #  (see LICENSE file at the root of this source code package).
 #
 
+from copy import deepcopy
 
-ui_json = {
-    "title": "Drillhole group to LAS file directories",
-    "geoh5": None,
-    "run_command": "las_geoh5.export_directories.driver",
-    "run_command_boolean": {
-        "value": False,
-        "label": "Run python module",
-        "main": True,
-        "tooltip": "Warning: launches process to run python model on save",
+from geoh5py.ui_json.constants import default_ui_json
+
+# pylint: disable=duplicate-code
+
+ui_json = dict(
+    deepcopy(default_ui_json),
+    **{
+        "title": "Drillhole group to LAS file directories",
+        "run_command": "las_geoh5.export_directories.driver",
+        "drillhole_group": {
+            "main": True,
+            "label": "Drillhole group",
+            "value": None,
+            "groupType": ["{825424fb-c2c6-4fea-9f2b-6cd00023d393}"],
+        },
+        "name": {
+            "main": True,
+            "label": "Property group name",
+            "value": None,
+            "optional": True,
+            "enabled": False,
+        },
     },
-    "monitoring_directory": None,
-    "conda_environment": "las-geoh5",
-    "conda_environment_boolean": False,
-    "workspace": None,
-    "drillhole_group": {
-        "main": True,
-        "label": "Drillhole group",
-        "value": None,
-        "groupType": ["{825424fb-c2c6-4fea-9f2b-6cd00023d393}"],
-    },
-    "name": {
-        "main": True,
-        "label": "Property group name",
-        "value": None,
-        "optional": True,
-        "enabled": False,
-    },
-}
+)

@@ -8,7 +8,6 @@
 from pydantic import BaseModel, ConfigDict, model_validator
 
 LAS_GEOH5_STANDARD = {
-    "depth_name": "DEPTH",
     "collar_x_name": "X",
     "collar_y_name": "Y",
     "collar_z_name": "ELEV",
@@ -19,14 +18,12 @@ class NameOptions(BaseModel):
     """
     Stores options for naming of dillhole parameters in las files.
 
-    :param depth_name: Name of the depth field.
     :param collar_x_name: Name of the collar x field.
     :param collar_y_name: Name of the collar y field.
     :param collar_z_name: Name of the collar z field.
     """
 
     well_name: str = "WELL"
-    depth_name: str = "DEPTH"
     collar_x_name: str = "X"
     collar_y_name: str = "Y"
     collar_z_name: str = "ELEV"

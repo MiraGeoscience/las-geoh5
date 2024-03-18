@@ -24,17 +24,40 @@ from tqdm import tqdm
 from las_geoh5.import_files.params import ImportOptions, NameOptions
 from las_geoh5.import_las import las_to_drillhole
 
-logger = logging.getLogger("Import Files")
-logger.setLevel(logging.INFO)
-stream_handler = logging.StreamHandler()
-file_handler = logging.FileHandler("import_las_files.log")
-formatter = logging.Formatter("%(asctime)s : %(name)s : %(levelname)s : %(message)s")
-file_handler.setFormatter(formatter)
-stream_handler.setFormatter(formatter)
-file_handler.setLevel(logging.INFO)
-stream_handler.setLevel(logging.INFO)
-logger.addHandler(file_handler)
-logger.addHandler(stream_handler)
+
+def get_logger(
+    name: str, level: int = logging.INFO, path: str | Path | None = None
+) -> logging.Logger:
+    """
+    Create a looger with stream and optional file handlers.
+
+    :param name: Logger name.
+    :param level: logging level.
+    :param path: Creates a file handler at the specified path if not None.
+    :return: Logger object.
+    """
+    if isinstance(path, str):
+        path = Path(path)
+
+    logger = logging.getLogger(name)
+    logger.setLevel(level)
+    formatter = logging.Formatter(
+        "%(asctime)s : %(name)s : %(levelname)s : %(message)s"
+    )
+
+    stream_handler = logging.StreamHandler()
+    stream_handler.setFormatter(formatter)
+    stream_handler.setLevel(level)
+    logger.addHandler(stream_handler)
+
+    if path is not None:
+        filename = f"{'_'.join([k.lower() for k in name.split(' ')])}.log"
+        file_handler = logging.FileHandler(path / filename)
+        file_handler.setFormatter(formatter)
+        file_handler.setLevel(level)
+        logger.addHandler(file_handler)
+
+    return logger
 
 
 def elapsed_time_logger(start, end, message):
@@ -53,10 +76,11 @@ def elapsed_time_logger(start, end, message):
     return out
 
 
-def run(filepath: str):  # pylint: disable=too-many-locals
+def run(filepath: Path):  # pylint: disable=too-many-locals
     start = time()
     ifile = InputFile.read_ui_json(filepath)
 
+    logger = get_logger("Import Files", path=filepath.parent)
     logger.info(
         "Importing las file data to workspace %s.geoh5.",
         ifile.data["geoh5"].h5file.stem,
@@ -65,6 +89,9 @@ def run(filepath: str):  # pylint: disable=too-many-locals
     workspace = Workspace()
     begin_reading = time()
 
+    # lasfiles = []
+    # for file in ifile.data["files"].split(";"):
+    #     lasfiles.append(lasio.read(file, mnemonic_case="preserve"))
     with Pool() as pool:
         futures = []
         for file in tqdm(ifile.data["files"].split(";"), desc="Reading las files"):
@@ -105,9 +132,9 @@ def run(filepath: str):  # pylint: disable=too-many-locals
     )
     end = time()
     logger.info(elapsed_time_logger(start, end, "All done."))
-    logpath = Path(file_handler.baseFilename)
+    logpath = Path(logger.handlers[1].baseFilename)  # type: ignore
     dh_group.add_file(logpath)
-    file_handler.close()
+    logger.handlers[1].close()
     logpath.unlink()
 
     if ifile.data["monitoring_directory"]:
@@ -130,4 +157,4 @@ def run(filepath: str):  # pylint: disable=too-many-locals
 
 
 if __name__ == "__main__":
-    run(sys.argv[1])
+    run(Path(sys.argv[1]))
