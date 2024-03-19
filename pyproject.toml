@@ -30,8 +30,8 @@ python = "^3.9, <3.11"
 pydantic = "~2.5"
 
 ## dependencies on github repos
-geoh5py = {git = "https://github.com/MiraGeoscience/geoh5py.git", branch = "develop"}
-#geoh5py = {version ="~0.9.0-alpha.1", allow-prereleases = true}
+#geoh5py = {git = "https://github.com/MiraGeoscience/geoh5py.git", branch = "develop"}
+geoh5py = {version ="~0.9.0-alpha.2", allow-prereleases = true}
 
 ## pip dependencies
 lasio = "~0.31"
