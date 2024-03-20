@@ -158,11 +158,10 @@ def write_curves(
             subpath = basepath / group.name
             if not subpath.exists():
                 subpath.mkdir()
-            filename = f"{drillhole.name}.las"
         else:
             subpath = basepath
-            filename = f"{drillhole.name}_{group.name}.las"
 
+        filename = f"{group.name}_{drillhole.name}.las"
         with open(
             subpath / filename, "a", encoding="utf8"
         ) as io:  # pylint: disable=invalid-name
