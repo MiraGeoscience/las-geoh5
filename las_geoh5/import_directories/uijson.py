@@ -15,5 +15,6 @@ ui_json = dict(
     **{
         "title": "LAS file directories to Drillhole group",
         "run_command": "las_geoh5.import_directories.driver",
+        "conda_environment": "las-geoh5",
     }
 )
