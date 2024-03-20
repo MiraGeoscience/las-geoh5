@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import importlib
 import logging
+from pathlib import Path
 
 import lasio
 import numpy as np
@@ -67,7 +68,6 @@ def write_input_file(  # pylint: disable=too-many-arguments
     drillhole_group,
     property_group_name,
     files,
-    depths_name,
     x_collar_name,
     y_collar_name,
     z_collar_name,
@@ -85,7 +85,6 @@ def write_input_file(  # pylint: disable=too-many-arguments
                 "drillhole_group": drillhole_group,
                 "name": property_group_name,
                 "files": ";".join(files),
-                "depths_name": depths_name,
                 "collar_x_name": x_collar_name,
                 "collar_y_name": y_collar_name,
                 "collar_z_name": z_collar_name,
@@ -94,7 +93,10 @@ def write_input_file(  # pylint: disable=too-many-arguments
         )
         ifile.write_ui_json("import_las_files.ui.json", str(basepath))
 
-    return ifile.path_name
+    if ifile.path_name is None:
+        raise ValueError("Input file path is None.")
+
+    return Path(ifile.path_name)
 
 
 TEST_FILES = [
@@ -132,7 +134,6 @@ def test_import_las_new_drillholes(tmp_path):
         dh_group,
         "my_property_group",
         lasfiles,
-        "DEPTH",
         "UTMX",
         "UTMY",
         "ELEV",
@@ -199,7 +200,6 @@ def test_import_las_existing_drillholes(tmp_path):
         dh_group,
         "my_property_group",
         lasfiles,
-        "DEPTH",
         "UTMX",
         "UTMY",
         "ELEV",
@@ -249,7 +249,6 @@ def test_las_translator_retrieve(tmp_path):
     translator = LASTranslator(
         NameOptions(
             well_name="well",
-            depth_name="DEPTH",
             collar_x_name="UTMX",
             collar_y_name="UTMY",
             collar_z_name="ELEV",
@@ -258,9 +257,6 @@ def test_las_translator_retrieve(tmp_path):
     assert translator.retrieve("collar_x_name", lasfile) == 0.0
     assert translator.retrieve("collar_y_name", lasfile) == 10.0
     assert translator.retrieve("well_name", lasfile) == "dh1"
-    assert np.allclose(
-        translator.retrieve("depth_name", lasfile), np.arange(0, 10, 0.5)
-    )
 
     with pytest.raises(
         KeyError, match="'collar_z_name' field: 'ELEV' not found in las file."
@@ -310,7 +306,6 @@ def test_skip_empty_header_option(tmp_path):
         dh_group,
         "my_property_group",
         lasfiles,
-        "DEPTH",
         "UTMX",
         "UTMY",
         "ELEV",
