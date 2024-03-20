@@ -120,7 +120,6 @@ def run(filepath: Path):  # pylint: disable=too-many-locals
     name_options = NameOptions(**ifile.data)
     import_options = ImportOptions(names=name_options, **ifile.data)
     las_to_drillhole(
-        workspace,
         lasfiles,
         dh_group,
         ifile.data["name"],

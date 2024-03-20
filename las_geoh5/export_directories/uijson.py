@@ -17,18 +17,18 @@ ui_json = dict(
     **{
         "title": "Drillhole group to LAS file directories",
         "run_command": "las_geoh5.export_directories.driver",
+        "conda_environment": "las-geoh5",
         "drillhole_group": {
             "main": True,
             "label": "Drillhole group",
             "value": None,
             "groupType": ["{825424fb-c2c6-4fea-9f2b-6cd00023d393}"],
         },
-        "name": {
+        "directory": {
             "main": True,
-            "label": "Property group name",
-            "value": None,
-            "optional": True,
-            "enabled": False,
-        },
+            "label": "Use directories",
+            "tooltip": "Organize las files by property group directories",
+            "value": True,
+        }
     },
 )
