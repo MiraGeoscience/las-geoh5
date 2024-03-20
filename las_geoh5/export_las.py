@@ -121,7 +121,7 @@ def add_survey_data(file: LASFile, drillhole: Drillhole) -> LASFile:
 def write_curves(
     drillhole: Drillhole,
     basepath: str | Path,
-    directory: bool = True,
+    use_directories: bool = True,
 ):
     """
     Write a formatted .las file for each property group in 'drillhole'.
@@ -129,7 +129,7 @@ def write_curves(
     :param drillhole: geoh5py drillhole object containing property
         groups for collocated data.
     :param basepath: Path to working directory.
-    :param directory: True if data is stored in sub-directories
+    :param use_directories: True if data is stored in sub-directories
     """
 
     if isinstance(basepath, str):
@@ -154,7 +154,7 @@ def write_curves(
         ]:
             continue
 
-        if directory:
+        if use_directories:
             subpath = basepath / group.name
             if not subpath.exists():
                 subpath.mkdir()
@@ -171,7 +171,7 @@ def write_curves(
 def write_survey(
     drillhole: Drillhole,
     basepath: str | Path,
-    directory: bool = True,
+    use_directories: bool = True,
 ):
     """
     Write a formatted .las file with survey data from 'drillhole'.
@@ -179,7 +179,7 @@ def write_survey(
     :param drillhole: geoh5py drillhole object containing property
         groups for collocated data.
     :param basepath: Path to working directory.
-    :param directory: True if data is stored in sub-directories
+    :param use_directories: True if data is stored in sub-directories
     """
 
     if isinstance(basepath, str):
@@ -189,14 +189,12 @@ def write_survey(
     file = add_well_data(file, drillhole)
     file = add_survey_data(file, drillhole)
 
-    if directory:
+    if use_directories:
         basepath = basepath / "Surveys"
         if not basepath.exists():
             basepath.mkdir()
-        filename = f"{drillhole.name}.las"
-    else:
-        filename = f"{drillhole.name}_survey.las"
 
+    filename = f"survey_{drillhole.name}.las"
     with open(
         basepath / filename, "a", encoding="utf8"
     ) as io:  # pylint: disable=invalid-name
@@ -206,7 +204,7 @@ def write_survey(
 def drillhole_to_las(
     drillhole: Drillhole,
     basepath: str | Path,
-    directory: bool = True,
+    use_directories: bool = True,
 ):
     """
     Write a formatted .las file with data from 'drillhole'.
@@ -214,8 +212,8 @@ def drillhole_to_las(
     :param drillhole: geoh5py drillhole object containing property
         groups for collocated data.
     :param basepath: Path to working directory.
-    :param directory: True if data is stored in sub-directories
+    :param use_directories: True if data is stored in sub-directories
     """
 
-    write_survey(drillhole, basepath, directory)
-    write_curves(drillhole, basepath, directory)
+    write_survey(drillhole, basepath, use_directories)
+    write_curves(drillhole, basepath, use_directories)
