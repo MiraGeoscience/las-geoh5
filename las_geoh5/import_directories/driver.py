@@ -12,7 +12,6 @@ import sys
 from pathlib import Path
 
 import lasio
-from geoh5py import Workspace
 from geoh5py.groups import DrillholeGroup
 from geoh5py.shared.utils import fetch_active_workspace
 from geoh5py.ui_json import InputFile
@@ -25,24 +24,11 @@ def run(file: str):
     ifile = InputFile.read_ui_json(file)
     dh_group = ifile.data["drillhole_group"]
     parent_folder = ifile.data["parent_folder"]
-    with fetch_active_workspace(ifile.data["geoh5"], mode="a") as workspace:
+    with fetch_active_workspace(ifile.data["geoh5"], mode="a"):
         import_las_directory(dh_group, parent_folder)
 
-    if ifile.data["monitoring_directory"]:
-        with workspace.open():
-            working_path = Path(ifile.data["monitoring_directory"]) / ".working"
-            working_path.mkdir(exist_ok=True)
-            temp_geoh5 = f"temp{time():.3f}.geoh5"
-            workspace.save_as(working_path / temp_geoh5)
-        move(
-            working_path / temp_geoh5,
-            Path(ifile.data["monitoring_directory"]) / temp_geoh5,
-        )
 
-
-def import_las_directory(
-    dh_group: DrillholeGroup, basepath: str | Path
-):
+def import_las_directory(dh_group: DrillholeGroup, basepath: str | Path):
     """
     Import directory/files from previous export.
 

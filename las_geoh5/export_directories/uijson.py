@@ -24,11 +24,19 @@ ui_json = dict(
             "value": None,
             "groupType": ["{825424fb-c2c6-4fea-9f2b-6cd00023d393}"],
         },
+        "rootpath": {
+            "main": True,
+            "label": "Directory",
+            "fileDescription": ["Directory"],
+            "fileType": ["directory"],
+            "value": None,
+            "directoryOnly": True,
+        },
         "directory": {
             "main": True,
             "label": "Use directories",
             "tooltip": "Organize las files by property group directories",
             "value": True,
-        }
+        },
     },
 )

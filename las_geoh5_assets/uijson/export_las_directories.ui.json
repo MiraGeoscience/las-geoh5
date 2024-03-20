@@ -20,6 +20,18 @@
             "{825424fb-c2c6-4fea-9f2b-6cd00023d393}"
         ]
     },
+    "rootpath": {
+        "main": true,
+        "label": "Directory",
+        "fileDescription": [
+            "Directory"
+        ],
+        "fileType": [
+            "directory"
+        ],
+        "value": "",
+        "directoryOnly": true
+    },
     "directory": {
         "main": true,
         "label": "Use directories",

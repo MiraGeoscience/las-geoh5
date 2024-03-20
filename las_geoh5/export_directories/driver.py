@@ -23,15 +23,14 @@ from las_geoh5.export_las import drillhole_to_las
 def run(file: str | Path):
     ifile = InputFile.read_ui_json(file)
     dh_group = ifile.data["drillhole_group"]
+    rootpath = Path(ifile.data["rootpath"])
     directory = ifile.data["directory"]
     with fetch_active_workspace(ifile.data["geoh5"]):
-        export_las_directory(dh_group, Path(ifile.path), directory)
+        export_las_directory(dh_group, rootpath, directory)
 
 
 def export_las_directory(
-    group: DrillholeGroup,
-    basepath: str | Path,
-    directory: bool = True
+    group: DrillholeGroup, basepath: str | Path, directory: bool = True
 ):
     """
     Export contents of drillhole group to las files organized by directories.
@@ -52,7 +51,7 @@ def export_las_directory(
 
     print(f"Exporting drillhole surveys and property group data to {str(subpath)}")
     for drillhole in tqdm(drillholes):
-        drillhole_to_las(drillhole, subpath, directory=True)
+        drillhole_to_las(drillhole, subpath, directory=directory)
 
 
 if __name__ == "__main__":
