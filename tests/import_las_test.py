@@ -9,6 +9,7 @@
 from __future__ import annotations
 
 import importlib
+import logging
 
 import lasio
 import numpy as np
@@ -20,7 +21,13 @@ from geoh5py.ui_json import InputFile
 from lasio import LASFile
 
 from las_geoh5.import_files.driver import elapsed_time_logger
-from las_geoh5.import_las import LASTranslator, add_data, add_survey
+from las_geoh5.import_files.params import NameOptions
+from las_geoh5.import_las import (
+    LASTranslator,
+    add_data,
+    add_survey,
+    create_or_append_drillhole,
+)
 
 
 def generate_lasfile(
@@ -240,22 +247,30 @@ def test_las_translator_retrieve(tmp_path):
     lasfile = lasio.read(tmp_path / f"{lasfiles[0]}")
 
     translator = LASTranslator(
-        well="WELL", depth="DEPTH", collar_x="UTMX", collar_y="UTMY"
+        NameOptions(
+            well_name="well",
+            depth_name="DEPTH",
+            collar_x_name="UTMX",
+            collar_y_name="UTMY",
+            collar_z_name="ELEV",
+        )
     )
-    assert translator.retrieve("collar_x", lasfile) == 0.0
-    assert translator.retrieve("collar_y", lasfile) == 10.0
-    assert translator.retrieve("well", lasfile) == "dh1"
-    assert np.allclose(translator.retrieve("depth", lasfile), np.arange(0, 10, 0.5))
+    assert translator.retrieve("collar_x_name", lasfile) == 0.0
+    assert translator.retrieve("collar_y_name", lasfile) == 10.0
+    assert translator.retrieve("well_name", lasfile) == "dh1"
+    assert np.allclose(
+        translator.retrieve("depth_name", lasfile), np.arange(0, 10, 0.5)
+    )
 
     with pytest.raises(
-        KeyError, match="'collar_z' field: 'ELEV' not found in las file."
+        KeyError, match="'collar_z_name' field: 'ELEV' not found in las file."
     ):
-        translator.retrieve("collar_z", lasfile)
+        translator.retrieve("collar_z_name", lasfile)
 
 
 def test_las_translator_translate():
-    translator = LASTranslator(collar_x="UTMX")
-    assert translator.translate("collar_x") == "UTMX"
+    translator = LASTranslator(NameOptions(collar_x_name="UTMX"))
+    assert translator.translate("collar_x_name") == "UTMX"
     with pytest.raises(KeyError, match="'not_a_field' is not a recognized field."):
         translator.translate("not_a_field")
 
@@ -434,3 +449,34 @@ def test_add_survey_lasfile(tmp_path):
 
         add_survey(survey_path, dh)
         assert np.allclose(dh.surveys, survey)
+
+
+def test_warning_no_well_name(tmp_path, caplog):
+    logger = logging.getLogger("las_geoh5.import_las")
+    ws = Workspace(tmp_path / "test.geoh5")
+    dh_group = DrillholeGroup.create(ws, name="dh_group")
+
+    lasfiles = [
+        generate_lasfile(
+            "",
+            {"X": 0.0, "Y": 10.0, "ELEV": 10.0},
+            np.arange(0, 10, 0.5),
+            {"my_first_property": None},
+        )
+    ]
+    lasfiles = write_lasfiles(tmp_path, lasfiles)
+    lasfile = lasio.read(tmp_path / f"{lasfiles[0]}")
+
+    assert not lasfile.header["Well"]["Well"].value
+    match = "No well name provided for las file. Saving drillhole with name 'Unknown'"
+    with caplog.at_level(logging.WARNING):
+        create_or_append_drillhole(
+            ws,
+            lasfile,
+            dh_group,
+            "my_property_group",
+            translator=LASTranslator(NameOptions()),
+            logger=logger,
+        )
+
+        assert match in caplog.text

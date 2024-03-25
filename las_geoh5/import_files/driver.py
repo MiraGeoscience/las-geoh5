@@ -21,14 +21,19 @@ from geoh5py.shared.utils import fetch_active_workspace
 from geoh5py.ui_json import InputFile
 from tqdm import tqdm
 
-from las_geoh5.import_las import LASTranslator, las_to_drillhole
+from las_geoh5.import_files.params import ImportOptions, NameOptions
+from las_geoh5.import_las import las_to_drillhole
 
 logger = logging.getLogger("Import Files")
 logger.setLevel(logging.INFO)
 stream_handler = logging.StreamHandler()
-stream_handler.setLevel(logging.INFO)
+file_handler = logging.FileHandler("import_las_files.log")
 formatter = logging.Formatter("%(asctime)s : %(name)s : %(levelname)s : %(message)s")
+file_handler.setFormatter(formatter)
 stream_handler.setFormatter(formatter)
+file_handler.setLevel(logging.INFO)
+stream_handler.setLevel(logging.INFO)
+logger.addHandler(file_handler)
 logger.addHandler(stream_handler)
 
 
@@ -55,13 +60,6 @@ def run(filepath: str):  # pylint: disable=too-many-locals
     logger.info(
         "Importing las file data to workspace %s.geoh5.",
         ifile.data["geoh5"].h5file.stem,
-    )
-
-    translator = LASTranslator(
-        depth=ifile.data["depths_name"],
-        collar_x=ifile.data["collar_x_name"],
-        collar_y=ifile.data["collar_y_name"],
-        collar_z=ifile.data["collar_z_name"],
     )
 
     workspace = Workspace()
@@ -91,13 +89,15 @@ def run(filepath: str):  # pylint: disable=too-many-locals
         ifile.data["name"],
     )
     begin_saving = time()
+
+    name_options = NameOptions(**ifile.data)
+    import_options = ImportOptions(names=name_options, **ifile.data)
     las_to_drillhole(
         workspace,
         lasfiles,
         dh_group,
         ifile.data["name"],
-        translator=translator,
-        skip_empty_header=ifile.data["skip_empty_header"],
+        options=import_options,
     )
     end_saving = time()
     logger.info(
@@ -105,6 +105,10 @@ def run(filepath: str):  # pylint: disable=too-many-locals
     )
     end = time()
     logger.info(elapsed_time_logger(start, end, "All done."))
+    logpath = Path(file_handler.baseFilename)
+    dh_group.add_file(logpath)
+    file_handler.close()
+    logpath.unlink()
 
     if ifile.data["monitoring_directory"]:
         working_path = Path(ifile.data["monitoring_directory"]) / ".working"

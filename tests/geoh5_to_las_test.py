@@ -6,6 +6,7 @@
 #  (see LICENSE file at the root of this source code package).
 #
 
+import logging
 import random
 import string
 from pathlib import Path
@@ -21,7 +22,10 @@ from geoh5py.workspace import Workspace
 from las_geoh5.export_directories.driver import export_las_directory
 from las_geoh5.export_las import drillhole_to_las, write_curves
 from las_geoh5.import_directories.driver import import_las_directory
+from las_geoh5.import_files.params import ImportOptions, NameOptions
 from las_geoh5.import_las import (
+    LASTranslator,
+    add_data,
     create_or_append_drillhole,
     get_collar,
     get_depths,
@@ -47,16 +51,15 @@ def test_get_depths():
         get_depths(lasfile)
 
 
-def test_get_collar():
+def test_get_collar(caplog):
+    logger = logging.getLogger("las_geoh5.import_las")
     lasfile = lasio.LASFile()
     lasfile.well.append(lasio.HeaderItem(mnemonic="X", value=10.0))
     lasfile.well.append(lasio.HeaderItem(mnemonic="Y", value=10.0))
-    msg = (
-        "Collar z field 'ELEV' not found in las file. Setting coordinate to 0.0. "
-        r"Non-null header fields include: \['X', 'Y'\]."
-    )
-    with pytest.warns(UserWarning, match=msg):
-        get_collar(lasfile)
+    msg = "Collar z name field 'ELEV' not found in las file"
+    with caplog.at_level(logging.WARNING):
+        get_collar(lasfile, logger=logger)
+        assert msg in caplog.text
     assert np.allclose(get_collar(lasfile), [10.0, 10.0, 0.0])
     lasfile.well.append(lasio.HeaderItem(mnemonic="ELEV", value=10.0))
     assert np.allclose(get_collar(lasfile), [10.0, 10.0, 10.0])
@@ -111,7 +114,13 @@ def test_create_or_append_drillhole(tmp_path):
         )
         assert "DEPTH" in [k.mnemonic for k in file.curves]
         file.append_curve("my_new_data", np.random.randn(50))
-        drillhole = create_or_append_drillhole(workspace, file, drillhole_group, "test")
+        drillhole = create_or_append_drillhole(
+            workspace,
+            file,
+            drillhole_group,
+            "test",
+            translator=LASTranslator(NameOptions()),
+        )
 
         # New data is appended to existing drillhole
         assert drillhole.uid == drillhole_a.uid
@@ -122,14 +131,26 @@ def test_create_or_append_drillhole(tmp_path):
             mnemonic_case="preserve",
         )
         file.well["X"] = 10.0
-        drillhole = create_or_append_drillhole(workspace, file, drillhole_group, "test")
+        drillhole = create_or_append_drillhole(
+            workspace,
+            file,
+            drillhole_group,
+            "test",
+            translator=LASTranslator(NameOptions()),
+        )
 
         # New data should be placed in a new drillhole object with augmented name
         assert drillhole.uid != drillhole_a.uid
         assert drillhole.name == "dh1 (1)"
 
         file.well["WELL"] = "dh2"
-        drillhole = create_or_append_drillhole(workspace, file, drillhole_group, "test")
+        drillhole = create_or_append_drillhole(
+            workspace,
+            file,
+            drillhole_group,
+            "test",
+            translator=LASTranslator(NameOptions()),
+        )
         # Same data should be read into a new
         assert workspace.get_entity("dh2")
 
@@ -166,14 +187,28 @@ def test_add_survey(tmp_path):
             Path(basepath / f"dh1_{drillhole_a.property_groups[0].name}.las")
         )
         survey = Path(basepath / "dh1_survey.las")
-        las_to_drillhole(workspace, data, drillhole_group, "test", survey=survey)
+        las_to_drillhole(
+            workspace,
+            data,
+            drillhole_group,
+            "test",
+            survey=survey,
+            options=ImportOptions(),
+        )
         drillhole = workspace.get_entity("dh1")[0]
         assert np.allclose(drillhole.surveys, surveys)
 
         survey.unlink()
         survey = Path(basepath / "dh1_survey.csv")
         np.savetxt(survey, surveys, delimiter=",", header="depth, dip, azimuth")
-        las_to_drillhole(workspace, data, drillhole_group, "test", survey=survey)
+        las_to_drillhole(
+            workspace,
+            data,
+            drillhole_group,
+            "test",
+            survey=survey,
+            options=ImportOptions(),
+        )
         drillhole = workspace.get_entity("dh1")[0]
         assert np.allclose(drillhole.surveys, surveys)
 
@@ -300,3 +335,45 @@ def test_import_las_directory(tmp_path):
                 )
 
     assert len(dh_group.property_group_ids) == len(dh_group2.property_group_ids)
+
+
+def test_collocation_tolerance(tmp_path):
+    ws = Workspace(tmp_path / "test.geoh5")
+    dh_group = DrillholeGroup.create(ws, name="dh_group")
+    group_name = "my_property_group"
+
+    dh1 = Drillhole.create(
+        ws,
+        collar=np.r_[0.0, 10.0, 10],
+        parent=dh_group,
+        name="dh1",
+    )
+    dh1.add_data(
+        {
+            "my_data": {
+                "depth": np.arange(0, 10.0),
+                "values": np.random.randn(10),
+            },
+        },
+        property_group=group_name,
+    )
+
+    lasfile = lasio.LASFile()
+    lasfile.append_curve("DEPTH", np.arange(0, 10) + 0.05)
+    lasfile.append_curve("my_new_data", np.random.randn(10))
+
+    dh1 = add_data(dh1, lasfile, group_name, collocation_tolerance=0.1)
+
+    assert dh1.property_groups[0].name == group_name
+
+    lasfile = lasio.LASFile()
+    lasfile.append_curve("DEPTH", np.arange(0, 10) + 0.05)
+    lasfile.append_curve("my_other_new_data", np.random.randn(10))
+
+    dh1 = add_data(dh1, lasfile, group_name, collocation_tolerance=0.01)
+
+    assert len(dh1.property_groups) == 2
+    assert all(
+        k.name in ["my_property_group", "my_property_group (1)"]
+        for k in dh1.property_groups
+    )
