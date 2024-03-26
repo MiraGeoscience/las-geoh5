@@ -19,7 +19,7 @@ from geoh5py.objects.drillhole import Drillhole
 from geoh5py.shared.utils import compare_entities
 from geoh5py.workspace import Workspace
 
-from las_geoh5.export_directories.driver import export_las_directory
+from las_geoh5.export_files.driver import export_las_files
 from las_geoh5.export_las import drillhole_to_las, write_curves
 from las_geoh5.import_directories.driver import import_las_directory
 from las_geoh5.import_files.params import ImportOptions, NameOptions
@@ -106,16 +106,15 @@ def test_create_or_append_drillhole(tmp_path):
                 },
             }
         )
-        write_curves(drillhole_a, tmp_path, directory=False)
+        write_curves(drillhole_a, tmp_path, use_directories=False)
 
         file = lasio.read(
-            Path(tmp_path / f"dh1_{drillhole_a.property_groups[0].name}.las"),
+            Path(tmp_path / f"{drillhole_a.property_groups[0].name}_dh1.las"),
             mnemonic_case="preserve",
         )
         assert "DEPTH" in [k.mnemonic for k in file.curves]
         file.append_curve("my_new_data", np.random.randn(50))
         drillhole = create_or_append_drillhole(
-            workspace,
             file,
             drillhole_group,
             "test",
@@ -127,12 +126,11 @@ def test_create_or_append_drillhole(tmp_path):
         assert drillhole.get_data("my_new_data")
 
         file = lasio.read(
-            Path(tmp_path / f"dh1_{drillhole_a.property_groups[0].name}.las"),
+            Path(tmp_path / f"{drillhole_a.property_groups[0].name}_dh1.las"),
             mnemonic_case="preserve",
         )
         file.well["X"] = 10.0
         drillhole = create_or_append_drillhole(
-            workspace,
             file,
             drillhole_group,
             "test",
@@ -145,7 +143,6 @@ def test_create_or_append_drillhole(tmp_path):
 
         file.well["WELL"] = "dh2"
         drillhole = create_or_append_drillhole(
-            workspace,
             file,
             drillhole_group,
             "test",
@@ -181,14 +178,13 @@ def test_add_survey(tmp_path):
                 },
             }
         )
-        drillhole_to_las(drillhole_a, tmp_path, directory=False)
+        drillhole_to_las(drillhole_a, tmp_path, use_directories=False)
         basepath = Path(tmp_path)
         data = lasio.read(
-            Path(basepath / f"dh1_{drillhole_a.property_groups[0].name}.las")
+            Path(basepath / f"{drillhole_a.property_groups[0].name}_dh1.las")
         )
-        survey = Path(basepath / "dh1_survey.las")
+        survey = Path(basepath / "survey_dh1.las")
         las_to_drillhole(
-            workspace,
             data,
             drillhole_group,
             "test",
@@ -202,7 +198,6 @@ def test_add_survey(tmp_path):
         survey = Path(basepath / "dh1_survey.csv")
         np.savetxt(survey, surveys, delimiter=",", header="depth, dip, azimuth")
         las_to_drillhole(
-            workspace,
             data,
             drillhole_group,
             "test",
@@ -299,10 +294,8 @@ def setup_import_las_directory(tmp_path):
 def test_import_las_directory(tmp_path):
     workspace, dh_group = setup_import_las_directory(tmp_path)
     workspace.open()
-    export_las_directory(dh_group, tmp_path, name="dh_group")
-    dh_group2 = import_las_directory(
-        workspace, Path(tmp_path / "dh_group"), name="dh_group2"
-    )
+    export_las_files(dh_group, tmp_path, use_directories=True)
+    dh_group2 = import_las_directory(dh_group, Path(tmp_path))
 
     assert len(dh_group.children) == len(dh_group2.children)
     for child in dh_group.children:
