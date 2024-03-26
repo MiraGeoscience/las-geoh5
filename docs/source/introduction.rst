@@ -1,7 +1,11 @@
 .. _introduction:
 
-About
-=====
+Introduction
+============
+
+.. figure:: /images/intro.png
+    :align: center
+    :width: 100%
 
 The LAS file format is a public file format for the exchange of well log data.
 The format includes a large header section followed by a block of depth indexed
@@ -16,5 +20,5 @@ The recommended usage of the las-geoh5 package for most users is through the
 `Geoscience ANALYST <https://mirageoscience.com/geoscience-analyst/>`_ software.
 Within ANALYST, the import and export routines can be executed through the
 `ui.json <https://mirageoscience-geoh5py.readthedocs-hosted.com/en/latest/content/uijson_format/index.html>`_
-interface.  For more detailed information on usage see the :ref:`import` and
-:ref:`export` pages.
+interface.  To learn more about importing and exporting drillhole data with
+**las-geoh5**, see the :ref:`import` and :ref:`export` pages.
