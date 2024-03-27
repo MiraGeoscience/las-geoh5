@@ -10,6 +10,8 @@ Exchange drillhole data between LAS and geoh5 file formats
    :maxdepth: 2
    :caption: Contents:
 
+   getting_started
+   usage
    introduction
    import
    export
