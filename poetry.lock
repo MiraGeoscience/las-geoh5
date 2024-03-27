@@ -150,7 +150,7 @@ Pillow = "^10.0.1"
 type = "git"
 url = "https://github.com/MiraGeoscience/geoh5py.git"
 reference = "release/0.9.0"
-resolved_reference = "8d1e73a844956f0023aed893f38b12c8794faf8d"
+resolved_reference = "5948e23197cab759c476263ad720a793437563e0"
 
 [[package]]
 name = "h5py"
@@ -562,7 +562,6 @@ mccabe = ">=0.6,<0.8"
 platformdirs = ">=2.2.0"
 tomli = {version = ">=1.1.0", markers = "python_version < \"3.11\""}
 tomlkit = ">=0.10.1"
-typing-extensions = {version = ">=3.10.0", markers = "python_version < \"3.10\""}
 
 [package.extras]
 spelling = ["pyenchant (>=3.2,<4.0)"]
@@ -663,5 +662,5 @@ files = [
 
 [metadata]
 lock-version = "2.0"
-python-versions = "^3.9, <3.11"
-content-hash = "df01cd6aad8cf6cb07cba82c2ffd3d6aa6221811f98435ab54af75269cccf24c"
+python-versions = "^3.10, <3.11"
+content-hash = "1a45f822bb648c6c3d65c797740050a6f9f005822afc032be44ff9f0e0941095"
