@@ -313,8 +313,8 @@ def test_import_las_directory(tmp_path):
             matches = [k for k in other_child.property_groups if k.name == pg.name]
             assert len(matches) == 1
             other_pg = matches[0]
-            properties = [workspace.get_entity(k)[0] for k in pg.properties]
-            other_properties = [workspace.get_entity(k)[0] for k in other_pg.properties]
+            properties = [child.get_entity(k)[0] for k in pg.properties]
+            other_properties = [child.get_entity(k)[0] for k in other_pg.properties]
             assert len(properties) == len(other_properties)
             for prop in properties:
                 matches = [k for k in other_properties if k.name == prop.name]
