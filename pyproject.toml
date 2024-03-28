@@ -26,11 +26,11 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.9, <3.11"
+python = "^3.10, <3.11"
 pydantic = "~2.5"
 
 ## dependencies on github repos
-geoh5py = {git = "https://github.com/MiraGeoscience/geoh5py.git", branch = "develop"}
+geoh5py = {git = "https://github.com/MiraGeoscience/geoh5py.git", branch = "release/0.9.0"}
 #geoh5py = {version ="~0.9.0-alpha.1", allow-prereleases = true}
 
 ## pip dependencies
@@ -68,9 +68,6 @@ check_untyped_defs = true
 plugins = [
     #    'numpy.typing.mypy_plugin'
 ]
-
-[tool.pytest.ini_options]
-addopts = "--cov las_geoh5 --cov-report html --cov-report term-missing:skip-covered"
 
 [tool.coverage.run]
 branch = true

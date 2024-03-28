@@ -89,9 +89,6 @@ def run(filepath: Path):  # pylint: disable=too-many-locals
     workspace = Workspace()
     begin_reading = time()
 
-    # lasfiles = []
-    # for file in ifile.data["files"].split(";"):
-    #     lasfiles.append(lasio.read(file, mnemonic_case="preserve"))
     with Pool() as pool:
         futures = []
         for file in tqdm(ifile.data["files"].split(";"), desc="Reading las files"):
