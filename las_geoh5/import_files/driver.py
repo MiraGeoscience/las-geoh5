@@ -89,9 +89,6 @@ def run(filepath: Path):  # pylint: disable=too-many-locals
     workspace = Workspace()
     begin_reading = time()
 
-    # lasfiles = []
-    # for file in ifile.data["files"].split(";"):
-    #     lasfiles.append(lasio.read(file, mnemonic_case="preserve"))
     with Pool() as pool:
         futures = []
         for file in tqdm(ifile.data["files"].split(";"), desc="Reading las files"):
@@ -120,7 +117,6 @@ def run(filepath: Path):  # pylint: disable=too-many-locals
     name_options = NameOptions(**ifile.data)
     import_options = ImportOptions(names=name_options, **ifile.data)
     las_to_drillhole(
-        workspace,
         lasfiles,
         dh_group,
         ifile.data["name"],
