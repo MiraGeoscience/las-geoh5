@@ -1,5 +1,5 @@
 {
-    "title": "Drillhole group to LAS file directories",
+    "title": "Drillhole group to LAS files",
     "geoh5": "",
     "run_command": "las_geoh5.export_files.driver",
     "run_command_boolean": {
