@@ -16,7 +16,7 @@ import lasio
 import numpy as np
 from geoh5py import Workspace
 from geoh5py.groups import DrillholeGroup
-from geoh5py.objects import Drillhole
+from geoh5py.objects import Drillhole, ObjectBase
 from geoh5py.shared import Entity
 from geoh5py.shared.concatenation import ConcatenatedDrillhole
 from tqdm import tqdm
@@ -144,11 +144,11 @@ def get_collar(
     return collar
 
 
-def find_copy_name(workspace: Workspace, basename: str, start: int = 0):
+def find_copy_name(obj: Workspace | ObjectBase, basename: str, start: int = 0):
     """
     Augment name with increasing integer value until no entities found.
 
-    :param workspace: A geoh5py.Workspace object.
+    :param obj: A geoh5py object or workspace.
     :param basename: Existing name of entity in workspace.
     :param start: Integer name augmenter to test for existence.  Default is
         0 and does not add a suffix
@@ -157,9 +157,9 @@ def find_copy_name(workspace: Workspace, basename: str, start: int = 0):
     """
 
     name = basename if start == 0 else f"{basename} ({start})"
-    obj = workspace.get_entity(name)
-    if obj and obj[0] is not None:
-        name = find_copy_name(workspace, basename, start=start + 1)
+    child = obj.get_entity(name)
+    if child and child[0] is not None:
+        name = find_copy_name(obj, basename, start=start + 1)
     return name
 
 
@@ -243,7 +243,7 @@ def add_data(
     ]:
         name = curve.mnemonic
         if drillhole.get_data(name):
-            name = find_copy_name(drillhole.workspace, name)
+            name = find_copy_name(drillhole, name)
 
         kwargs[name] = {"values": curve.data, "association": "DEPTH"}
         kwargs[name].update(depths)
