@@ -66,9 +66,6 @@ plugins = [
     #    'numpy.typing.mypy_plugin'
 ]
 
-[tool.pytest.ini_options]
-addopts = "--cov las_geoh5 --cov-report html --cov-report term-missing:skip-covered"
-
 [tool.coverage.run]
 branch = true
 source = ["las_geoh5"]
