@@ -144,18 +144,19 @@ def get_collar(
     return collar
 
 
-def find_copy_name(workspace: Workspace, basename: str, start: int = 1):
+def find_copy_name(workspace: Workspace, basename: str, start: int = 0):
     """
     Augment name with increasing integer value until no entities found.
 
     :param workspace: A geoh5py.Workspace object.
     :param basename: Existing name of entity in workspace.
-    :param start: Integer name augmenter to test for existence.
+    :param start: Integer name augmenter to test for existence.  Default is
+        0 and does not add a suffix
 
-    :returns: Augmented name of the earliest non-existent copy in workspace.
+    :returns: Suffix name of the earliest non-existent copy in workspace.
     """
 
-    name = f"{basename} ({start})"
+    name = basename if start == 0 else f"{basename} ({start})"
     obj = workspace.get_entity(name)
     if obj and obj[0] is not None:
         name = find_copy_name(workspace, basename, start=start + 1)
@@ -283,8 +284,7 @@ def add_data(
     return drillhole
 
 
-def create_or_append_drillhole(  # pylint: disable=too-many-arguments
-    workspace: Workspace,
+def create_or_append_drillhole(
     lasfile: lasio.LASFile,
     drillhole_group: DrillholeGroup,
     group_name: str,
@@ -295,7 +295,6 @@ def create_or_append_drillhole(  # pylint: disable=too-many-arguments
     """
     Create a drillhole or append data to drillhole if it exists in workspace.
 
-    :param workspace: Project workspace opened with read/write access.
     :param lasfile: Las file object.
     :param drillhole_group: Drillhole group container.
     :param group_name: Property group name.
@@ -323,7 +322,7 @@ def create_or_append_drillhole(  # pylint: disable=too-many-arguments
         isinstance(drillhole, Drillhole)
         and not np.allclose(collar, drillhole.collar.tolist())
     ):
-        name = name if drillhole is None else find_copy_name(workspace, name)
+        name = find_copy_name(drillhole_group.workspace, name)
         kwargs = {
             "name": name,
             "parent": drillhole_group,
@@ -331,7 +330,7 @@ def create_or_append_drillhole(  # pylint: disable=too-many-arguments
         if collar:
             kwargs["collar"] = collar
 
-        drillhole = Drillhole.create(workspace, **kwargs)
+        drillhole = Drillhole.create(drillhole_group.workspace, **kwargs)
 
     if not isinstance(drillhole, ConcatenatedDrillhole):
         raise TypeError(
@@ -345,8 +344,7 @@ def create_or_append_drillhole(  # pylint: disable=too-many-arguments
     return drillhole
 
 
-def las_to_drillhole(  # pylint: disable=too-many-arguments
-    workspace: Workspace,
+def las_to_drillhole(
     data: lasio.LASFile | list[lasio.LASFile],
     drillhole_group: DrillholeGroup,
     property_group: str,
@@ -357,7 +355,6 @@ def las_to_drillhole(  # pylint: disable=too-many-arguments
     """
     Import a las file containing collocated datasets for a single drillhole.
 
-    :param workspace: Project workspace.
     :param data: Las file(s) containing drillhole data.
     :param drillhole_group: Drillhole group container.
     :param property_group: Property group name.
@@ -385,7 +382,6 @@ def las_to_drillhole(  # pylint: disable=too-many-arguments
             continue
 
         drillhole = create_or_append_drillhole(
-            workspace,
             datum,
             drillhole_group,
             property_group,

@@ -12,7 +12,6 @@ import sys
 from pathlib import Path
 
 import lasio
-from geoh5py import Workspace
 from geoh5py.groups import DrillholeGroup
 from geoh5py.shared.utils import fetch_active_workspace
 from geoh5py.ui_json import InputFile
@@ -24,21 +23,17 @@ from las_geoh5.import_las import las_to_drillhole
 def run(file: str):
     ifile = InputFile.read_ui_json(file)
     dh_group = ifile.data["drillhole_group"]
-    name = ifile.data["name"]
-    with fetch_active_workspace(ifile.data["geoh5"], mode="a") as workspace:
-        basepath = Path(ifile.path) / dh_group
-        import_las_directory(workspace, basepath, name)
+    parent_folder = ifile.data["parent_folder"]
+    with fetch_active_workspace(ifile.data["geoh5"], mode="a"):
+        import_las_directory(dh_group, parent_folder)
 
 
-def import_las_directory(
-    workspace: Workspace, basepath: str | Path, name: str | None = None
-):
+def import_las_directory(dh_group: DrillholeGroup, basepath: str | Path):
     """
     Import directory/files from previous export.
 
     :param workspace: Project workspace.
     :param basepath: Root directory for las data.
-    :param name: Alternate name for property group to create.
 
     :return: New drillhole group containing imported items.
     """
@@ -48,9 +43,6 @@ def import_las_directory(
 
     if not basepath.exists():
         raise OSError(f"Path {str(basepath)} does not exist.")
-
-    name = name if name is not None else basepath.name
-    dh_group = DrillholeGroup.create(workspace, name=name)
 
     surveys_path = basepath / "Surveys"
     surveys = list(surveys_path.iterdir()) if surveys_path.exists() else None
@@ -65,7 +57,6 @@ def import_las_directory(
             lasfiles.append(lasio.read(file, mnemonic_case="preserve"))
         print(f"Importing property group data from to {prop.name}")
         las_to_drillhole(
-            workspace,
             lasfiles,
             dh_group,
             prop.name,
