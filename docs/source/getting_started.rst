@@ -52,7 +52,7 @@ This is as simple opening a miniforge terminal and running the following command
 
 .. code-block::
 
-    conda create -n las-geoh5
+    conda create -n "las-geoh5" python=3.10
     conda activate las-geoh5
     pip install las-geoh5 lasio geoh5py tqdm
 
