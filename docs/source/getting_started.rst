@@ -3,7 +3,7 @@
 Getting Started
 ===============
 
-Whether you are developer or an end-user, this page will help you get started with the **las-geoh5**.
+Whether you are developer or an end-user, this page will help you get started with the **las-geoh5** package.
 
 .. contents::
 
@@ -16,9 +16,9 @@ Installation
 Install Conda
 ~~~~~~~~~~~~~
 
-Install Conda for Python 3.9 or higher. Follow this link to download its Windows installer (~140 MB of disk space):
+Install Conda for Python 3.10 or higher. Follow this link to download its Windows installer (~140 MB of disk space):
 
-`Miniforge <https://github.com/conda-forge/miniforge#download>`_ `(Windows x86_64) <https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Windows-x86_64.exe>`_
+`Miniforge <https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Windows-x86_64.exe>`_
 
 .. figure:: /images/getting_started/Miniforge3_Setup-1.png
     :align: center
@@ -38,47 +38,23 @@ Preferably uncheck that box if you already have Python 3 installed on your syste
     In any case, the installation of **las-geoh5** forces the usage of the conda-forge repository,
     and is thus not affected by the Anaconda Terms of Service.
 
-Download the latest las-geoh5
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Install **las-geoh5** from PyPI
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Follow this link to `download from the GitHub repository <https://github.com/MiraGeoscience/las-geoh5/archive/refs/heads/main.zip>`_.
+The latest release of **las-geoh5** can be installed from the Python package index (`PyPI <https://pypi.org/project/las-geoh5/>`_)
+with ``pip install las-geoh5``.  However, because las-geoh5 contains dependencies that will not be
+satisfied by the pip installation, we recommend using a conda environment and installing the package
+and its few dependencies together.
 
-Extract the package to your drive (SSD if available)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This is as simple opening a miniforge terminal and running the following commands
 
-Extract the package to your drive, preferably an SSD if available.
+.. code-block::
 
-.. figure:: /images/getting_started/extract.png
-    :align: center
-    :width: 50%
+    conda create -n las-geoh5
+    conda activate las-geoh5
+    pip install las-geoh5 lasio geoh5py tqdm
 
+This way you will have a *las-geoh5* environment that is already encoded into the ui.json files stored
+with the package in the assets folder, and can begin running the programs contained within right away.
 
-Run ``Install_or_Update.bat``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The same batch file can be used to install or update **las-geoh5**.
-A conda environment named ``las-geoh5`` will be created to prevent conflicts with other software that may rely on Python.
-
-.. figure:: /images/getting_started/install_or_update.png
-    :align: center
-    :width: 50%
-
-.. note:: The assumption is made that Conda has been installed in one
-   of the default directories, depending on the distribution
-   (miniforge3, mambaforge, miniconda3, anaconda3):
-
-   - %LOCALAPPDATA%\\
-   - %USERPROFILE%\\
-   - %LOCALAPPDATA%\\Continuum\\
-   - %PROGRAMDATA%\\
-
-If Conda gets installed in a different directory, users will need to add/edit a
-``get_custom_conda.bat`` file to add their custom path to the ``conda.bat`` file:
-
-.. figure:: /images/getting_started/Install_start_bat.png
-    :align: center
-    :width: 75%
-
-
-At this point, you will have all required packages to run the applications.
-See the :ref:`Basic usage <usage>` section for more details.
+To learn more about running from ui.json file, proceed to the :ref:`usage` section.
