@@ -17,7 +17,7 @@ compatibly licensed.  We list these here.
    * - `pydantic <https://docs.pydantic.dev/latest/>`_
      - MIT
      - Data validation using Python type hints.
-   * - `scikit-image <https://github.com/scikit-image/scikit-image>`_
+   * - `lasio <https://github.com/kinverarity1/lasio>`_
      - BSD-3-Clause
      - Image processing in Python
    * - `scipy <https://github.com/scipy/scipy>`_
