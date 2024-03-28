@@ -20,11 +20,17 @@
             "{825424fb-c2c6-4fea-9f2b-6cd00023d393}"
         ]
     },
-    "name": {
+    "parent_folder": {
         "main": true,
-        "label": "Property group name",
+        "label": "Directory",
         "value": "",
-        "optional": true,
-        "enabled": false
+        "fileDescription": [
+            "Directory"
+        ],
+        "fileType": [
+            "directory"
+        ],
+        "directoryOnly": true,
+        "fileMulti": false
     }
 }

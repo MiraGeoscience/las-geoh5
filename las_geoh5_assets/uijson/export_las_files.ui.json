@@ -1,7 +1,7 @@
 {
     "title": "Drillhole group to LAS file directories",
     "geoh5": "",
-    "run_command": "las_geoh5.export_directories.driver",
+    "run_command": "las_geoh5.export_files.driver",
     "run_command_boolean": {
         "value": false,
         "label": "Run python module ",
@@ -20,11 +20,22 @@
             "{825424fb-c2c6-4fea-9f2b-6cd00023d393}"
         ]
     },
-    "name": {
+    "rootpath": {
         "main": true,
-        "label": "Property group name",
+        "label": "Directory",
+        "fileDescription": [
+            "Directory"
+        ],
+        "fileType": [
+            "directory"
+        ],
         "value": "",
-        "optional": true,
-        "enabled": false
+        "directoryOnly": true
+    },
+    "use_directories": {
+        "main": true,
+        "label": "Use directories",
+        "tooltip": "Organize las files by property group directories",
+        "value": true
     }
 }

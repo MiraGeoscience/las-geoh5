@@ -16,7 +16,7 @@ ui_json = dict(
     deepcopy(default_ui_json),
     **{
         "title": "Drillhole group to LAS file directories",
-        "run_command": "las_geoh5.export_directories.driver",
+        "run_command": "las_geoh5.export_files.driver",
         "conda_environment": "las-geoh5",
         "drillhole_group": {
             "main": True,
@@ -24,12 +24,19 @@ ui_json = dict(
             "value": None,
             "groupType": ["{825424fb-c2c6-4fea-9f2b-6cd00023d393}"],
         },
-        "name": {
+        "rootpath": {
             "main": True,
-            "label": "Property group name",
+            "label": "Directory",
+            "fileDescription": ["Directory"],
+            "fileType": ["directory"],
             "value": None,
-            "optional": True,
-            "enabled": False,
+            "directoryOnly": True,
+        },
+        "use_directories": {
+            "main": True,
+            "label": "Use directories",
+            "tooltip": "Organize las files by property group directories",
+            "value": True,
         },
     },
 )

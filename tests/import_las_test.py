@@ -466,7 +466,6 @@ def test_warning_no_well_name(tmp_path, caplog):
     match = "No well name provided for las file. Saving drillhole with name 'Unknown'"
     with caplog.at_level(logging.WARNING):
         create_or_append_drillhole(
-            ws,
             lasfile,
             dh_group,
             "my_property_group",
