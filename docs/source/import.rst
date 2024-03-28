@@ -74,6 +74,3 @@ for initial imports, but a nuisance in subsequent import operations.
     :width: 15%
 
     *Setting warnings preference.*
-
-To learn how to export data from a ``geoh5py.drillhole_group`` continue on to
-the :ref:`export` section.
