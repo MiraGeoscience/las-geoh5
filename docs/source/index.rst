@@ -1,8 +1,3 @@
-.. las-geoh5 documentation master file, created by
-   sphinx-quickstart on Mon Mar 25 11:05:43 2024.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 About
 =====
 
@@ -49,7 +44,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU Lesser General Public License for more details.
 
 You should have received a copy of the GNU Lesser General Public License
-along with las-geoh5.  If not, see <https://www.gnu.org/licenses/>.
+along with las-geoh5.  If not, see `<https://www.gnu.org/licenses/>`_.
 
 
 Third Party Software
