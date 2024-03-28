@@ -3,9 +3,8 @@
 Getting Started
 ===============
 
-I you are a Geoscience ANALYST user, you can skip this section since the installation will be bundled into
-your software and using las-geoh5 is as simple as selecting from menu.  Otherwise, read on to learn how to
-install and use via ui.json file inside or outside of ANALYST.
+In this section, we will guide you through the installation of **las-geoh5** and it's dependencies inside a
+conda environment.
 
 .. contents::
 
