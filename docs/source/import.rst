@@ -32,11 +32,9 @@ group to import to and LAS files to import from.
 
 In order to organize the data by property, the user provides a name to the
 ``geoh5py.property_group`` and a collocation tolerance that is used by
-*geoh5py* to determine if incoming data should be included in existing
-property groups with the same name.  ie: if incoming data's depth sampling
-is not within the collocation tolerance of an existing property group's
-depths and the existing group has the same name - a new property group will
-be created.
+`geoh5py <https://mirageoscience-geoh5py.readthedocs-hosted.com/en/stable/index.html>`_ to determine if incoming data should be included in existing
+property groups with the same name.  A new property group is
+created if the incoming depth sampling is outside of the collocation tolerance.
 
 .. figure:: /images/import/property_group_options.png
     :align: center
