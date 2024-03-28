@@ -3,6 +3,12 @@
 Basic usage
 ===========
 
+If you are a Geoscience ANALYST user, you can also skip this section since the import/export dialogs will be available
+through the menu system in ANALYST.  I you are not an ANALYST user, you should give it a try!  las-geoh5 will be
+included in the free viewer.  If you're *still* not convinced, or if you're an advanced user or developer and need to
+run a custom ui.json, then read on to learn how to run via ui.json.
+
+
 The main entry points to the various modules are ``ui.json`` file (stored under the ``las_geoh5_assets`` directory).
 The ``ui.json`` has the dual purpose of (1) rendering a user-interface from Geoscience ANALYST and (2) storing the input
 parameters chosen by the user for the program to run. To learn more about the ui.json interface visit the

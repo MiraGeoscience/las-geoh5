@@ -3,7 +3,9 @@
 Getting Started
 ===============
 
-Whether you are developer or an end-user, this page will help you get started with the **las-geoh5** package.
+I you are a Geoscience ANALYST user, you can skip this section since the installation will be bundled into
+your software and using las-geoh5 is as simple as selecting from menu.  Otherwise, read on to learn how to
+install and use via ui.json file inside or outside of ANALYST.
 
 .. contents::
 
