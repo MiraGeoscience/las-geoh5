@@ -12,7 +12,7 @@ ci:
 
 repos:
 -   repo: https://github.com/psf/black
-    rev: 24.1.1
+    rev: 24.3.0
     hooks:
     -   id: black
 -   repo: https://github.com/PyCQA/isort
@@ -29,12 +29,12 @@ repos:
     hooks:
     -   id: flake8
 -   repo: https://github.com/asottile/pyupgrade
-    rev: v3.15.0
+    rev: v3.15.2
     hooks:
     -   id: pyupgrade
         args: [--py39-plus]
 -   repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.8.0
+    rev: v1.9.0
     hooks:
     -   id: mypy
         additional_dependencies: [
@@ -42,7 +42,7 @@ repos:
             tomli, # to read config from pyproject.toml
         ]
 -   repo: https://github.com/codingjoe/relint
-    rev: 3.1.0
+    rev: 3.1.1
     hooks:
     -   id: relint
         args: [-W]  # to fail on warnings
