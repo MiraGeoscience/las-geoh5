@@ -161,7 +161,7 @@ def write_curves(
         else:
             subpath = basepath
 
-        filename = f"{group.name}_{drillhole.name}.las"
+        filename = f"{drillhole.name}_{group.name}.las"
         with open(
             subpath / filename, "a", encoding="utf8"
         ) as io:  # pylint: disable=invalid-name
@@ -194,7 +194,7 @@ def write_survey(
         if not basepath.exists():
             basepath.mkdir()
 
-    filename = f"survey_{drillhole.name}.las"
+    filename = f"{drillhole.name}_survey.las"
     with open(
         basepath / filename, "a", encoding="utf8"
     ) as io:  # pylint: disable=invalid-name
