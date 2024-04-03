@@ -7,7 +7,7 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = "las-geoh5"
-copyright = "2024, Ben Kary"
+copyright = "Mira Geoscience Ltd."
 author = "Ben Kary"
 release = "2024"
 
@@ -25,3 +25,8 @@ exclude_patterns: list[str] = []
 
 html_theme = "alabaster"
 html_static_path = ["_static"]
+
+# The short X.Y version.
+version = "0.2.0"
+# The full version, including alpha/beta/rc tags.
+release = "0.2.0-alpha.1"
