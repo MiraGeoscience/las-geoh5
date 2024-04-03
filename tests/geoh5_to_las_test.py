@@ -109,7 +109,7 @@ def test_create_or_append_drillhole(tmp_path):
         write_curves(drillhole_a, tmp_path, use_directories=False)
 
         file = lasio.read(
-            Path(tmp_path / f"{drillhole_a.property_groups[0].name}_dh1.las"),
+            Path(tmp_path / f"dh1_{drillhole_a.property_groups[0].name}.las"),
             mnemonic_case="preserve",
         )
         assert "DEPTH" in [k.mnemonic for k in file.curves]
@@ -126,7 +126,7 @@ def test_create_or_append_drillhole(tmp_path):
         assert drillhole.get_data("my_new_data")
 
         file = lasio.read(
-            Path(tmp_path / f"{drillhole_a.property_groups[0].name}_dh1.las"),
+            Path(tmp_path / f"dh1_{drillhole_a.property_groups[0].name}.las"),
             mnemonic_case="preserve",
         )
         file.well["X"] = 10.0
@@ -181,9 +181,9 @@ def test_add_survey(tmp_path):
         drillhole_to_las(drillhole_a, tmp_path, use_directories=False)
         basepath = Path(tmp_path)
         data = lasio.read(
-            Path(basepath / f"{drillhole_a.property_groups[0].name}_dh1.las")
+            Path(basepath / f"dh1_{drillhole_a.property_groups[0].name}.las")
         )
-        survey = Path(basepath / "survey_dh1.las")
+        survey = Path(basepath / "dh1_survey.las")
         las_to_drillhole(
             data,
             drillhole_group,
