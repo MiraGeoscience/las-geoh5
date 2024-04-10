@@ -42,6 +42,9 @@ pylint = "*"
 pytest = "*"
 pytest-cov = "*"
 tomli = "*"
+sphinx = "*"
+sphinx-autodoc-typehints = "*"
+sphinx-rtd-theme = "*"
 
 [tool.isort]
 # settings for compatibility between ``isort`` and ``black`` formatting

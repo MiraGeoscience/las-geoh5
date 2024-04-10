@@ -4,9 +4,9 @@
     "run_command": "las_geoh5.import_files.driver",
     "run_command_boolean": {
         "value": false,
-        "label": "Run python module ",
-        "tooltip": "Warning: launches process to run python model on save",
-        "main": true
+        "label": "Run python module",
+        "main": true,
+        "tooltip": "Warning: launches process to run python model on save"
     },
     "monitoring_directory": "",
     "conda_environment": "las-geoh5",
@@ -78,6 +78,7 @@
         "main": true,
         "label": "Skip empty header",
         "value": false,
+        "group": "Collar",
         "tooltip": "Importing files without collar information results in drillholes placed at the origin. Check this box to skip these files."
     },
     "warnings": {
