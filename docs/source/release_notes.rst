@@ -1,7 +1,7 @@
 Release Notes
 =============
 
-Release 0.2.0 (2024-10-31)
+Release 0.2.0 (2024-04-15)
 --------------------------
 
 - GEOPY-1420: Add Documentation.
