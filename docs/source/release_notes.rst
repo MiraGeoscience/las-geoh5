@@ -12,7 +12,7 @@ Release 0.2.0 (2024-04-15)
 - GEOPY-1324: Improve logging
 - GEOPY-1147: Increment property group and data names for existing non-collocated objects.
 
-Release 0.1.0 (2023-10-31)
+Release 0.1.0 (2023-11-02)
 --------------------------
 
 - GEOPY-1046: Introduce a generalized .las importer.
