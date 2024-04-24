@@ -27,15 +27,16 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = "^3.10, <3.11"
-pydantic = "~2.5"
 
-## dependencies on github repos
-#geoh5py = {git = "https://github.com/MiraGeoscience/geoh5py.git", branch = "release/0.9.0"}
-geoh5py = {version ="~0.9.0-alpha.4", allow-prereleases = true}
-
-## pip dependencies
 lasio = "~0.31"
+pydantic = "~2.5"
 tqdm = "^4.64.0"
+
+## dependencies from Git repositories
+#------------------------------------
+geoh5py = {version ="~0.9.0a4", allow-prereleases = true}
+#geoh5py = {git = "https://github.com/MiraGeoscience/geoh5py.git", branch = "release/0.9.0"}
+#geoh5py = {url = "https://github.com/MiraGeoscience/geoh5py/archive/refs/heads/release/0.9.0.zip#sha256="}
 
 [tool.poetry.dev-dependencies]
 Pygments = "*"
