@@ -38,6 +38,7 @@ lasio = "~0.31"
 tqdm = "^4.64.0"
 
 [tool.poetry.dev-dependencies]
+Pygments = "*"
 pylint = "*"
 pytest = "*"
 pytest-cov = "*"
