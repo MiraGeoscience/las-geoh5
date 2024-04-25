@@ -1,9 +1,9 @@
 |coverage| |maintainability| |precommit_ci| |docs| |style| |version| |status| |pyversions|
 
 
-.. |docs| image:: https://readthedocs.org/projects/las-geoh5/badge/
+.. |docs| image:: https://readthedocs.com/projects/mirageoscience-las-geoh5/badge/?version=latest
     :alt: Documentation Status
-    :target: https://las-geoh5.readthedocs.io/en/latest/?badge=latest
+    :target: https://mirageoscience-las-geoh5.readthedocs-hosted.com/en/latest/?badge=latest
 
 .. |coverage| image:: https://codecov.io/gh/MiraGeoscience/las-geoh5/branch/develop/graph/badge.svg
     :alt: Code coverage
@@ -50,15 +50,14 @@ Read on to learn how to install las-geoh5 and get started importing and exportin
 
 Documentation
 -------------
-`Online documentation <https://las-geoh5.readthedocs.io/en/latest/>`_
+`Online documentation <https://mirageoscience-las-geoh5.readthedocs-hosted.com/en/latest/>`_
 
 
 Install with PyPI
 -----------------
 
 Since las-geoh5 is a small package with only a few dependencies, we recommend installing
-w
-Still, you can install it in a conda environment without its dependencies (``--no-deps``).
+with the Python package index (PyPI) using pip.
 
 From PyPI
 ~~~~~~~~~
