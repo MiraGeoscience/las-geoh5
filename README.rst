@@ -57,7 +57,7 @@ Install with PyPI
 -----------------
 
 Since las-geoh5 is a small package with only a few dependencies, we recommend installing
-with The python package index (PyPI) using pip.
+with the python package index (PyPI) using pip.
 
 From PyPI
 ~~~~~~~~~
