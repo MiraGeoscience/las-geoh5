@@ -50,7 +50,7 @@ Read on to learn how to install las-geoh5 and get started importing and exportin
 
 Documentation
 -------------
-`Online documentation <https://las-geoh5.readthedocs.io/en/latest/>`_
+`Online documentation <https://mirageoscience-las-geoh5.readthedocs-hosted.com/en/latest/>`_
 
 
 Install with PyPI
