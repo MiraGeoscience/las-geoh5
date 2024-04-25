@@ -57,8 +57,7 @@ Install with PyPI
 -----------------
 
 Since las-geoh5 is a small package with only a few dependencies, we recommend installing
-w
-Still, you can install it in a conda environment without its dependencies (``--no-deps``).
+with The python package index (PyPI) using pip.
 
 From PyPI
 ~~~~~~~~~
