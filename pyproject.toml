@@ -9,7 +9,7 @@ authors = ["Mira Geoscience <support@mirageoscience.com>"]
 keywords = ["geology", "geophysics", "earth sciences", "io", "data", "interoperability"]
 packages = [
     { include = "las_geoh5" },
-    { include = "las_geoh5_assets" },
+    { include = "las_geoh5-assets" },
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
