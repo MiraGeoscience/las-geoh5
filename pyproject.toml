@@ -29,8 +29,8 @@ classifiers = [
 python = "^3.10, <3.11"
 
 lasio = "~0.31"
-pydantic = "~2.5"
-tqdm = "^4.64.0"
+pydantic = "~2.5.2"
+tqdm = "^4.66.1"
 
 ## dependencies from Git repositories
 #------------------------------------
