@@ -39,6 +39,7 @@ repos:
     -   id: mypy
         additional_dependencies: [
             types-toml,
+            pydantic==2.5.*,
             tomli, # to read config from pyproject.toml
         ]
 -   repo: https://github.com/codingjoe/relint
