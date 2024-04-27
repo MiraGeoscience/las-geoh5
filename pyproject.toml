@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "las-geoh5"
-version = "0.2.0-alpha.1"
+version = "0.2.0-rc.1"
 description = "Las/Geoh5 conversion"
 license = "MIT"
 readme = "README.rst"
