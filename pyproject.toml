@@ -4,7 +4,6 @@ version = "0.2.0-rc.1"
 description = "Las/Geoh5 conversion"
 license = "MIT"
 readme = "README.rst"
-homepage = "https://mirageoscience.com"
 authors = ["Mira Geoscience <support@mirageoscience.com>"]
 maintainers = ["Benjamin Kary <benjamink@mirageoscience.com>"]
 keywords = ["geology", "geophysics", "earth sciences", "io", "data", "interoperability"]
