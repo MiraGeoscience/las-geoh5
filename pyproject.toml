@@ -4,9 +4,12 @@ version = "0.2.0-rc.1"
 description = "Las/Geoh5 conversion"
 license = "MIT"
 readme = "README.rst"
-homepage = "https://mirageoscience.com"
 authors = ["Mira Geoscience <support@mirageoscience.com>"]
+maintainers = ["Benjamin Kary <benjamink@mirageoscience.com>"]
 keywords = ["geology", "geophysics", "earth sciences", "io", "data", "interoperability"]
+repository = "https://github.com/MiraGeoscience/las-geoh5"
+documentation  = "https://mirageoscience-las-geoh5.readthedocs-hosted.com/"
+homepage = "https://www.mirageoscience.com/mining-industry-software/python-integration/"
 
 packages = [
     { include = "las_geoh5" },
@@ -79,7 +82,8 @@ show_column_numbers = true
 check_untyped_defs = true
 
 plugins = [
-    "pydantic.mypy"
+    "numpy.typing.mypy_plugin",
+    "pydantic.mypy",
 ]
 
 [tool.coverage.run]
