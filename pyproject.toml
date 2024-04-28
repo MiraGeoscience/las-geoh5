@@ -6,7 +6,11 @@ license = "MIT"
 readme = "README.rst"
 homepage = "https://mirageoscience.com"
 authors = ["Mira Geoscience <support@mirageoscience.com>"]
+maintainers = ["Benjamin Kary <benjamink@mirageoscience.com>"]
 keywords = ["geology", "geophysics", "earth sciences", "io", "data", "interoperability"]
+repository = "https://github.com/MiraGeoscience/las-geoh5"
+documentation  = "https://mirageoscience-las-geoh5.readthedocs-hosted.com/"
+homepage = "https://www.mirageoscience.com/mining-industry-software/python-integration/"
 
 packages = [
     { include = "las_geoh5" },
