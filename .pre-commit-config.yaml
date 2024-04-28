@@ -1,7 +1,7 @@
 
 default_language_version:
     python: python3
-exclude: (docs/(conf.py|_ext/)|assets/)
+exclude: (^docs/(conf.py|_ext/)|^las_geoh5-assets/)
 default_stages: [commit,push]
 fail_fast: false
 
@@ -11,26 +11,39 @@ ci:
     autoupdate_schedule: monthly
 
 repos:
+-   repo: https://github.com/python-poetry/poetry
+    rev: 1.8.0
+    hooks:
+    -   id: poetry-check
+        args: [--lock]
 -   repo: https://github.com/psf/black
-    rev: 24.1.1
+    rev: 24.4.2
     hooks:
     -   id: black
+        types: [text]
+        types_or: [python, pyi]
 -   repo: https://github.com/PyCQA/isort
     rev: 5.13.2
     hooks:
     -   id: isort
         additional_dependencies: [tomli] # to read config from pyproject.toml
+        types: [text]
+        types_or: [python, pyi]
 -   repo: https://github.com/PyCQA/flake8
     rev: 7.0.0
     hooks:
     -   id: flake8
+        types: [text]
+        types_or: [python, pyi]
 -   repo: https://github.com/asottile/pyupgrade
-    rev: v3.15.0
+    rev: v3.15.2
     hooks:
     -   id: pyupgrade
         args: [--py310-plus]
+        types: [text]
+        types_or: [python, pyi]
 -   repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.8.0
+    rev: v1.10.0
     hooks:
     -   id: mypy
         additional_dependencies: [
@@ -39,7 +52,7 @@ repos:
             tomli, # to read config from pyproject.toml
         ]
 -   repo: https://github.com/codingjoe/relint
-    rev: 3.1.0
+    rev: 3.1.1
     hooks:
     -   id: relint
         args: [-W]  # to fail on warnings
@@ -50,23 +63,34 @@ repos:
         entry: poetry run pylint
         language: system
         require_serial: true  # pylint does its own parallelism
-        types: [python]
-        exclude: (devtools|docs)/
+        types: [text]
+        types_or: [python, pyi]
+        exclude: ^(devtools|docs)/
     -   id: check-copyright
         name: Check copyright
         entry: python devtools/check-copyright.py
         language: python
-        files: (^LICENSE|README.rst|\.py|\.pyi)$
         types: [text]
-        exclude: (^setup.py$|^\.|\b(docs|assets)/)
+        files: (^LICENSE|^README(|-dev).rst|\.py|\.pyi)$
+        exclude: (^\.|^docs/)
+    -   id: prepare-commit-msg
+        stages: [prepare-commit-msg]
+        name: Prepare commit message
+        entry: python devtools/git_message_hook.py --prepare
+        language: python
+    -   id: check-commit-msg
+        stages: [commit-msg]
+        name: Check commit message
+        entry: python devtools/git_message_hook.py --check
+        language: python
 -   repo: https://github.com/codespell-project/codespell
     rev: v2.2.6
     hooks:
     -   id: codespell
-        exclude: (.lock|\.ipynb|^THIRD_PARTY_SOFTWARE\.rst)$
+        exclude: (\.lock|\.ipynb|^THIRD_PARTY_SOFTWARE\.rst)$
         entry: codespell -I .codespellignore
 -   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0
+    rev: v4.6.0
     hooks:
     -   id: trailing-whitespace
         exclude: \.mdj$
@@ -78,8 +102,9 @@ repos:
     -   id: debug-statements
     -   id: detect-private-key
     -   id: end-of-file-fixer
-        exclude: \.mdj$
+        exclude: (^\.idea/.*\.xml|\.mdj)$
     -   id: mixed-line-ending
+        exclude: ^\.idea/.*\.xml$
     -   id: name-tests-test
 -   repo: https://github.com/rstcheck/rstcheck
     rev: v6.2.0
