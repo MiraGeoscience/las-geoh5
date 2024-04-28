@@ -23,9 +23,14 @@ from las_geoh5.export_files.driver import export_las_files
 from las_geoh5.export_las import drillhole_to_las, write_curves
 from las_geoh5.import_directories.driver import import_las_directory
 from las_geoh5.import_files.params import ImportOptions, NameOptions
-from las_geoh5.import_las import (LASTranslator, add_data,
-                                  create_or_append_drillhole, get_collar,
-                                  get_depths, las_to_drillhole)
+from las_geoh5.import_las import (
+    LASTranslator,
+    add_data,
+    create_or_append_drillhole,
+    get_collar,
+    get_depths,
+    las_to_drillhole,
+)
 
 
 def test_get_depths():

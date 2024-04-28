@@ -23,8 +23,12 @@ from lasio import LASFile
 
 from las_geoh5.import_files.driver import elapsed_time_logger
 from las_geoh5.import_files.params import NameOptions
-from las_geoh5.import_las import (LASTranslator, add_data, add_survey,
-                                  create_or_append_drillhole)
+from las_geoh5.import_las import (
+    LASTranslator,
+    add_data,
+    add_survey,
+    create_or_append_drillhole,
+)
 
 
 def generate_lasfile(
