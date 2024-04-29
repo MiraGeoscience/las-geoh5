@@ -1,7 +1,7 @@
 
 default_language_version:
     python: python3
-exclude: (^docs/(conf.py|_ext/)|^las_geoh5-assets/)
+exclude: (^docs/(source/conf.py|_ext/)|^las_geoh5-assets/)
 default_stages: [commit,push]
 fail_fast: false
 
