@@ -42,6 +42,7 @@ classifiers = [
 python = "^3.10, <3.11"
 
 lasio = "~0.31"
+numpy = "~1.23.5"  # also in geoh5py
 pydantic = "~2.5.2"
 tqdm = "^4.66.1"
 
