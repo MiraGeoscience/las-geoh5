@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "las-geoh5"
-version = "0.2.0-rc.2"
+version = "0.2.0-rc.3"
 description = "Las/Geoh5 conversion"
 license = "MIT"
 readme = "README.rst"
@@ -10,19 +10,6 @@ keywords = ["geology", "geophysics", "earth sciences", "io", "data", "interopera
 repository = "https://github.com/MiraGeoscience/las-geoh5"
 documentation  = "https://mirageoscience-las-geoh5.readthedocs-hosted.com/"
 homepage = "https://www.mirageoscience.com/mining-industry-software/python-integration/"
-
-packages = [
-    { include = "las_geoh5" },
-    { include = "las_geoh5-assets" },
-]
-
-include = [
-    "COPYING",
-    "COPYING.LESSER",
-    "LICENSE",
-    "README.rst",
-    "THIRD_PARTY_SOFTWARE.rst",
-]
 
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -37,6 +24,23 @@ classifiers = [
     "Operating System :: MacOS",
     "Natural Language :: English",
 ]
+
+packages = [
+    { include = "las_geoh5" },
+    { include = "las_geoh5-assets" },
+]
+
+include = [
+    "COPYING",
+    "COPYING.LESSER",
+    "LICENSE",
+    "README.rst",
+    "THIRD_PARTY_SOFTWARE.rst",
+]
+
+[tool.poetry.scripts]
+geoh5_to_las = 'las_geoh5.scripts.geoh5_to_las:main'
+las_to_geoh5 = 'las_geoh5.scripts.las_to_geoh5:main'
 
 [tool.poetry.dependencies]
 python = "^3.10, <3.11"

@@ -76,11 +76,23 @@ def elapsed_time_logger(start, end, message):
     return out
 
 
-def run(filepath: Path):  # pylint: disable=too-many-locals
-    start = time()
-    ifile = InputFile.read_ui_json(filepath)
+def run(
+    params_json: Path, output_geoh5: Path | None = None
+):  # pylint: disable=too-many-locals
+    """
+    Import LAS files into a geoh5 file.
 
-    logger = get_logger("Import Files", path=filepath.parent)
+    :param params_json: The JSON file with import parameters, with references to the input LAS files,
+        and an input GEOH5 file (``geoh5`` in parameters) that contains the destination drill hole group.
+        For output, will either write the created GEOH5 with a timestamped name to ``monitoring_directory``,
+        if defined, or overwrite the input GEOH5 file.
+    :param output_geoh5: if specified, use this path to write out the resulting GEOH5 file,
+        instead of the GEOH5 output location defined by the parameter file.
+    """
+    start = time()
+    ifile = InputFile.read_ui_json(params_json)
+
+    logger = get_logger("Import Files", path=params_json.parent)
     logger.info(
         "Importing las file data to workspace %s.geoh5.",
         ifile.data["geoh5"].h5file.stem,
@@ -133,7 +145,10 @@ def run(filepath: Path):  # pylint: disable=too-many-locals
     logger.handlers[1].close()
     logpath.unlink()
 
-    if ifile.data["monitoring_directory"]:
+    if output_geoh5 is not None:
+        output_geoh5.unlink(missing_ok=True)
+        workspace.save_as(output_geoh5)
+    elif ifile.data["monitoring_directory"]:
         working_path = Path(ifile.data["monitoring_directory"]) / ".working"
         working_path.mkdir(exist_ok=True)
         temp_geoh5 = f"temp{time():.3f}.geoh5"
@@ -143,7 +158,6 @@ def run(filepath: Path):  # pylint: disable=too-many-locals
             working_path / temp_geoh5,
             Path(ifile.data["monitoring_directory"]) / temp_geoh5,
         )
-
     else:
         geoh5_path = geoh5.h5file
         geoh5.h5file.unlink()

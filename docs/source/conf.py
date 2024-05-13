@@ -29,4 +29,4 @@ html_static_path = ["_static"]
 # The short X.Y version.
 version = "0.2.0"
 # The full version, including alpha/beta/rc tags.
-release = "0.2.0-rc.2"
+release = "0.2.0-rc.3"
