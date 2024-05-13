@@ -96,8 +96,10 @@ To run from command line, prepare first a JSON file with the parameters required
 
 Then execute with::
 
-    $ las_to_geoh5 parameters.ui.json [-o output_geoh5]
-    $ geoh5_to_las parameters.ui.json [-o output_dir]
+    $ las_to_geoh5 parameters.json [-o output_geoh5]
+    $ geoh5_to_las parameters.json [-o output_dir]
+
+where ``parameters.json`` is the path on disk to a JSON file with required input parameters.
 
 If optional ``-o`` (or ``--output``) value is not provided, the program will write out to the location
 specified by the JSON file.
