@@ -70,6 +70,9 @@ To install the **las-geoh5** package published on PyPI:
 
 Basic Usage
 -----------
+
+From Geoscience Analyst
+~~~~~~~~~~~~~~~~~~~~~~~
 .. _Geoscience ANALYST Pro: https://mirageoscience.com/mining-industry-software/geoscience-analyst-pro/
 
 The most convenient way to use this package is through `Geoscience ANALYST Pro`_
@@ -81,13 +84,17 @@ by either adding to the Python Scripts directory or drag and drop into
 the viewport. Defaulted ui.json files can be found in the uijson folder
 of the las-geoh5 project.
 
-Finally, the drivers can be run from CLI using the following
+From command line
+~~~~~~~~~~~~~~~~~
+To run from command line, prepare first a JSON file with the parameters required for conversion.
 
-.. code:: bash
+Then execute with::
 
-   python -m las_geoh5.module.driver some_file.ui.json
+    $ las_to_geoh5 parameters.ui.json [-o output_geoh5]
+    $ geoh5_to_las parameters.ui.json [-o output_dir]
 
-Where module is one of ``import_files``, ``export_files``, or ``import_las``.
+If optional ``-o`` (or ``--output``) value is not provided, the program will write out to the location
+specified by the JSON file.
 
 License
 -------
