@@ -53,7 +53,7 @@ This is as simple opening a miniforge terminal and running the following command
 
     conda create -n "las-geoh5" python=3.10
     conda activate las-geoh5
-    pip install las-geoh5 lasio geoh5py tqdm
+    pip install las-geoh5
 
 This way you will have a *las-geoh5* environment that is already encoded into the ui.json files stored
 with the package in the assets folder, and can begin running the programs contained within right away.
