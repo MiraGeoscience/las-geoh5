@@ -53,20 +53,26 @@ Documentation
 `Online documentation <https://mirageoscience-las-geoh5.readthedocs-hosted.com/en/latest/>`_
 
 
-Install with PyPI
------------------
+Installation
+------------
 
-Since las-geoh5 is a small package with only a few dependencies, we recommend installing
-with the Python package index (PyPI) using pip.
+Install **las-geoh5** with ``pip`` from PyPI::
 
-From PyPI
-~~~~~~~~~
+    $ pip install las-geoh5
 
-To install the **las-geoh5** package published on PyPI:
 
-.. code-block:: bash
+Or from a branch on `github <https://github.com/MiraGeoscience/las-geoh5>`_::
 
-    pip install las-geoh5 geoh5py lasio tqdm
+    $ pip install --upgrade --force-reinstall https://github.com/MiraGeoscience/las-geoh5/archive/refs/heads/BRANCH_NAME.zip
+
+(to use a tag rather than a branch, replace ``heads\BRANCH_NAME.zip`` by ``tags\TAG_NAME.zip``)
+
+
+Or from a local sources, after you have cloned the repository::
+
+    $ git clone https://github.com/MiraGeoscience/las-geoh5 [-b BRANCH_NAME]
+    $ pip install -e las-geoh5
+
 
 Basic Usage
 -----------
