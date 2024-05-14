@@ -10,6 +10,8 @@ from __future__ import annotations
 
 import logging
 import sys
+from collections.abc import Iterator
+from contextlib import contextmanager
 from multiprocessing import Pool
 from pathlib import Path
 from shutil import move
@@ -24,40 +26,37 @@ from tqdm import tqdm
 from las_geoh5.import_files.params import ImportOptions, NameOptions
 from las_geoh5.import_las import las_to_drillhole
 
+_logger = logging.getLogger(__name__)
+_logger.name = "Import Files"
 
-def get_logger(
-    name: str, level: int = logging.INFO, path: str | Path | None = None
-) -> logging.Logger:
+
+@contextmanager
+def log_to_file(
+    logger: logging.Logger, log_dir: Path, log_level: int = logging.INFO
+) -> Iterator[Path]:
     """
-    Create a looger with stream and optional file handlers.
+    Configure the given logger with file handler at the given path.
 
-    :param name: Logger name.
-    :param level: logging level.
-    :param path: Creates a file handler at the specified path if not None.
-    :return: Logger object.
+    :param logger: The logger object.
+    :param log_dir: The directory where to create the log file.
+    :param log_level: The log level to set for the file handler.
     """
-    if isinstance(path, str):
-        path = Path(path)
 
-    logger = logging.getLogger(name)
-    logger.setLevel(level)
-    formatter = logging.Formatter(
-        "%(asctime)s : %(name)s : %(levelname)s : %(message)s"
+    log_file = log_dir / (_logger.name.lower().replace(" ", "_") + ".log")
+
+    original_level = logger.level
+    logger.setLevel(
+        log_level if original_level == 0 else min(original_level, log_level)
     )
-
-    stream_handler = logging.StreamHandler()
-    stream_handler.setFormatter(formatter)
-    stream_handler.setLevel(level)
-    logger.addHandler(stream_handler)
-
-    if path is not None:
-        filename = f"{'_'.join([k.lower() for k in name.split(' ')])}.log"
-        file_handler = logging.FileHandler(path / filename)
-        file_handler.setFormatter(formatter)
-        file_handler.setLevel(level)
-        logger.addHandler(file_handler)
-
-    return logger
+    file_handler = logging.FileHandler(log_file)
+    file_handler.setLevel(log_level)
+    logger.addHandler(file_handler)
+    try:
+        yield log_file
+    finally:
+        file_handler.close()
+        logger.removeHandler(file_handler)
+        logger.setLevel(original_level)
 
 
 def elapsed_time_logger(start, end, message):
@@ -93,58 +92,61 @@ def run(
     start = time()
     ifile = InputFile.read_ui_json(params_json)
 
-    logger = get_logger("Import Files", path=params_json.parent)
-    logger.info(
-        "Importing las file data to workspace %s.geoh5.",
-        ifile.data["geoh5"].h5file.stem,
-    )
+    with log_to_file(_logger, params_json.parent) as log_file:
+        _logger.info(
+            "Importing las file data to workspace %s.geoh5.",
+            ifile.data["geoh5"].h5file.stem,
+        )
 
-    workspace = Workspace()
-    begin_reading = time()
+        workspace = Workspace()
+        begin_reading = time()
 
-    with Pool() as pool:
-        futures = []
-        for file in tqdm(ifile.data["files"].split(";"), desc="Reading las files"):
-            futures.append(
-                pool.apply_async(lasio.read, (file,), {"mnemonic_case": "preserve"})
+        with Pool() as pool:
+            futures = []
+            for file in tqdm(ifile.data["files"].split(";"), desc="Reading las files"):
+                futures.append(
+                    pool.apply_async(lasio.read, (file,), {"mnemonic_case": "preserve"})
+                )
+
+            lasfiles = [future.get() for future in futures]
+
+        end_reading = time()
+        _logger.info(
+            elapsed_time_logger(
+                begin_reading, end_reading, "Finished reading las files"
             )
+        )
 
-        lasfiles = [future.get() for future in futures]
+        with fetch_active_workspace(ifile.data["geoh5"]) as geoh5:
+            dh_group = geoh5.get_entity(ifile.data["drillhole_group"].uid)[0]
+            dh_group = dh_group.copy(parent=workspace)
 
-    end_reading = time()
-    logger.info(
-        elapsed_time_logger(begin_reading, end_reading, "Finished reading las files")
-    )
+        _logger.info(
+            "Saving drillhole data into drillhole group %s under property group %s",
+            dh_group.name,
+            ifile.data["name"],
+        )
+        begin_saving = time()
 
-    with fetch_active_workspace(ifile.data["geoh5"]) as geoh5:
-        dh_group = geoh5.get_entity(ifile.data["drillhole_group"].uid)[0]
-        dh_group = dh_group.copy(parent=workspace)
+        name_options = NameOptions(**ifile.data)
+        import_options = ImportOptions(names=name_options, **ifile.data)
+        las_to_drillhole(
+            lasfiles,
+            dh_group,
+            ifile.data["name"],
+            options=import_options,
+        )
+        end_saving = time()
+        _logger.info(
+            elapsed_time_logger(
+                begin_saving, end_saving, "Finished saving drillhole data"
+            )
+        )
+        end = time()
+        _logger.info(elapsed_time_logger(start, end, "All done."))
 
-    logger.info(
-        "Saving drillhole data into drillhole group %s under property group %s",
-        dh_group.name,
-        ifile.data["name"],
-    )
-    begin_saving = time()
-
-    name_options = NameOptions(**ifile.data)
-    import_options = ImportOptions(names=name_options, **ifile.data)
-    las_to_drillhole(
-        lasfiles,
-        dh_group,
-        ifile.data["name"],
-        options=import_options,
-    )
-    end_saving = time()
-    logger.info(
-        elapsed_time_logger(begin_saving, end_saving, "Finished saving drillhole data")
-    )
-    end = time()
-    logger.info(elapsed_time_logger(start, end, "All done."))
-    logpath = Path(logger.handlers[1].baseFilename)  # type: ignore
-    dh_group.add_file(logpath)
-    logger.handlers[1].close()
-    logpath.unlink()
+    dh_group.add_file(log_file)
+    log_file.unlink(missing_ok=True)
 
     if output_geoh5 is not None:
         output_geoh5.unlink(missing_ok=True)

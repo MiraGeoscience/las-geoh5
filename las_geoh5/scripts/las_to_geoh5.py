@@ -16,6 +16,8 @@ _logger = logging.getLogger(__package__ + "." + Path(__file__).stem)
 
 
 def main():
+    logging.basicConfig(level=logging.WARNING)
+
     parser = argparse.ArgumentParser(
         prog="las_to_geoh5",
         description="Converts LAS files to a new GEOH5 file.",

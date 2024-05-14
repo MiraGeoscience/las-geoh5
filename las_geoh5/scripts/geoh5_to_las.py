@@ -11,12 +11,12 @@ from pathlib import Path
 
 from las_geoh5.export_files import driver
 
-_logger = logging.getLogger(__package__ + "." + Path(__file__).stem)
-
 # pylint: disable=duplicate-code
 
 
 def main():
+    logging.basicConfig(level=logging.WARNING)
+
     parser = argparse.ArgumentParser(
         prog="geoh5_to_las",
         description="Converts a GEOH5 File to new LAS file(s).",
