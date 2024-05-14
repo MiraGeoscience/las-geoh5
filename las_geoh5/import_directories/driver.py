@@ -24,6 +24,8 @@ def run(file: str):
     ifile = InputFile.read_ui_json(file)
     dh_group = ifile.data["drillhole_group"]
     parent_folder = ifile.data["parent_folder"]
+    if not parent_folder:
+        raise ValueError("No folder specified to read LAS files from.")
     with fetch_active_workspace(ifile.data["geoh5"], mode="a"):
         import_las_directory(dh_group, parent_folder)
 
