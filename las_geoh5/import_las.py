@@ -36,7 +36,7 @@ class LASTranslator:
 
         :param field: Standardized field name.
 
-        :return: Name of corresponding field in las file.
+        :return: Name of corresponding field in LAS file.
         """
         if field not in dict(self.names):
             raise KeyError(f"'{field}' is not a recognized field.")
@@ -45,12 +45,12 @@ class LASTranslator:
 
     def retrieve(self, field: str, lasfile: lasio.LASFile):
         """
-        Access las data using translation.
+        Access LAS data using translation.
 
         :param field: Name of field to retrieve.
         :param lasfile: lasio file object.
 
-        :return: data stored in las file under translated field name.
+        :return: data stored in LAS file under translated field name.
         """
         if getattr(self.names, field) in lasfile.well:
             out = lasfile.well[getattr(self.names, field)].value
@@ -59,7 +59,7 @@ class LASTranslator:
         elif getattr(self.names, field) in lasfile.params:
             out = lasfile.params[getattr(self.names, field)].value
         else:
-            msg = f"'{field}' field: '{getattr(self.names, field)}' not found in las file."
+            msg = f"'{field}' field: '{getattr(self.names, field)}' not found in LAS file."
             raise KeyError(msg)
 
         return out
@@ -67,7 +67,7 @@ class LASTranslator:
 
 def get_depths(lasfile: lasio.LASFile) -> dict[str, np.ndarray]:
     """
-    Get depth data from las file.
+    Get depth data from LAS file.
 
     :param lasfile: Las file object.
 
@@ -102,10 +102,10 @@ def get_collar(
     logger: logging.Logger | None = None,
 ) -> list:
     """
-    Returns collar data from las file or None if data missing.
+    Returns collar data from LAS file or None if data missing.
 
     :param lasfile: Las file object.
-    :param translator: Translator for las file.
+    :param translator: Translator for LAS file.
     :param logger: Logger object if warnings are enabled.
 
     :return: Collar data.
@@ -129,7 +129,7 @@ def get_collar(
             if logger is not None:
                 logger.warning(
                     f"{field.replace('_', ' ').capitalize()} field "
-                    f"'{getattr(translator.names, field)}' not found in las file."
+                    f"'{getattr(translator.names, field)}' not found in LAS file."
                     f" Setting coordinate to 0.0. Non-null header fields include: "
                     f"{options}."
                 )
@@ -169,7 +169,7 @@ def add_survey(
     logger: logging.Logger | None = None,
 ) -> ConcatenatedDrillhole:
     """
-    Import survey data from csv or las format and add to drillhole.
+    Import survey data from CSV or LAS format and add to drillhole.
 
     :param survey: Path to a survey file stored as .csv or .las format.
     :param drillhole: Drillhole object to append data to.
@@ -216,7 +216,7 @@ def add_data(
     collocation_tolerance: float = 0.01,
 ) -> ConcatenatedDrillhole:
     """
-    Add data from las file curves to drillhole.
+    Add data from LAS file curves to drillhole.
 
     :param drillhole: Drillhole object to append data to.
     :param lasfile: Las file object.
@@ -298,7 +298,7 @@ def create_or_append_drillhole(
     :param lasfile: Las file object.
     :param drillhole_group: Drillhole group container.
     :param group_name: Property group name.
-    :param translator: Translator for las file.
+    :param translator: Translator for LAS file.
     :param collocation_tolerance: Tolerance for determining collocation of data.
     :param logger: Logger object if warnings are enabled.
 
@@ -311,7 +311,7 @@ def create_or_append_drillhole(
     name = translator.retrieve("well_name", lasfile)
     if not name and logger is not None:
         logger.warning(
-            "No well name provided for las file. "
+            "No well name provided for LAS file. "
             "Saving drillhole with name 'Unknown'."
         )
 
@@ -353,7 +353,7 @@ def las_to_drillhole(
     options: ImportOptions | None = None,
 ):
     """
-    Import a las file containing collocated datasets for a single drillhole.
+    Import a LAS file containing collocated datasets for a single drillhole.
 
     :param data: Las file(s) containing drillhole data.
     :param drillhole_group: Drillhole group container.

@@ -44,11 +44,11 @@ def export_las_files(
     group: DrillholeGroup, basepath: str | Path, use_directories: bool = True
 ):
     """
-    Export contents of drillhole group to las files organized by directories.
+    Export contents of drillhole group to LAS files organized by directories.
 
     :param group: Drillhole group container.
     :param basepath: Base path where directories/files will be created.
-    :param use_directories: Use directories to organize las files by property group.
+    :param use_directories: Use directories to organize LAS files by property group.
     """
 
     if isinstance(basepath, str):

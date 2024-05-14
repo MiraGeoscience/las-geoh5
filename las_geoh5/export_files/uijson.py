@@ -35,7 +35,7 @@ ui_json = dict(
         "use_directories": {
             "main": True,
             "label": "Use directories",
-            "tooltip": "Organize las files by property group directories",
+            "tooltip": "Organize LAS files by property group directories",
             "value": True,
         },
     },

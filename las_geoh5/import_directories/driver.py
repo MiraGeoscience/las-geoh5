@@ -35,7 +35,7 @@ def import_las_directory(dh_group: DrillholeGroup, basepath: str | Path):
     Import directory/files from previous export.
 
     :param workspace: Project workspace.
-    :param basepath: Root directory for las data.
+    :param basepath: Root directory for LAS data.
 
     :return: New drillhole group containing imported items.
     """

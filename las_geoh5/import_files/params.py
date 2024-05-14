@@ -16,7 +16,7 @@ LAS_GEOH5_STANDARD = {
 
 class NameOptions(BaseModel):
     """
-    Stores options for naming of dillhole parameters in las files.
+    Stores options for naming of dillhole parameters in LAS files.
 
     :param collar_x_name: Name of the collar x field.
     :param collar_y_name: Name of the collar y field.
@@ -38,7 +38,7 @@ class ImportOptions(BaseModel):
     """
     Stores options for the drillhole import.
 
-    :param names: Options for naming of dillhole parameters in las files.
+    :param names: Options for naming of dillhole parameters in LAS files.
     :param collocation_tolerance: Tolerance for collocation of collar and depth data.
     :param warnings: Whether to show warnings.
     :param skip_empty_header: Whether to skip empty headers.
