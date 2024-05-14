@@ -211,7 +211,7 @@ def test_log_execution_time(caplog, elapsed_seconds: int, formatted: str):
     caplog.set_level(logging.INFO)
 
     start = datetime.datetime(2024, 1, 1, 12, 0, 0)
-    with patch("datetime.datetime") as mock_datetime:
+    with patch("las_geoh5.import_files.driver.datetime") as mock_datetime:
         mock_datetime.now.side_effect = [
             start,
             start + datetime.timedelta(seconds=elapsed_seconds),
