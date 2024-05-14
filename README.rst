@@ -101,7 +101,7 @@ Then execute with::
 
 where ``parameters.json`` is the path on disk to a JSON file with required input parameters.
 
-If optional ``-o`` (or ``--output``) value is not provided, the program will write out to the location
+If optional ``-o`` (or ``--out``) value is not provided, the program will write out to the location
 specified by the JSON file.
 
 License

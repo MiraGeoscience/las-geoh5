@@ -52,5 +52,5 @@ To run the application from the command line, use the following::
 
 where ``parameters.json`` is the path on disk to a JSON file with the required input parameters.
 
-If optional ``-o`` (or ``--output``) value is not provided, the program will write out to the location
+If optional ``-o`` (or ``--out``) value is not provided, the program will write out to the location
 specified by the JSON file.
