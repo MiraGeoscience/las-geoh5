@@ -12,10 +12,10 @@ import logging
 import sys
 from collections.abc import Iterator
 from contextlib import contextmanager
+from datetime import datetime
 from multiprocessing import Pool
 from pathlib import Path
 from shutil import move
-from time import time
 
 import lasio
 from geoh5py import Workspace
@@ -48,7 +48,7 @@ def log_to_file(
     logger.setLevel(
         log_level if original_level == 0 else min(original_level, log_level)
     )
-    file_handler = logging.FileHandler(log_file)
+    file_handler = logging.FileHandler(log_file, encoding="utf-8")
     file_handler.setLevel(log_level)
     logger.addHandler(file_handler)
     try:
@@ -59,25 +59,31 @@ def log_to_file(
         logger.setLevel(original_level)
 
 
-def elapsed_time_logger(start, end, message):
-    if message[-1] != ".":
+@contextmanager
+def log_execution_time(message: str, log_level: int = logging.INFO) -> Iterator[None]:
+    start = datetime.now()
+
+    # no exception handling: only display message if no exception happened
+    yield
+
+    elapsed = (datetime.now() - start).total_seconds()
+    minutes = int(elapsed / 60)
+    seconds = elapsed - 60 * minutes
+
+    message = message.strip()
+    if message and message[-1] != ".":
         message += "."
 
-    elapsed = end - start
-    minutes = elapsed // 60
-    seconds = elapsed % 60
-
+    prefix_msg = f"{message} Time elapsed:"
     if minutes >= 1:
-        out = f"{message} Time elapsed: {minutes}m {seconds}s."
+        out = f"{prefix_msg} {minutes}m {seconds:.0f}s."
     else:
-        out = f"{message} Time elapsed: {seconds:.2f}s."
+        out = f"{prefix_msg} {seconds:.2f}s."
 
-    return out
+    _logger.log(log_level, out)
 
 
-def run(
-    params_json: Path, output_geoh5: Path | None = None
-):  # pylint: disable=too-many-locals
+def run(params_json: Path, output_geoh5: Path | None = None):
     """
     Import LAS files into a geoh5 file.
 
@@ -89,61 +95,49 @@ def run(
     :param output_geoh5: if specified, use this path to write out the resulting GEOH5 file,
         instead of the GEOH5 output location defined by the parameter file.
     """
-    start = time()
-    ifile = InputFile.read_ui_json(params_json)
 
     with log_to_file(_logger, params_json.parent) as log_file:
-        _logger.info(
-            "Importing las file data to workspace %s.geoh5.",
-            ifile.data["geoh5"].h5file.stem,
-        )
+        with log_execution_time("All done"):
+            ifile = InputFile.read_ui_json(params_json)
 
-        workspace = Workspace()
-        begin_reading = time()
+            _logger.info(
+                "Importing LAS file data to workspace '%s.geoh5'.",
+                ifile.data["geoh5"].h5file.stem,
+            )
 
-        with Pool() as pool:
-            futures = []
-            for file in tqdm(ifile.data["files"].split(";"), desc="Reading las files"):
-                futures.append(
-                    pool.apply_async(lasio.read, (file,), {"mnemonic_case": "preserve"})
+            workspace = Workspace()
+            with log_execution_time("Finished reading LAS files"):
+                with Pool() as pool:
+                    futures = []
+                    for file in tqdm(
+                        ifile.data["files"].split(";"), desc="Reading LAS files"
+                    ):
+                        futures.append(
+                            pool.apply_async(
+                                lasio.read, (file,), {"mnemonic_case": "preserve"}
+                            )
+                        )
+
+                    lasfiles = [future.get() for future in futures]
+
+            with fetch_active_workspace(ifile.data["geoh5"]) as geoh5:
+                dh_group = geoh5.get_entity(ifile.data["drillhole_group"].uid)[0]
+                dh_group = dh_group.copy(parent=workspace)
+
+            _logger.info(
+                "Saving drillhole data into drillhole group '%s' under property group '%s'",
+                dh_group.name,
+                ifile.data["name"],
+            )
+
+            with log_execution_time("Finished saving drillhole data"):
+                name_options = NameOptions(**ifile.data)
+                las_to_drillhole(
+                    lasfiles,
+                    dh_group,
+                    ifile.data["name"],
+                    options=ImportOptions(names=name_options, **ifile.data),
                 )
-
-            lasfiles = [future.get() for future in futures]
-
-        end_reading = time()
-        _logger.info(
-            elapsed_time_logger(
-                begin_reading, end_reading, "Finished reading las files"
-            )
-        )
-
-        with fetch_active_workspace(ifile.data["geoh5"]) as geoh5:
-            dh_group = geoh5.get_entity(ifile.data["drillhole_group"].uid)[0]
-            dh_group = dh_group.copy(parent=workspace)
-
-        _logger.info(
-            "Saving drillhole data into drillhole group %s under property group %s",
-            dh_group.name,
-            ifile.data["name"],
-        )
-        begin_saving = time()
-
-        name_options = NameOptions(**ifile.data)
-        import_options = ImportOptions(names=name_options, **ifile.data)
-        las_to_drillhole(
-            lasfiles,
-            dh_group,
-            ifile.data["name"],
-            options=import_options,
-        )
-        end_saving = time()
-        _logger.info(
-            elapsed_time_logger(
-                begin_saving, end_saving, "Finished saving drillhole data"
-            )
-        )
-        end = time()
-        _logger.info(elapsed_time_logger(start, end, "All done."))
 
     if log_file.exists() and log_file.stat().st_size > 0:
         dh_group.add_file(log_file)
@@ -155,7 +149,7 @@ def run(
     elif ifile.data["monitoring_directory"]:
         working_path = Path(ifile.data["monitoring_directory"]) / ".working"
         working_path.mkdir(exist_ok=True)
-        temp_geoh5 = f"temp{time():.3f}.geoh5"
+        temp_geoh5 = f"temp{datetime.now().timestamp():.3f}.geoh5"
         workspace.save_as(working_path / temp_geoh5)
         workspace.close()
         move(

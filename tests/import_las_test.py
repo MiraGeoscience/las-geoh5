@@ -8,9 +8,11 @@
 
 from __future__ import annotations
 
+import datetime
 import importlib
 import logging
 from pathlib import Path
+from unittest.mock import patch
 
 import lasio
 import numpy as np
@@ -20,7 +22,7 @@ from geoh5py.groups import DrillholeGroup
 from geoh5py.objects import Drillhole
 from lasio import LASFile
 
-from las_geoh5.import_files.driver import elapsed_time_logger
+from las_geoh5.import_files.driver import log_execution_time
 from las_geoh5.import_files.params import NameOptions
 from las_geoh5.import_las import (
     LASTranslator,
@@ -189,7 +191,7 @@ def test_las_translator_retrieve(tmp_path: Path):
     assert translator.retrieve("well_name", lasfile) == "dh1"
 
     with pytest.raises(
-        KeyError, match="'collar_z_name' field: 'ELEV' not found in las file."
+        KeyError, match="'collar_z_name' field: 'ELEV' not found in LAS file."
     ):
         translator.retrieve("collar_z_name", lasfile)
 
@@ -201,15 +203,25 @@ def test_las_translator_translate():
         translator.translate("not_a_field")
 
 
-def test_elapsed_time_logger():
-    msg = elapsed_time_logger(0, 90, "Finished some task")
-    assert msg == "Finished some task. Time elapsed: 1m 30s."
-    msg = elapsed_time_logger(0, 59, "Finished another task.")
-    assert msg == "Finished another task. Time elapsed: 59.00s."
-    msg = elapsed_time_logger(0, 0.0001, "Done another task.")
-    assert msg == "Done another task. Time elapsed: 0.00s."
-    msg = elapsed_time_logger(0, 0.2345, "Boy I'm getting a lot done.")
-    assert msg == "Boy I'm getting a lot done. Time elapsed: 0.23s."
+@pytest.mark.parametrize(
+    "elapsed_seconds, formatted",
+    [(90, "1m 30s"), (59, "59.00s"), (0.0001, "0.00s"), (0.2345, "0.23s")],
+)
+def test_log_execution_time(caplog, elapsed_seconds: int, formatted: str):
+    caplog.set_level(logging.INFO)
+
+    start = datetime.datetime(2024, 1, 1, 12, 0, 0)
+    with patch("datetime.datetime") as mock_datetime:
+        mock_datetime.now.side_effect = [
+            start,
+            start + datetime.timedelta(seconds=elapsed_seconds),
+        ]
+
+        msg = f"Some task planned for {elapsed_seconds} seconds"
+        with log_execution_time(msg):
+            pass
+    assert len(caplog.records) == 1
+    assert caplog.records[0].msg == f"{msg}. Time elapsed: {formatted}."
 
 
 def test_skip_empty_header_option(tmp_path: Path):
