@@ -63,7 +63,7 @@ repos:
         language: system
         require_serial: true  # pylint does its own parallelism
         types: [python]
-        exclude: ^(devtools|docs)/
+        exclude: ^(devtools|docs|las_geoh5-assets)/
     -   id: check-copyright
         name: Check copyright
         entry: python devtools/check-copyright.py
@@ -106,6 +106,7 @@ repos:
     -   id: mixed-line-ending
         exclude: ^\.idea/.*\.xml$
     -   id: name-tests-test
+        exclude: ^tests/helpers.py$
     -   id: pretty-format-json
         args:
             - --autofix

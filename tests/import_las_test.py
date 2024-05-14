@@ -8,9 +8,11 @@
 
 from __future__ import annotations
 
+import datetime
 import importlib
 import logging
 from pathlib import Path
+from unittest.mock import patch
 
 import lasio
 import numpy as np
@@ -18,10 +20,9 @@ import pytest
 from geoh5py import Workspace
 from geoh5py.groups import DrillholeGroup
 from geoh5py.objects import Drillhole
-from geoh5py.ui_json import InputFile
 from lasio import LASFile
 
-from las_geoh5.import_files.driver import elapsed_time_logger
+from las_geoh5.import_files.driver import log_execution_time
 from las_geoh5.import_files.params import NameOptions
 from las_geoh5.import_las import (
     LASTranslator,
@@ -30,74 +31,7 @@ from las_geoh5.import_las import (
     create_or_append_drillhole,
 )
 
-
-def generate_lasfile(
-    well: str,
-    collar: dict[str, float],
-    depths: np.ndarray,
-    properties: dict[str, np.ndarray | None],
-):
-    file = lasio.LASFile()
-    file.well["WELL"] = well
-    for name, value in collar.items():
-        file.well.append(lasio.HeaderItem(mnemonic=name, value=value))
-    file.append_curve("DEPTH", depths)
-    for prop, values in properties.items():
-        file.append_curve(
-            prop, np.random.rand(len(depths)) if values is None else values
-        )
-
-    return file
-
-
-def write_lasfiles(basepath, lasfiles):
-    filepaths = []
-    for lasfile in lasfiles:
-        filepath = basepath / f"{lasfile.well['WELL'].value}.las"
-        if filepath.exists():
-            filepath = basepath / f"{lasfile.well['WELL'].value}_1.las"
-        filepaths.append(str(filepath))
-        with open(filepath, "a", encoding="utf8") as file:
-            lasfile.write(file)
-
-    return filepaths
-
-
-def write_input_file(  # pylint: disable=too-many-arguments
-    workspace,
-    drillhole_group,
-    property_group_name,
-    files,
-    x_collar_name,
-    y_collar_name,
-    z_collar_name,
-    module_name,
-    skip_empty_header=False,
-):
-    basepath = workspace.h5file.parent
-    module = importlib.import_module(f"las_geoh5.{module_name}.uijson")
-    ui_json = getattr(module, "ui_json")
-    ifile = InputFile(ui_json=ui_json, validate=False)
-    with workspace.open():
-        ifile.update_ui_values(
-            {
-                "geoh5": workspace,
-                "drillhole_group": drillhole_group,
-                "name": property_group_name,
-                "files": ";".join(files),
-                "collar_x_name": x_collar_name,
-                "collar_y_name": y_collar_name,
-                "collar_z_name": z_collar_name,
-                "skip_empty_header": skip_empty_header,
-            }
-        )
-        ifile.write_ui_json("import_las_files.ui.json", str(basepath))
-
-    if ifile.path_name is None:
-        raise ValueError("Input file path is None.")
-
-    return Path(ifile.path_name)
-
+from .helpers import generate_lasfile, write_import_params_file, write_lasfile
 
 TEST_FILES = [
     generate_lasfile(
@@ -124,20 +58,21 @@ TEST_FILES = [
 ]
 
 
-def test_import_las_new_drillholes(tmp_path):
+def test_import_las_new_drillholes(tmp_path: Path):
     with Workspace.create(tmp_path / "test.geoh5") as workspace:
         dh_group = DrillholeGroup.create(workspace, name="dh_group")
 
-    lasfiles = write_lasfiles(tmp_path, TEST_FILES)
-    filepath = write_input_file(
-        workspace,
+    lasfiles = [write_lasfile(tmp_path, lasfile) for lasfile in TEST_FILES]
+    filepath = write_import_params_file(
+        tmp_path / "import_las_files.ui.json",
         dh_group,
         "my_property_group",
         lasfiles,
-        "UTMX",
-        "UTMY",
-        "ELEV",
-        "import_files",
+        (
+            "UTMX",
+            "UTMY",
+            "ELEV",
+        ),
     )
 
     module = importlib.import_module("las_geoh5.import_files.driver")
@@ -168,7 +103,7 @@ def test_import_las_new_drillholes(tmp_path):
         assert len(dh2.property_groups[0].properties) == 3
 
 
-def test_import_las_existing_drillholes(tmp_path):
+def test_import_las_existing_drillholes(tmp_path: Path):
     with Workspace.create(tmp_path / "test.geoh5") as workspace:
         dh_group = DrillholeGroup.create(workspace, name="dh_group")
         dh1 = Drillhole.create(
@@ -193,17 +128,17 @@ def test_import_las_existing_drillholes(tmp_path):
             property_group="my_property_group",
         )
 
-    lasfiles = write_lasfiles(tmp_path, TEST_FILES)
-
-    filepath = write_input_file(
-        workspace,
+    lasfiles = [write_lasfile(tmp_path, lasfile) for lasfile in TEST_FILES]
+    filepath = write_import_params_file(
+        tmp_path / "import_las_files.ui.json",
         dh_group,
         "my_property_group",
         lasfiles,
-        "UTMX",
-        "UTMY",
-        "ELEV",
-        "import_files",
+        (
+            "UTMX",
+            "UTMY",
+            "ELEV",
+        ),
     )
 
     module = importlib.import_module("las_geoh5.import_files.driver")
@@ -234,17 +169,14 @@ def test_import_las_existing_drillholes(tmp_path):
         assert len(dh2.property_groups[0].properties) == 3
 
 
-def test_las_translator_retrieve(tmp_path):
-    lasfiles = [
-        generate_lasfile(
-            "dh1",
-            {"UTMX": 0.0, "UTMY": 10.0},
-            np.arange(0, 10, 0.5),
-            {"my_first_property": None},
-        )
-    ]
-    lasfiles = write_lasfiles(tmp_path, lasfiles)
-    lasfile = lasio.read(tmp_path / f"{lasfiles[0]}")
+def test_las_translator_retrieve(tmp_path: Path):
+    lasfile = generate_lasfile(
+        "dh1",
+        {"UTMX": 0.0, "UTMY": 10.0},
+        np.arange(0, 10, 0.5),
+        {"my_first_property": None},
+    )
+    lasfile = lasio.read(write_lasfile(tmp_path, lasfile))
 
     translator = LASTranslator(
         NameOptions(
@@ -259,7 +191,7 @@ def test_las_translator_retrieve(tmp_path):
     assert translator.retrieve("well_name", lasfile) == "dh1"
 
     with pytest.raises(
-        KeyError, match="'collar_z_name' field: 'ELEV' not found in las file."
+        KeyError, match="'collar_z_name' field: 'ELEV' not found in LAS file."
     ):
         translator.retrieve("collar_z_name", lasfile)
 
@@ -271,18 +203,28 @@ def test_las_translator_translate():
         translator.translate("not_a_field")
 
 
-def test_elapsed_time_logger():
-    msg = elapsed_time_logger(0, 90, "Finished some task")
-    assert msg == "Finished some task. Time elapsed: 1m 30s."
-    msg = elapsed_time_logger(0, 59, "Finished another task.")
-    assert msg == "Finished another task. Time elapsed: 59.00s."
-    msg = elapsed_time_logger(0, 0.0001, "Done another task.")
-    assert msg == "Done another task. Time elapsed: 0.00s."
-    msg = elapsed_time_logger(0, 0.2345, "Boy I'm getting a lot done.")
-    assert msg == "Boy I'm getting a lot done. Time elapsed: 0.23s."
+@pytest.mark.parametrize(
+    "elapsed_seconds, formatted",
+    [(90, "1m 30s"), (59, "59.00s"), (0.0001, "0.00s"), (0.2345, "0.23s")],
+)
+def test_log_execution_time(caplog, elapsed_seconds: int, formatted: str):
+    caplog.set_level(logging.INFO)
+
+    start = datetime.datetime(2024, 1, 1, 12, 0, 0)
+    with patch("las_geoh5.import_files.driver.datetime") as mock_datetime:
+        mock_datetime.now.side_effect = [
+            start,
+            start + datetime.timedelta(seconds=elapsed_seconds),
+        ]
+
+        msg = f"Some task planned for {elapsed_seconds} seconds"
+        with log_execution_time(msg):
+            pass
+    assert len(caplog.records) == 1
+    assert caplog.records[0].msg == f"{msg}. Time elapsed: {formatted}."
 
 
-def test_skip_empty_header_option(tmp_path):
+def test_skip_empty_header_option(tmp_path: Path):
     with Workspace.create(tmp_path / "test.geoh5") as workspace:
         dh_group = DrillholeGroup.create(workspace, name="dh_group")
 
@@ -300,16 +242,17 @@ def test_skip_empty_header_option(tmp_path):
             {"my_property": np.random.rand(11)},
         ),
     ]
-    lasfiles = write_lasfiles(tmp_path, files)
-    filepath = write_input_file(
-        workspace,
+    lasfiles = [write_lasfile(tmp_path, lasfile) for lasfile in files]
+    filepath = write_import_params_file(
+        tmp_path / "import_las_files.ui.json",
         dh_group,
         "my_property_group",
         lasfiles,
-        "UTMX",
-        "UTMY",
-        "ELEV",
-        "import_files",
+        (
+            "UTMX",
+            "UTMY",
+            "ELEV",
+        ),
         skip_empty_header=True,
     )
 
@@ -325,7 +268,7 @@ def test_skip_empty_header_option(tmp_path):
         assert not dh1
 
 
-def test_add_data_increments_property_group(tmp_path):
+def test_add_data_increments_property_group(tmp_path: Path):
     workspace = Workspace(tmp_path / "test.geoh5")
     dh_group = DrillholeGroup.create(workspace, name="dh_group")
     drillhole = Drillhole.create(
@@ -363,7 +306,7 @@ def test_add_data_increments_property_group(tmp_path):
     ]
 
 
-def test_add_data_increments_data_name(tmp_path):
+def test_add_data_increments_data_name(tmp_path: Path):
     workspace = Workspace(tmp_path / "test.geoh5")
     dh_group = DrillholeGroup.create(workspace, name="dh_group")
     drillhole = Drillhole.create(
@@ -404,7 +347,7 @@ def test_add_data_increments_data_name(tmp_path):
     ]
 
 
-def test_add_survey_csv(tmp_path):
+def test_add_survey_csv(tmp_path: Path):
     with Workspace.create(tmp_path / "test.geoh5") as workspace:
         dh_group = DrillholeGroup.create(workspace, name="dh_group")
         dh = Drillhole.create(workspace, name="dh", parent=dh_group)
@@ -421,7 +364,7 @@ def test_add_survey_csv(tmp_path):
         assert np.allclose(dh.surveys, survey)
 
 
-def test_add_survey_lasfile(tmp_path):
+def test_add_survey_lasfile(tmp_path: Path):
     with Workspace.create(tmp_path / "test.geoh5") as workspace:
         dh_group = DrillholeGroup.create(workspace, name="dh_group")
         dh = Drillhole.create(workspace, name="dh", parent=dh_group)
@@ -430,40 +373,35 @@ def test_add_survey_lasfile(tmp_path):
             np.arange(0, 100, 10), np.ones(10) * 45.0, np.linspace(-89, -75, 10)
         ]
 
-        survey_file = (
-            generate_lasfile(
-                "dh1",
-                {"UTMX": 0.0, "UTMY": 0.0, "ELEV": 10.0},
-                np.arange(0, 100, 10),
-                {"DIP": survey[:, 1], "AZIM": survey[:, 2]},
-            ),
+        survey_file = generate_lasfile(
+            "dh1",
+            {"UTMX": 0.0, "UTMY": 0.0, "ELEV": 10.0},
+            np.arange(0, 100, 10),
+            {"DIP": survey[:, 1], "AZIM": survey[:, 2]},
         )
 
-        _ = write_lasfiles(tmp_path, survey_file)
+        _ = write_lasfile(tmp_path, survey_file)
         survey_path = tmp_path / "dh1.las"
 
         add_survey(survey_path, dh)
         assert np.allclose(dh.surveys, survey)
 
 
-def test_warning_no_well_name(tmp_path, caplog):
+def test_warning_no_well_name(tmp_path: Path, caplog):
     logger = logging.getLogger("las_geoh5.import_las")
     ws = Workspace(tmp_path / "test.geoh5")
     dh_group = DrillholeGroup.create(ws, name="dh_group")
 
-    lasfiles = [
-        generate_lasfile(
-            "",
-            {"X": 0.0, "Y": 10.0, "ELEV": 10.0},
-            np.arange(0, 10, 0.5),
-            {"my_first_property": None},
-        )
-    ]
-    lasfiles = write_lasfiles(tmp_path, lasfiles)
-    lasfile = lasio.read(tmp_path / f"{lasfiles[0]}")
+    lasfile = generate_lasfile(
+        "",
+        {"X": 0.0, "Y": 10.0, "ELEV": 10.0},
+        np.arange(0, 10, 0.5),
+        {"my_first_property": None},
+    )
+    lasfile = lasio.read(write_lasfile(tmp_path, lasfile))
 
     assert not lasfile.header["Well"]["Well"].value
-    match = "No well name provided for las file. Saving drillhole with name 'Unknown'"
+    match = "No well name provided for LAS file. Saving drillhole with name 'Unknown'"
     with caplog.at_level(logging.WARNING):
         create_or_append_drillhole(
             lasfile,

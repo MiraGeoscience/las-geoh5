@@ -32,13 +32,25 @@ Note that ANALYST needs to be restarted for the changes to take effect.
 From command line
 -----------------
 
-The application can also be run from the command line if all required fields in the ui.json are provided.
-This is useful for more advanced users that may want to automate the mesh creation process, or re-run an existing mesh with different parameters.
+With its installation, the package provides scripts to run from command  line.
 
-To run the application from the command line, use the following command in an Anaconda Prompt:
+.. note::
+    If installed within a conda environment, first activate the environment with::
 
-``conda activate las-geoh5``
+    $ conda activate <env_name>
 
-``python -m las-geoh5.driver input_file.json``
+    where ``<env_name>`` is the name of the conda environment.
 
-where ``input_file.json`` is the path to the input file on disk.
+The application can be run from the command line if all required fields in the ui.json are provided.
+This is useful for more advanced users that may want to automate the mesh creation process,
+or re-run an existing mesh with different parameters.
+
+To run the application from the command line, use the following::
+
+    $ las_to_geoh5 parameters.json [-o output_geoh5]
+    $ geoh5_to_las parameters.json [-o output_dir]
+
+where ``parameters.json`` is the path on disk to a JSON file with the required input parameters.
+
+If optional ``-o`` (or ``--out``) value is not provided, the program will write out to the location
+specified by the JSON file.

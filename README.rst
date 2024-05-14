@@ -53,23 +53,32 @@ Documentation
 `Online documentation <https://mirageoscience-las-geoh5.readthedocs-hosted.com/en/latest/>`_
 
 
-Install with PyPI
------------------
+Installation
+------------
 
-Since las-geoh5 is a small package with only a few dependencies, we recommend installing
-with the Python package index (PyPI) using pip.
+Install **las-geoh5** with ``pip`` from PyPI::
 
-From PyPI
-~~~~~~~~~
+    $ pip install las-geoh5
 
-To install the **las-geoh5** package published on PyPI:
 
-.. code-block:: bash
+Or from a branch on `github <https://github.com/MiraGeoscience/las-geoh5>`_::
 
-    pip install las-geoh5 geoh5py lasio tqdm
+    $ pip install --upgrade --force-reinstall https://github.com/MiraGeoscience/las-geoh5/archive/refs/heads/BRANCH_NAME.zip
+
+(to use a tag rather than a branch, replace ``heads\BRANCH_NAME.zip`` by ``tags\TAG_NAME.zip``)
+
+
+Or from a local sources, after you have cloned the repository::
+
+    $ git clone https://github.com/MiraGeoscience/las-geoh5 [-b BRANCH_NAME]
+    $ pip install -e las-geoh5
+
 
 Basic Usage
 -----------
+
+From Geoscience Analyst
+~~~~~~~~~~~~~~~~~~~~~~~
 .. _Geoscience ANALYST Pro: https://mirageoscience.com/mining-industry-software/geoscience-analyst-pro/
 
 The most convenient way to use this package is through `Geoscience ANALYST Pro`_
@@ -81,13 +90,19 @@ by either adding to the Python Scripts directory or drag and drop into
 the viewport. Defaulted ui.json files can be found in the uijson folder
 of the las-geoh5 project.
 
-Finally, the drivers can be run from CLI using the following
+From command line
+~~~~~~~~~~~~~~~~~
+To run from command line, prepare first a JSON file with the parameters required for conversion.
 
-.. code:: bash
+Then execute with::
 
-   python -m las_geoh5.module.driver some_file.ui.json
+    $ las_to_geoh5 parameters.json [-o output_geoh5]
+    $ geoh5_to_las parameters.json [-o output_dir]
 
-Where module is one of ``import_files``, ``export_files``, or ``import_las``.
+where ``parameters.json`` is the path on disk to a JSON file with required input parameters.
+
+If optional ``-o`` (or ``--out``) value is not provided, the program will write out to the location
+specified by the JSON file.
 
 License
 -------

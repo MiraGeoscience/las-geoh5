@@ -56,7 +56,7 @@ def test_get_collar(caplog):
     lasfile = lasio.LASFile()
     lasfile.well.append(lasio.HeaderItem(mnemonic="X", value=10.0))
     lasfile.well.append(lasio.HeaderItem(mnemonic="Y", value=10.0))
-    msg = "Collar z name field 'ELEV' not found in las file"
+    msg = "Collar z name field 'ELEV' not found in LAS file"
     with caplog.at_level(logging.WARNING):
         get_collar(lasfile, logger=logger)
         assert msg in caplog.text
@@ -87,7 +87,7 @@ def test_get_collar_skip_non_float():
     assert np.allclose(collar, [0.0, 10.0, 0.0])
 
 
-def test_create_or_append_drillhole(tmp_path):
+def test_create_or_append_drillhole(tmp_path: Path):
     with Workspace.create(Path(tmp_path / "test.geoh5")) as workspace:
         drillhole_group = DrillholeGroup.create(workspace, name="dh_group")
 
@@ -152,7 +152,7 @@ def test_create_or_append_drillhole(tmp_path):
         assert workspace.get_entity("dh2")
 
 
-def test_add_survey(tmp_path):
+def test_add_survey(tmp_path: Path):
     with Workspace.create(Path(tmp_path / "test.geoh5")) as workspace:
         drillhole_group = DrillholeGroup.create(workspace, name="dh_group")
 
@@ -208,7 +208,7 @@ def test_add_survey(tmp_path):
         assert np.allclose(drillhole.surveys, surveys)
 
 
-def setup_import_las_directory(tmp_path):
+def setup_import_las_directory(tmp_path: Path):
     n_data = 10
     with Workspace.create(Path(tmp_path / "test.geoh5")) as workspace:
         # Create a workspace
@@ -291,7 +291,7 @@ def setup_import_las_directory(tmp_path):
     return workspace, dh_group
 
 
-def test_import_las_directory(tmp_path):
+def test_import_las_directory(tmp_path: Path):
     workspace, dh_group = setup_import_las_directory(tmp_path)
     workspace.open()
     export_las_files(dh_group, tmp_path, use_directories=True)
@@ -330,7 +330,7 @@ def test_import_las_directory(tmp_path):
     assert len(dh_group.property_group_ids) == len(dh_group2.property_group_ids)
 
 
-def test_collocation_tolerance(tmp_path):
+def test_collocation_tolerance(tmp_path: Path):
     ws = Workspace(tmp_path / "test.geoh5")
     dh_group = DrillholeGroup.create(ws, name="dh_group")
     group_name = "my_property_group"
