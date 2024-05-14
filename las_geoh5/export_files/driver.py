@@ -24,10 +24,10 @@ def run(params_json: str | Path, output_dir: str | Path | None = None):
     """
     Export drillhole data from GEOH5 to LAS.
 
-    :param params_json: The JSON file with export parameters, with references to the input GEOH5 file,
-        and an output directory for LAS.
-    :param output_dir: if specified, use this path as the directory to write out the resulting LAS files,
-        instead of the ``rootpath`` location defined by the parameter file.
+    :param params_json: The JSON file with export parameters, with references to the input
+        GEOH5 file, and an output directory for LAS.
+    :param output_dir: if specified, use this path as the directory to write out the resulting
+        LAS files, instead of the ``rootpath`` location defined by the parameter file.
     """
     ifile = InputFile.read_ui_json(params_json)
     dh_group = ifile.data["drillhole_group"]

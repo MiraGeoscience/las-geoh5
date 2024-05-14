@@ -13,6 +13,8 @@ from las_geoh5.export_files import driver
 
 _logger = logging.getLogger(__package__ + "." + Path(__file__).stem)
 
+# pylint: disable=duplicate-code
+
 
 def main():
     parser = argparse.ArgumentParser(
@@ -22,7 +24,10 @@ def main():
     parser.add_argument(
         "param_file",
         type=Path,
-        help="Path the parameter JSON file, which references the input GEOH5 file, and output directory.",
+        help=(
+            "Path the parameter JSON file, which references the input GEOH5 file, "
+            "and output directory."
+        ),
     )
     parser.add_argument(
         "-o",

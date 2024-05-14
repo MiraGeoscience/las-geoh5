@@ -32,9 +32,10 @@ def main():
         required=False,
         default=None,
         help=(
-            """Path to the output GEOH5 file. If not specified, reads it from the JSON parameter file:
-            - if ``monitoring_directory`` is defined, the output file will be saved in the monitoring directory,
-            with a timestamped name
+            """Path to the output GEOH5 file. If not specified, reads it from
+            the JSON parameter file:
+            - if ``monitoring_directory`` is defined, the output file will be saved
+            in the monitoring directory, with a timestamped name;
             - otherwise, will use the ``geoh5`` location (and replace the existing file)."""
         ),
     )

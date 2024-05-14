@@ -82,10 +82,11 @@ def run(
     """
     Import LAS files into a geoh5 file.
 
-    :param params_json: The JSON file with import parameters, with references to the input LAS files,
-        and an input GEOH5 file (``geoh5`` in parameters) that contains the destination drill hole group.
-        For output, will either write the created GEOH5 with a timestamped name to ``monitoring_directory``,
-        if defined, or overwrite the input GEOH5 file.
+    :param params_json: The JSON file with import parameters, with references to the input
+        LAS files, and an input GEOH5 file (``geoh5`` in parameters) that contains the
+        destination drill hole group.
+        For output, will either write the created GEOH5 with a timestamped name to
+        ``monitoring_directory``, if defined, or overwrite the input GEOH5 file.
     :param output_geoh5: if specified, use this path to write out the resulting GEOH5 file,
         instead of the GEOH5 output location defined by the parameter file.
     """
