@@ -145,7 +145,8 @@ def run(
         end = time()
         _logger.info(elapsed_time_logger(start, end, "All done."))
 
-    dh_group.add_file(log_file)
+    if log_file.exists() and log_file.stat().st_size > 0:
+        dh_group.add_file(log_file)
     log_file.unlink(missing_ok=True)
 
     if output_geoh5 is not None:
