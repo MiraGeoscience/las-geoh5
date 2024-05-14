@@ -42,7 +42,9 @@ def import_las_directory(dh_group: DrillholeGroup, basepath: str | Path):
         basepath = Path(basepath)
 
     if not basepath.exists():
-        raise OSError(f"Path {str(basepath)} does not exist.")
+        raise OSError(f"Directory does not exist: {basepath}")
+    if not basepath.is_dir():
+        raise OSError(f"Path is not a directory: {basepath}")
 
     surveys_path = basepath / "Surveys"
     surveys = list(surveys_path.iterdir()) if surveys_path.exists() else None
