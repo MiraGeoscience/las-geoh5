@@ -56,7 +56,7 @@ def test_get_collar(caplog):
     lasfile = lasio.LASFile()
     lasfile.well.append(lasio.HeaderItem(mnemonic="X", value=10.0))
     lasfile.well.append(lasio.HeaderItem(mnemonic="Y", value=10.0))
-    msg = "Collar z name field 'ELEV' not found in las file"
+    msg = "Collar z name field 'ELEV' not found in LAS file"
     with caplog.at_level(logging.WARNING):
         get_collar(lasfile, logger=logger)
         assert msg in caplog.text

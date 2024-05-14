@@ -401,7 +401,7 @@ def test_warning_no_well_name(tmp_path: Path, caplog):
     lasfile = lasio.read(write_lasfile(tmp_path, lasfile))
 
     assert not lasfile.header["Well"]["Well"].value
-    match = "No well name provided for las file. Saving drillhole with name 'Unknown'"
+    match = "No well name provided for LAS file. Saving drillhole with name 'Unknown'"
     with caplog.at_level(logging.WARNING):
         create_or_append_drillhole(
             lasfile,
