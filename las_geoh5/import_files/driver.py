@@ -165,4 +165,5 @@ def run(params_json: Path, output_geoh5: Path | None = None):
 
 
 if __name__ == "__main__":
-    run(Path(sys.argv[1]))
+    FILE = sys.argv[1]
+    run(Path(FILE))

@@ -64,7 +64,7 @@ def import_las_directory(dh_group: DrillholeGroup, basepath: str | Path):
             lasfiles,
             dh_group,
             prop.name,
-            surveys,
+            surveys=surveys,
             options=ImportOptions(),
         )
 

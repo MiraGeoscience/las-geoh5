@@ -348,7 +348,7 @@ def las_to_drillhole(
     data: lasio.LASFile | list[lasio.LASFile],
     drillhole_group: DrillholeGroup,
     property_group: str,
-    survey: Path | list[Path] | None = None,
+    surveys: Path | list[Path] | None = None,
     logger: logging.Logger | None = None,
     options: ImportOptions | None = None,
 ):
@@ -358,7 +358,7 @@ def las_to_drillhole(
     :param data: Las file(s) containing drillhole data.
     :param drillhole_group: Drillhole group container.
     :param property_group: Property group name.
-    :param survey: Path to a survey file stored as .csv or .las format.
+    :param surveys: Path to a survey file stored as .csv or .las format.
     :param logger: Logger object if warnings are enabled.
     :param options: Import options covering name translations, collocation
         tolerance, and warnings control.
@@ -373,15 +373,15 @@ def las_to_drillhole(
 
     if not isinstance(data, list):
         data = [data]
-    if not isinstance(survey, list):
-        survey = [survey] if survey else []
+    if not isinstance(surveys, list):
+        surveys = [surveys] if surveys else []
 
     for datum in tqdm(data, desc="Adding drillholes and data to workspace"):
         collar = get_collar(datum, translator, logger)
         if all(k == 0 for k in collar) and options.skip_empty_header:
             continue
 
-        drillhole = create_or_append_drillhole(
+        create_or_append_drillhole(
             datum,
             drillhole_group,
             property_group,
@@ -389,7 +389,26 @@ def las_to_drillhole(
             logger=logger,
             collocation_tolerance=options.collocation_tolerance,
         )
-        ind = [drillhole.name == s.name.rstrip(".las") for s in survey]
-        if any(ind):
-            survey_path = survey[np.where(ind)[0][0]]
-            _ = add_survey(survey_path, drillhole, logger)
+
+    for drillhole in tqdm(drillhole_group.children, desc=""):
+
+        survey = [
+            survey for survey in surveys if drillhole.name == survey.name.rstrip(".las")
+        ]
+
+        if any(survey):
+            _ = add_survey(survey[0], drillhole, logger)
+
+        elif len(drillhole.surveys) == 1:
+            depths = []
+            if drillhole.depth_ is not None:
+                depths = [depth.values.max() for depth in drillhole.depth_]
+            elif drillhole.to_ is not None:
+                depths = [depth.values.max() for depth in drillhole.to_]
+
+            if len(depths) == 0:
+                continue
+
+            new_row = drillhole.surveys[0, :]
+            new_row[0] = np.max(depths)
+            drillhole.surveys = np.vstack([drillhole.surveys, new_row])
