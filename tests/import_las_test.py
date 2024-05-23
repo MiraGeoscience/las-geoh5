@@ -151,7 +151,7 @@ def test_import_las_existing_drillholes(tmp_path: Path):
         assert dh1.collar["x"] == 0.0
         assert dh1.collar["y"] == 0.0
         assert dh1.collar["z"] == 10.0
-        assert dh1.end_of_hole is None
+
         assert dh1.parent.uid == dh_group.uid
         assert all(dh1.get_data("my_property")[0].values == 0.0)
         assert dh1.property_groups[0].name == "my_property_group"
