@@ -390,7 +390,8 @@ def las_to_drillhole(
             collocation_tolerance=options.collocation_tolerance,
         )
 
-    for drillhole in tqdm(drillhole_group.children, desc=""):
+    for drillhole in tqdm(drillhole_group.children, desc="Attaching survey data."):
+
 
         survey = [
             survey for survey in surveys if drillhole.name == survey.name.rstrip(".las")
