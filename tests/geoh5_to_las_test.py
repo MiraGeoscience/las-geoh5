@@ -188,7 +188,7 @@ def test_add_survey(tmp_path: Path):
             data,
             drillhole_group,
             "test",
-            survey=survey,
+            surveys=survey,
             options=ImportOptions(),
         )
         drillhole = workspace.get_entity("dh1")[0]
@@ -201,7 +201,7 @@ def test_add_survey(tmp_path: Path):
             data,
             drillhole_group,
             "test",
-            survey=survey,
+            surveys=survey,
             options=ImportOptions(),
         )
         drillhole = workspace.get_entity("dh1")[0]
