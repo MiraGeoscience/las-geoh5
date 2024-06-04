@@ -392,6 +392,9 @@ def las_to_drillhole(
 
     for drillhole in tqdm(drillhole_group.children, desc="Attaching survey data."):
 
+        if not isinstance(drillhole, ConcatenatedDrillhole):
+            continue
+
         survey = [
             survey for survey in surveys if drillhole.name == survey.name.rstrip(".las")
         ]
