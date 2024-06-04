@@ -24,6 +24,8 @@ def run(file: str):
     ifile = InputFile.read_ui_json(file)
     dh_group = ifile.data["drillhole_group"]
     parent_folder = ifile.data["parent_folder"]
+    if not parent_folder:
+        raise ValueError("No folder specified to read LAS files from.")
     with fetch_active_workspace(ifile.data["geoh5"], mode="a"):
         import_las_directory(dh_group, parent_folder)
 
@@ -33,7 +35,7 @@ def import_las_directory(dh_group: DrillholeGroup, basepath: str | Path):
     Import directory/files from previous export.
 
     :param workspace: Project workspace.
-    :param basepath: Root directory for las data.
+    :param basepath: Root directory for LAS data.
 
     :return: New drillhole group containing imported items.
     """
@@ -42,7 +44,9 @@ def import_las_directory(dh_group: DrillholeGroup, basepath: str | Path):
         basepath = Path(basepath)
 
     if not basepath.exists():
-        raise OSError(f"Path {str(basepath)} does not exist.")
+        raise OSError(f"Directory does not exist: {basepath}")
+    if not basepath.is_dir():
+        raise OSError(f"Path is not a directory: {basepath}")
 
     surveys_path = basepath / "Surveys"
     surveys = list(surveys_path.iterdir()) if surveys_path.exists() else None
@@ -55,12 +59,12 @@ def import_las_directory(dh_group: DrillholeGroup, basepath: str | Path):
         lasfiles = []
         for file in [k for k in prop.iterdir() if k.suffix == ".las"]:
             lasfiles.append(lasio.read(file, mnemonic_case="preserve"))
-        print(f"Importing property group data from to {prop.name}")
+        print(f"Importing property group data from to '{prop.name}'")
         las_to_drillhole(
             lasfiles,
             dh_group,
             prop.name,
-            surveys,
+            surveys=surveys,
             options=ImportOptions(),
         )
 

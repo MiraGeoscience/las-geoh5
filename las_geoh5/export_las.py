@@ -21,7 +21,7 @@ def add_well_data(
     drillhole: Drillhole,
 ) -> LASFile:
     """
-    Populate las file well data from drillhole.
+    Populate LAS file well data from drillhole.
 
     :param file: lasio file object.
     :param drillhole: geoh5py drillhole object.
@@ -52,7 +52,7 @@ def add_well_data(
 
 def add_curve_data(file: LASFile, drillhole: Drillhole, group):
     """
-    Populate las file with curve data from each property in group.
+    Populate LAS file with curve data from each property in group.
 
     :param file: lasio file object.
     :param drillhole: geoh5py.drillhole object containing property
@@ -94,10 +94,10 @@ def add_survey_data(file: LASFile, drillhole: Drillhole) -> LASFile:
     """
     Add drillhole survey data to LASFile object.
 
-    :param file: las file object.
+    :param file: LAS file object.
     :param drillhole: drillhole containing survey data.
 
-    :return: Updated las file object.
+    :return: Updated LAS file object.
     """
 
     # Add survey data
@@ -161,7 +161,7 @@ def write_curves(
         else:
             subpath = basepath
 
-        filename = f"{group.name}_{drillhole.name}.las"
+        filename = f"{drillhole.name}_{group.name}.las"
         with open(
             subpath / filename, "a", encoding="utf8"
         ) as io:  # pylint: disable=invalid-name
@@ -194,7 +194,7 @@ def write_survey(
         if not basepath.exists():
             basepath.mkdir()
 
-    filename = f"survey_{drillhole.name}.las"
+    filename = f"{drillhole.name}_survey.las"
     with open(
         basepath / filename, "a", encoding="utf8"
     ) as io:  # pylint: disable=invalid-name
