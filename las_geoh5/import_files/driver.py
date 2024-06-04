@@ -10,10 +10,12 @@ from __future__ import annotations
 
 import logging
 import sys
+from collections.abc import Iterator
+from contextlib import contextmanager
+from datetime import datetime
 from multiprocessing import Pool
 from pathlib import Path
 from shutil import move
-from time import time
 
 import lasio
 from geoh5py import Workspace
@@ -24,126 +26,136 @@ from tqdm import tqdm
 from las_geoh5.import_files.params import ImportOptions, NameOptions
 from las_geoh5.import_las import las_to_drillhole
 
+_logger = logging.getLogger(__name__)
+_logger.name = "Import Files"
 
-def get_logger(
-    name: str, level: int = logging.INFO, path: str | Path | None = None
-) -> logging.Logger:
+
+@contextmanager
+def log_to_file(
+    logger: logging.Logger, log_dir: Path, log_level: int = logging.INFO
+) -> Iterator[Path]:
     """
-    Create a looger with stream and optional file handlers.
+    Configure the given logger with file handler at the given path.
 
-    :param name: Logger name.
-    :param level: logging level.
-    :param path: Creates a file handler at the specified path if not None.
-    :return: Logger object.
+    :param logger: The logger object.
+    :param log_dir: The directory where to create the log file.
+    :param log_level: The log level to set for the file handler.
     """
-    if isinstance(path, str):
-        path = Path(path)
 
-    logger = logging.getLogger(name)
-    logger.setLevel(level)
-    formatter = logging.Formatter(
-        "%(asctime)s : %(name)s : %(levelname)s : %(message)s"
+    log_file = log_dir / (_logger.name.lower().replace(" ", "_") + ".log")
+
+    original_level = logger.level
+    logger.setLevel(
+        log_level if original_level == 0 else min(original_level, log_level)
     )
-
-    stream_handler = logging.StreamHandler()
-    stream_handler.setFormatter(formatter)
-    stream_handler.setLevel(level)
-    logger.addHandler(stream_handler)
-
-    if path is not None:
-        filename = f"{'_'.join([k.lower() for k in name.split(' ')])}.log"
-        file_handler = logging.FileHandler(path / filename)
-        file_handler.setFormatter(formatter)
-        file_handler.setLevel(level)
-        logger.addHandler(file_handler)
-
-    return logger
+    file_handler = logging.FileHandler(log_file, encoding="utf-8")
+    file_handler.setLevel(log_level)
+    logger.addHandler(file_handler)
+    try:
+        yield log_file
+    finally:
+        file_handler.close()
+        logger.removeHandler(file_handler)
+        logger.setLevel(original_level)
 
 
-def elapsed_time_logger(start, end, message):
-    if message[-1] != ".":
+@contextmanager
+def log_execution_time(message: str, log_level: int = logging.INFO) -> Iterator[None]:
+    start = datetime.now()
+
+    # no exception handling: only display message if no exception happened
+    yield
+
+    elapsed = (datetime.now() - start).total_seconds()
+    minutes = int(elapsed / 60)
+    seconds = elapsed - 60 * minutes
+
+    message = message.strip()
+    if message and message[-1] != ".":
         message += "."
 
-    elapsed = end - start
-    minutes = elapsed // 60
-    seconds = elapsed % 60
-
+    prefix_msg = f"{message} Time elapsed:"
     if minutes >= 1:
-        out = f"{message} Time elapsed: {minutes}m {seconds}s."
+        out = f"{prefix_msg} {minutes}m {seconds:.0f}s."
     else:
-        out = f"{message} Time elapsed: {seconds:.2f}s."
+        out = f"{prefix_msg} {seconds:.2f}s."
 
-    return out
+    _logger.log(log_level, out)
 
 
-def run(filepath: Path):  # pylint: disable=too-many-locals
-    start = time()
-    ifile = InputFile.read_ui_json(filepath)
+def run(params_json: Path, output_geoh5: Path | None = None):
+    """
+    Import LAS files into a geoh5 file.
 
-    logger = get_logger("Import Files", path=filepath.parent)
-    logger.info(
-        "Importing las file data to workspace %s.geoh5.",
-        ifile.data["geoh5"].h5file.stem,
-    )
+    :param params_json: The JSON file with import parameters, with references to the input
+        LAS files, and an input GEOH5 file (``geoh5`` in parameters) that contains the
+        destination drill hole group.
+        For output, will either write the created GEOH5 with a timestamped name to
+        ``monitoring_directory``, if defined, or overwrite the input GEOH5 file.
+    :param output_geoh5: if specified, use this path to write out the resulting GEOH5 file,
+        instead of the GEOH5 output location defined by the parameter file.
+    """
 
-    workspace = Workspace()
-    begin_reading = time()
+    with log_to_file(_logger, params_json.parent) as log_file:
+        with log_execution_time("All done"):
+            ifile = InputFile.read_ui_json(params_json)
 
-    with Pool() as pool:
-        futures = []
-        for file in tqdm(ifile.data["files"].split(";"), desc="Reading las files"):
-            futures.append(
-                pool.apply_async(lasio.read, (file,), {"mnemonic_case": "preserve"})
+            _logger.info(
+                "Importing LAS file data to workspace '%s.geoh5'.",
+                ifile.data["geoh5"].h5file.stem,
             )
 
-        lasfiles = [future.get() for future in futures]
+            workspace = Workspace()
+            with log_execution_time("Finished reading LAS files"):
+                with Pool() as pool:
+                    futures = []
+                    for file in tqdm(
+                        ifile.data["files"].split(";"), desc="Reading LAS files"
+                    ):
+                        futures.append(
+                            pool.apply_async(
+                                lasio.read, (file,), {"mnemonic_case": "preserve"}
+                            )
+                        )
 
-    end_reading = time()
-    logger.info(
-        elapsed_time_logger(begin_reading, end_reading, "Finished reading las files")
-    )
+                    lasfiles = [future.get() for future in futures]
 
-    with fetch_active_workspace(ifile.data["geoh5"]) as geoh5:
-        dh_group = geoh5.get_entity(ifile.data["drillhole_group"].uid)[0]
-        dh_group = dh_group.copy(parent=workspace)
+            with fetch_active_workspace(ifile.data["geoh5"]) as geoh5:
+                dh_group = geoh5.get_entity(ifile.data["drillhole_group"].uid)[0]
+                dh_group = dh_group.copy(parent=workspace)
 
-    logger.info(
-        "Saving drillhole data into drillhole group %s under property group %s",
-        dh_group.name,
-        ifile.data["name"],
-    )
-    begin_saving = time()
+            _logger.info(
+                "Saving drillhole data into drillhole group '%s' under property group '%s'",
+                dh_group.name,
+                ifile.data["name"],
+            )
 
-    name_options = NameOptions(**ifile.data)
-    import_options = ImportOptions(names=name_options, **ifile.data)
-    las_to_drillhole(
-        lasfiles,
-        dh_group,
-        ifile.data["name"],
-        options=import_options,
-    )
-    end_saving = time()
-    logger.info(
-        elapsed_time_logger(begin_saving, end_saving, "Finished saving drillhole data")
-    )
-    end = time()
-    logger.info(elapsed_time_logger(start, end, "All done."))
-    logpath = Path(logger.handlers[1].baseFilename)  # type: ignore
-    dh_group.add_file(logpath)
-    logger.handlers[1].close()
-    logpath.unlink()
+            with log_execution_time("Finished saving drillhole data"):
+                name_options = NameOptions(**ifile.data)
+                las_to_drillhole(
+                    lasfiles,
+                    dh_group,
+                    ifile.data["name"],
+                    options=ImportOptions(names=name_options, **ifile.data),
+                )
 
-    if ifile.data["monitoring_directory"]:
+    if log_file.exists() and log_file.stat().st_size > 0:
+        dh_group.add_file(log_file)
+    log_file.unlink(missing_ok=True)
+
+    if output_geoh5 is not None:
+        output_geoh5.unlink(missing_ok=True)
+        workspace.save_as(output_geoh5)
+    elif ifile.data["monitoring_directory"]:
         working_path = Path(ifile.data["monitoring_directory"]) / ".working"
         working_path.mkdir(exist_ok=True)
-        temp_geoh5 = f"temp{time():.3f}.geoh5"
+        temp_geoh5 = f"temp{datetime.now().timestamp():.3f}.geoh5"
         workspace.save_as(working_path / temp_geoh5)
         workspace.close()
         move(
             working_path / temp_geoh5,
             Path(ifile.data["monitoring_directory"]) / temp_geoh5,
         )
-
     else:
         geoh5_path = geoh5.h5file
         geoh5.h5file.unlink()
@@ -153,4 +165,5 @@ def run(filepath: Path):  # pylint: disable=too-many-locals
 
 
 if __name__ == "__main__":
-    run(Path(sys.argv[1]))
+    FILE = sys.argv[1]
+    run(Path(FILE))

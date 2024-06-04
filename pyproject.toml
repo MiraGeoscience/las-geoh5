@@ -1,16 +1,16 @@
 [tool.poetry]
 name = "las-geoh5"
-version = "0.2.0-alpha.1"
+version = "0.3.0-alpha.1"
 description = "Las/Geoh5 conversion"
 license = "MIT"
 readme = "README.rst"
-homepage = "https://mirageoscience.com"
 authors = ["Mira Geoscience <support@mirageoscience.com>"]
+maintainers = ["Benjamin Kary <benjamink@mirageoscience.com>"]
 keywords = ["geology", "geophysics", "earth sciences", "io", "data", "interoperability"]
-packages = [
-    { include = "las_geoh5" },
-    { include = "las_geoh5_assets" },
-]
+repository = "https://github.com/MiraGeoscience/las-geoh5"
+documentation  = "https://mirageoscience-las-geoh5.readthedocs-hosted.com/"
+homepage = "https://www.mirageoscience.com/mining-industry-software/python-integration/"
+
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Science/Research",
@@ -25,31 +25,50 @@ classifiers = [
     "Natural Language :: English",
 ]
 
+packages = [
+    { include = "las_geoh5" },
+    { include = "las_geoh5-assets" },
+]
+
+include = [
+    "COPYING",
+    "COPYING.LESSER",
+    "LICENSE",
+    "README.rst",
+    "THIRD_PARTY_SOFTWARE.rst",
+]
+
+[tool.poetry.scripts]
+geoh5_to_las = 'las_geoh5.scripts.geoh5_to_las:main'
+las_to_geoh5 = 'las_geoh5.scripts.las_to_geoh5:main'
+
 [tool.poetry.dependencies]
 python = "^3.10, <3.11"
-pydantic = "~2.5"
 
-## dependencies on github repos
-geoh5py = {git = "https://github.com/MiraGeoscience/geoh5py.git", branch = "release/0.9.0"}
-#geoh5py = {version ="~0.9.0-alpha.1", allow-prereleases = true}
-
-## pip dependencies
 lasio = "~0.31"
-tqdm = "^4.64.0"
+numpy = "~1.23.5"  # also in geoh5py
+pydantic = "~2.5.2"
+tqdm = "^4.66.1"
 
-[tool.poetry.dev-dependencies]
+## dependencies from Git repositories
+#------------------------------------
+geoh5py = {version ="~0.9.0rc1", allow-prereleases = true}
+#geoh5py = {git = "https://github.com/MiraGeoscience/geoh5py.git", branch = "release/0.9.0"}
+#geoh5py = {url = "https://github.com/MiraGeoscience/geoh5py/archive/refs/heads/release/0.9.0.zip#sha256="}
+#geoh5py = {url = "http://localhost:8888/geoh5py.tar.gz#sha256="}
+
+[tool.poetry.group.dev.dependencies]
+Pygments = "*"
 pylint = "*"
 pytest = "*"
 pytest-cov = "*"
 tomli = "*"
+sphinx = "*"
+sphinx-autodoc-typehints = "*"
+sphinx-rtd-theme = "*"
 
 [tool.isort]
-# settings for compatibility between ``isort`` and ``black`` formatting
-multi_line_output = 3
-include_trailing_comma = true
-force_grid_wrap = 0
-use_parentheses = true
-line_length = 88
+profile = "black"
 
 [tool.black]
 # defaults are just fine
@@ -63,7 +82,8 @@ show_column_numbers = true
 check_untyped_defs = true
 
 plugins = [
-    #    'numpy.typing.mypy_plugin'
+    "numpy.typing.mypy_plugin",
+    "pydantic.mypy",
 ]
 
 [tool.coverage.run]

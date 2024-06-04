@@ -56,7 +56,7 @@ def test_get_collar(caplog):
     lasfile = lasio.LASFile()
     lasfile.well.append(lasio.HeaderItem(mnemonic="X", value=10.0))
     lasfile.well.append(lasio.HeaderItem(mnemonic="Y", value=10.0))
-    msg = "Collar z name field 'ELEV' not found in las file"
+    msg = "Collar z name field 'ELEV' not found in LAS file"
     with caplog.at_level(logging.WARNING):
         get_collar(lasfile, logger=logger)
         assert msg in caplog.text
@@ -87,7 +87,7 @@ def test_get_collar_skip_non_float():
     assert np.allclose(collar, [0.0, 10.0, 0.0])
 
 
-def test_create_or_append_drillhole(tmp_path):
+def test_create_or_append_drillhole(tmp_path: Path):
     with Workspace.create(Path(tmp_path / "test.geoh5")) as workspace:
         drillhole_group = DrillholeGroup.create(workspace, name="dh_group")
 
@@ -109,7 +109,7 @@ def test_create_or_append_drillhole(tmp_path):
         write_curves(drillhole_a, tmp_path, use_directories=False)
 
         file = lasio.read(
-            Path(tmp_path / f"{drillhole_a.property_groups[0].name}_dh1.las"),
+            Path(tmp_path / f"dh1_{drillhole_a.property_groups[0].name}.las"),
             mnemonic_case="preserve",
         )
         assert "DEPTH" in [k.mnemonic for k in file.curves]
@@ -126,7 +126,7 @@ def test_create_or_append_drillhole(tmp_path):
         assert drillhole.get_data("my_new_data")
 
         file = lasio.read(
-            Path(tmp_path / f"{drillhole_a.property_groups[0].name}_dh1.las"),
+            Path(tmp_path / f"dh1_{drillhole_a.property_groups[0].name}.las"),
             mnemonic_case="preserve",
         )
         file.well["X"] = 10.0
@@ -152,7 +152,7 @@ def test_create_or_append_drillhole(tmp_path):
         assert workspace.get_entity("dh2")
 
 
-def test_add_survey(tmp_path):
+def test_add_survey(tmp_path: Path):
     with Workspace.create(Path(tmp_path / "test.geoh5")) as workspace:
         drillhole_group = DrillholeGroup.create(workspace, name="dh_group")
 
@@ -181,14 +181,14 @@ def test_add_survey(tmp_path):
         drillhole_to_las(drillhole_a, tmp_path, use_directories=False)
         basepath = Path(tmp_path)
         data = lasio.read(
-            Path(basepath / f"{drillhole_a.property_groups[0].name}_dh1.las")
+            Path(basepath / f"dh1_{drillhole_a.property_groups[0].name}.las")
         )
-        survey = Path(basepath / "survey_dh1.las")
+        survey = Path(basepath / "dh1_survey.las")
         las_to_drillhole(
             data,
             drillhole_group,
             "test",
-            survey=survey,
+            surveys=survey,
             options=ImportOptions(),
         )
         drillhole = workspace.get_entity("dh1")[0]
@@ -201,14 +201,14 @@ def test_add_survey(tmp_path):
             data,
             drillhole_group,
             "test",
-            survey=survey,
+            surveys=survey,
             options=ImportOptions(),
         )
         drillhole = workspace.get_entity("dh1")[0]
         assert np.allclose(drillhole.surveys, surveys)
 
 
-def setup_import_las_directory(tmp_path):
+def setup_import_las_directory(tmp_path: Path):
     n_data = 10
     with Workspace.create(Path(tmp_path / "test.geoh5")) as workspace:
         # Create a workspace
@@ -291,7 +291,7 @@ def setup_import_las_directory(tmp_path):
     return workspace, dh_group
 
 
-def test_import_las_directory(tmp_path):
+def test_import_las_directory(tmp_path: Path):
     workspace, dh_group = setup_import_las_directory(tmp_path)
     workspace.open()
     export_las_files(dh_group, tmp_path, use_directories=True)
@@ -330,7 +330,7 @@ def test_import_las_directory(tmp_path):
     assert len(dh_group.property_group_ids) == len(dh_group2.property_group_ids)
 
 
-def test_collocation_tolerance(tmp_path):
+def test_collocation_tolerance(tmp_path: Path):
     ws = Workspace(tmp_path / "test.geoh5")
     dh_group = DrillholeGroup.create(ws, name="dh_group")
     group_name = "my_property_group"

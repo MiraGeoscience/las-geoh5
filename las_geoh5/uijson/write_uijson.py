@@ -22,9 +22,9 @@ from geoh5py.ui_json import InputFile
 
 def write_uijson(basepath: str | Path, mode: str = "import_files"):
     """
-    Write a ui.json file for either import or export or las files.
+    Write a ui.json file for either import or export or LAS Files.
 
-    :param basepath: Root directory for las data.
+    :param basepath: Root directory for LAS Data.
     :param mode: Switch for 'import' or 'export' behaviour.
 
     :return: Input file for the written data.

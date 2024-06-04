@@ -1,0 +1,90 @@
+{
+    "title": "LAS files to Drillhole group",
+    "conda_environment": "las-geoh5",
+    "run_command": "las_geoh5.import_files.driver",
+    "geoh5": "",
+    "monitoring_directory": "",
+    "run_command_boolean": {
+        "value": false,
+        "label": "Run python module",
+        "main": true,
+        "tooltip": "Warning: launches process to run python model on save"
+    },
+    "conda_environment_boolean": false,
+    "workspace": "",
+    "drillhole_group": {
+        "main": true,
+        "label": "Drillhole group",
+        "value": "",
+        "groupType": [
+            "{825424fb-c2c6-4fea-9f2b-6cd00023d393}"
+        ]
+    },
+    "files": {
+        "main": true,
+        "label": "Files",
+        "value": "",
+        "fileDescription": [
+            "LAS files"
+        ],
+        "fileType": [
+            "las"
+        ],
+        "fileMulti": true
+    },
+    "name": {
+        "main": true,
+        "label": "Property group name",
+        "group": "Property group",
+        "value": ""
+    },
+    "collocation_tolerance": {
+        "main": true,
+        "label": "Collocation tolerance",
+        "group": "Property group",
+        "value": 0.01,
+        "tooltip": [
+            "Tolerance for determining collocation of data locations and ultimately deciding if incoming data should belong to an existing property group."
+        ]
+    },
+    "collar_x_name": {
+        "main": true,
+        "label": "Easting",
+        "tooltip": "Name of header field containing the collar easting.",
+        "value": "X",
+        "group": "Collar",
+        "optional": true,
+        "enabled": false
+    },
+    "collar_y_name": {
+        "main": true,
+        "label": "Northing",
+        "tooltip": "Name of header field containing the collar northing.",
+        "value": "Y",
+        "group": "Collar",
+        "optional": true,
+        "enabled": false
+    },
+    "collar_z_name": {
+        "main": true,
+        "tooltip": "Name of header field containing the collar elevation.",
+        "label": "Elevation",
+        "value": "ELEV",
+        "group": "Collar",
+        "optional": true,
+        "enabled": false
+    },
+    "skip_empty_header": {
+        "main": true,
+        "label": "Skip empty header",
+        "value": false,
+        "group": "Collar",
+        "tooltip": "Importing files without collar information results in drillholes placed at the origin. Check this box to skip these files."
+    },
+    "warnings": {
+        "main": true,
+        "label": "Warnings",
+        "value": true,
+        "tooltip": "Show warnings during import."
+    }
+}
