@@ -11,7 +11,6 @@
         "tooltip": "Warning: launches process to run python model on save"
     },
     "conda_environment_boolean": false,
-    "workspace": "",
     "drillhole_group": {
         "main": true,
         "label": "Drillhole group",
