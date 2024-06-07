@@ -87,10 +87,8 @@ plugins = [
     "pydantic.mypy",
 ]
 
-[tool.coverage.run]
-branch = true
-source = ["las_geoh5"]
-omit = []
+[tool.pytest.ini_options]
+#addopts =
 
 [tool.coverage.report]
 exclude_lines = [
@@ -99,6 +97,13 @@ exclude_lines = [
     "if TYPE_CHECKING",
     "pragma: no cover"
 ]
+
+fail_under = 80
+
+[tool.coverage.run]
+branch = true
+source = ["las_geoh5"]
+omit = []
 
 [tool.coverage.html]
 skip_empty = true
