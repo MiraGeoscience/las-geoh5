@@ -1,0 +1,41 @@
+{
+    "title": "Drillhole group to LAS files",
+    "conda_environment": "las-geoh5",
+    "run_command": "las_geoh5.export_files.driver",
+    "geoh5": "",
+    "monitoring_directory": "",
+    "run_command_boolean": {
+        "value": false,
+        "label": "Run python module ",
+        "tooltip": "Warning: launches process to run python model on save",
+        "main": true
+    },
+    "conda_environment_boolean": false,
+    "workspace": "",
+    "drillhole_group": {
+        "main": true,
+        "label": "Drillhole group",
+        "value": "",
+        "groupType": [
+            "{825424fb-c2c6-4fea-9f2b-6cd00023d393}"
+        ]
+    },
+    "rootpath": {
+        "main": true,
+        "label": "Directory",
+        "fileDescription": [
+            "Directory"
+        ],
+        "fileType": [
+            "directory"
+        ],
+        "value": "",
+        "directoryOnly": true
+    },
+    "use_directories": {
+        "main": true,
+        "label": "Use directories",
+        "tooltip": "Organize las files by property group directories",
+        "value": true
+    }
+}

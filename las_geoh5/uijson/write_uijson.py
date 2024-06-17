@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 Mira Geoscience Ltd.
+#  Copyright (c) 2024 Mira Geoscience Ltd.
 #
 #  This file is part of las-geoh5 project.
 #
@@ -22,16 +22,16 @@ from geoh5py.ui_json import InputFile
 
 def write_uijson(basepath: str | Path, mode: str = "import_files"):
     """
-    Write a ui.json file for either import or export or las files.
+    Write a ui.json file for either import or export or LAS Files.
 
-    :param basepath: Root directory for las data.
+    :param basepath: Root directory for LAS Data.
     :param mode: Switch for 'import' or 'export' behaviour.
 
     :return: Input file for the written data.
     """
 
-    if mode not in ["import_files", "import_directories", "export_directories"]:
-        msg = "Mode argument must be 'import_files', 'import_directories', or 'export_directories'."
+    if mode not in ["import_files", "import_directories", "export_files"]:
+        msg = "Mode argument must be 'import_files', 'import_directories', or 'export_files'."
         raise ValueError(msg)
 
     module = importlib.import_module(f"las_geoh5.{mode}.uijson")
@@ -53,10 +53,10 @@ def main(args):
     parser.add_argument(
         "mode",
         type=str,
-        choices={"import_files", "import_directories", "export_directories", "all"},
+        choices={"import_files", "import_directories", "export_files", "all"},
         help=(
             "Mode switching between 'import_files', 'import_directories',"
-            " 'export_directories', and 'all' behaviour."
+            " 'export_files', and 'all' behaviour."
         ),
     )
     args = parser.parse_args(args)
@@ -64,7 +64,7 @@ def main(args):
         for mode in [
             "import_files",
             "import_directories",
-            "export_directories",
+            "export_files",
         ]:  # pylint: disable=invalid-name
             write_uijson(args.path, mode)
     else:

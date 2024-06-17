@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 Mira Geoscience Ltd.
+#  Copyright (c) 2024 Mira Geoscience Ltd.
 #
 #  This file is part of las-geoh5 project.
 #
@@ -8,17 +8,21 @@
 
 from copy import deepcopy
 
-from las_geoh5.export_directories.uijson import ui_json
+from geoh5py.ui_json.constants import default_ui_json
+
+# pylint: disable=duplicate-code
 
 ui_json = dict(
-    deepcopy(ui_json),
+    deepcopy(default_ui_json),
     **{
         "title": "LAS files to Drillhole group",
         "run_command": "las_geoh5.import_files.driver",
-        "name": {
+        "conda_environment": "las-geoh5",
+        "drillhole_group": {
             "main": True,
-            "label": "Name",
-            "value": "",
+            "label": "Drillhole group",
+            "value": None,
+            "groupType": ["{825424fb-c2c6-4fea-9f2b-6cd00023d393}"],
         },
         "files": {
             "main": True,
@@ -28,43 +32,65 @@ ui_json = dict(
             "fileType": ["las"],
             "fileMulti": True,
         },
-        "depths_name": {
-            "label": "Depths",
-            "value": "DEPTH",
-            "group": "Import fields",
-            "optional": True,
-            "enabled": False,
+        "name": {
+            "main": True,
+            "label": "Property group name",
+            "group": "Property group",
+            "value": "",
+        },
+        "collocation_tolerance": {
+            "main": True,
+            "label": "Collocation tolerance",
+            "group": "Property group",
+            "value": 0.01,
+            "tooltip": (
+                "Tolerance for determining collocation of data locations "
+                "and ultimately deciding if incoming data should belong to "
+                "an existing property group.",
+            ),
         },
         "collar_x_name": {
-            "label": "Collar x",
+            "main": True,
+            "label": "Easting",
+            "tooltip": "Name of header field containing the collar easting.",
             "value": "X",
-            "group": "Import fields",
+            "group": "Collar",
             "optional": True,
             "enabled": False,
         },
         "collar_y_name": {
-            "label": "Collar y",
+            "main": True,
+            "label": "Northing",
+            "tooltip": "Name of header field containing the collar northing.",
             "value": "Y",
-            "group": "Import fields",
+            "group": "Collar",
             "optional": True,
             "enabled": False,
         },
         "collar_z_name": {
-            "label": "Collar z",
+            "main": True,
+            "tooltip": "Name of header field containing the collar elevation.",
+            "label": "Elevation",
             "value": "ELEV",
-            "group": "Import fields",
+            "group": "Collar",
             "optional": True,
             "enabled": False,
         },
         "skip_empty_header": {
+            "main": True,
             "label": "Skip empty header",
             "value": False,
             "tooltip": (
                 "Importing files without collar information "
                 "results in drillholes placed at the origin. "
                 "Check this box to skip these files."
-                ""
             ),
+        },
+        "warnings": {
+            "main": True,
+            "label": "Warnings",
+            "value": True,
+            "tooltip": "Show warnings during import.",
         },
     }
 )
