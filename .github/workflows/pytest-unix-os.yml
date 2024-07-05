@@ -21,9 +21,6 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
-env:
-  source_dir: las_geoh5
-
 jobs:
   pytest:
     name: pytest (Unix)
@@ -68,4 +65,4 @@ jobs:
       - name: Install dependencies
         run: poetry install -vvv
       - name: pytest
-        run: poetry run pytest --cov-report=xml --cov=${source_dir} --cov-branch --cov-fail-under=80
+        run: poetry run pytest

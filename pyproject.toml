@@ -31,11 +31,12 @@ packages = [
 ]
 
 include = [
-    "COPYING",
-    "COPYING.LESSER",
-    "LICENSE",
-    "README.rst",
-    "THIRD_PARTY_SOFTWARE.rst",
+    { path = "COPYING", format = ["sdist", "wheel"] },
+    { path = "COPYING.LESSER", format = ["sdist", "wheel"] },
+    { path = "LICENSE", format = ["sdist", "wheel"] },
+    { path = "README.rst", format = ["sdist", "wheel"] },
+    { path = "THIRD_PARTY_SOFTWARE.rst", format = ["sdist", "wheel"] },
+    { path = "docs/**/THIRD_PARTY_SOFTWARE.rst", format = ["sdist", "wheel"] },
 ]
 
 [tool.poetry.scripts]
@@ -52,7 +53,7 @@ tqdm = "^4.66.1"
 
 ## dependencies from Git repositories
 #------------------------------------
-geoh5py = {version ="~0.9.0rc1", allow-prereleases = true}
+geoh5py = {version ="~0.9.0", allow-prereleases = true}
 #geoh5py = {git = "https://github.com/MiraGeoscience/geoh5py.git", branch = "release/0.9.0"}
 #geoh5py = {url = "https://github.com/MiraGeoscience/geoh5py/archive/refs/heads/release/0.9.0.zip#sha256="}
 #geoh5py = {url = "http://localhost:8888/geoh5py.tar.gz#sha256="}
@@ -86,10 +87,8 @@ plugins = [
     "pydantic.mypy",
 ]
 
-[tool.coverage.run]
-branch = true
-source = ["las_geoh5"]
-omit = []
+[tool.pytest.ini_options]
+#addopts =
 
 [tool.coverage.report]
 exclude_lines = [
@@ -98,6 +97,13 @@ exclude_lines = [
     "if TYPE_CHECKING",
     "pragma: no cover"
 ]
+
+fail_under = 80
+
+[tool.coverage.run]
+branch = true
+source = ["las_geoh5"]
+omit = []
 
 [tool.coverage.html]
 skip_empty = true
