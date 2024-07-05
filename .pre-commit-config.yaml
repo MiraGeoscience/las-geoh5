@@ -44,7 +44,7 @@ repos:
     hooks:
     -   id: mypy
         additional_dependencies: [
-            numpy==1.26.*,  # pre-commit CI does not provide numpy 1.23.*
+            numpy==1.26.*,
             pydantic==2.5.*,
             tomli,  # to read config from pyproject.toml
             types-toml,
