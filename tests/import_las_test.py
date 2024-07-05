@@ -271,7 +271,7 @@ def test_skip_empty_header_option(tmp_path: Path):
 
 
 def test_add_data_increments_property_group(tmp_path: Path):
-    workspace = Workspace(tmp_path / "test.geoh5")
+    workspace = Workspace.create(tmp_path / "test.geoh5")
     dh_group = DrillholeGroup.create(workspace, name="dh_group")
     drillhole = Drillhole.create(
         workspace,
@@ -309,7 +309,7 @@ def test_add_data_increments_property_group(tmp_path: Path):
 
 
 def test_add_data_increments_data_name(tmp_path: Path):
-    workspace = Workspace(tmp_path / "test.geoh5")
+    workspace = Workspace.create(tmp_path / "test.geoh5")
     dh_group = DrillholeGroup.create(workspace, name="dh_group")
     drillhole = Drillhole.create(
         workspace,
@@ -391,7 +391,7 @@ def test_add_survey_lasfile(tmp_path: Path):
 
 def test_warning_no_well_name(tmp_path: Path, caplog):
     logger = logging.getLogger("las_geoh5.import_las")
-    ws = Workspace(tmp_path / "test.geoh5")
+    ws = Workspace.create(tmp_path / "test.geoh5")
     dh_group = DrillholeGroup.create(ws, name="dh_group")
 
     lasfile = generate_lasfile(

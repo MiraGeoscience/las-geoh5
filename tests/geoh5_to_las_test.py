@@ -331,7 +331,7 @@ def test_import_las_directory(tmp_path: Path):
 
 
 def test_collocation_tolerance(tmp_path: Path):
-    ws = Workspace(tmp_path / "test.geoh5")
+    ws = Workspace.create(tmp_path / "test.geoh5")
     dh_group = DrillholeGroup.create(ws, name="dh_group")
     group_name = "my_property_group"
 

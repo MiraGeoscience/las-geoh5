@@ -21,9 +21,6 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
-env:
-  source_dir: las_geoh5
-
 jobs:
   pytest:
     name: pytest (Windows)
@@ -31,7 +28,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python_ver: ['3.10']
+        python_ver: ['3.10', '3.11', '3.12']
     defaults:
       run:
         shell: bash
@@ -67,9 +64,11 @@ jobs:
       - name: Install dependencies
         run: poetry install -vvv
       - name: pytest
-        run: poetry run pytest --cov-report=xml --cov=${source_dir} --cov-branch --cov-fail-under=80
+        run: poetry run pytest --cov --cov-report=xml
       - name: Codecov
         if: ${{ success() && matrix.python_ver == '3.10' }}
         uses: codecov/codecov-action@v4
         with:
           name: GitHub
+          fail_ci_if_error: true
+          token: ${{ secrets.CODECOV_TOKEN }}
