@@ -92,5 +92,5 @@ ui_json = dict(
             "value": True,
             "tooltip": "Show warnings during import.",
         },
-    }
+    },
 )

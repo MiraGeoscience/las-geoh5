@@ -31,5 +31,5 @@ ui_json = dict(
             "directoryOnly": True,
             "fileMulti": False,
         },
-    }
+    },
 )
