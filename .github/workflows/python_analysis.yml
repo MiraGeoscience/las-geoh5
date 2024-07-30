@@ -27,7 +27,7 @@ jobs:
     uses: MiraGeoscience/CI-tools/.github/workflows/reusable-python-static_analysis.yml@main
     with:
       package_manager: 'poetry'
-      app_name: 'las-geoh5'
+      app_name: 'las_geoh5'
       python_vers: '3.10'
   call-workflow-pytest-on-windows:
     name: Pytest on Windows
