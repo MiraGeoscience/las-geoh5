@@ -46,4 +46,3 @@ jobs:
       python_ver: '["3.10", "3.11", "3.12"]'
       os: '["ubuntu-latest"]'
       cache_number: 1
-

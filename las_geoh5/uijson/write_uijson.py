@@ -35,7 +35,7 @@ def write_uijson(basepath: str | Path, mode: str = "import_files"):
         raise ValueError(msg)
 
     module = importlib.import_module(f"las_geoh5.{mode}.uijson")
-    ui_json = getattr(module, "ui_json")
+    ui_json = module.ui_json
     filename = "_".join([mode.split("_")[0], "las", mode.split("_")[1]])
 
     ifile = InputFile(ui_json=ui_json, validate=False)
