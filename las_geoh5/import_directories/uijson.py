@@ -10,6 +10,7 @@ from copy import deepcopy
 
 from geoh5py.ui_json.constants import default_ui_json
 
+
 ui_json = dict(
     deepcopy(default_ui_json),
     **{

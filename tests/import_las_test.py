@@ -33,6 +33,7 @@ from las_geoh5.import_las import (
 
 from .helpers import generate_lasfile, write_import_params_file, write_lasfile
 
+
 TEST_FILES = [
     generate_lasfile(
         "dh1",
@@ -76,7 +77,7 @@ def test_import_las_new_drillholes(tmp_path: Path):
     )
 
     module = importlib.import_module("las_geoh5.import_files.driver")
-    getattr(module, "run")(filepath)
+    module.run(filepath)
 
     with workspace.open():
         dh1 = workspace.get_entity("dh1")[0]
@@ -144,7 +145,7 @@ def test_import_las_existing_drillholes(tmp_path: Path):
     )
 
     module = importlib.import_module("las_geoh5.import_files.driver")
-    getattr(module, "run")(filepath)
+    module.run(filepath)
 
     with workspace.open():
         dh1 = workspace.get_entity("dh1")[0]
@@ -259,7 +260,7 @@ def test_skip_empty_header_option(tmp_path: Path):
     )
 
     module = importlib.import_module("las_geoh5.import_files.driver")
-    getattr(module, "run")(filepath)
+    module.run(filepath)
 
     with workspace.open():
         dh1 = workspace.get_entity("dh1")[0]
