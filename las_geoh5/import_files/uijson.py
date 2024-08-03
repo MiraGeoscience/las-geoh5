@@ -10,6 +10,7 @@ from copy import deepcopy
 
 from geoh5py.ui_json.constants import default_ui_json
 
+
 # pylint: disable=duplicate-code
 
 ui_json = dict(
@@ -92,5 +93,5 @@ ui_json = dict(
             "value": True,
             "tooltip": "Show warnings during import.",
         },
-    }
+    },
 )

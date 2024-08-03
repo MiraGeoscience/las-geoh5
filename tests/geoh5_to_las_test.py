@@ -283,7 +283,7 @@ def setup_import_las_directory(tmp_path: Path):
                 "interval_referenced": {
                     "type": "referenced",
                     "values": np.arange(1, n + 1),
-                    "value_map": dict(zip(np.arange(1, n + 1), randstrs)),
+                    "value_map": dict(zip(np.arange(1, n + 1), randstrs, strict=False)),
                     "from-to": from_to_a.tolist(),
                 },
             }

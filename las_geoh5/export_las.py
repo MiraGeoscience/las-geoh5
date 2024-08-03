@@ -162,9 +162,7 @@ def write_curves(
             subpath = basepath
 
         filename = f"{drillhole.name}_{group.name}.las"
-        with open(
-            subpath / filename, "a", encoding="utf8"
-        ) as io:  # pylint: disable=invalid-name
+        with open(subpath / filename, "a", encoding="utf8") as io:  # pylint: disable=invalid-name
             file.write(io)
 
 
@@ -195,9 +193,7 @@ def write_survey(
             basepath.mkdir()
 
     filename = f"{drillhole.name}_survey.las"
-    with open(
-        basepath / filename, "a", encoding="utf8"
-    ) as io:  # pylint: disable=invalid-name
+    with open(basepath / filename, "a", encoding="utf8") as io:  # pylint: disable=invalid-name
         file.write(io)
 
 
