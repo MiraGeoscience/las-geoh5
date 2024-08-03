@@ -56,7 +56,7 @@ def export_las_files(
 
     drillholes = [k for k in group.children if isinstance(k, Drillhole)]
 
-    print(f"Exporting drillhole surveys and property group data to '{basepath!s}'")
+    print(f"Exporting drillhole surveys and property group data to '{basepath}'")
     for drillhole in tqdm(drillholes):
         drillhole_to_las(drillhole, basepath, use_directories=use_directories)
 
