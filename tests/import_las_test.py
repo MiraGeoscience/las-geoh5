@@ -415,3 +415,35 @@ def test_warning_no_well_name(tmp_path: Path, caplog):
         )
 
         assert match in caplog.text
+
+
+def test_handle_numeric_well_name(tmp_path: Path):
+    with Workspace.create(tmp_path / "test.geoh5") as workspace:
+        dh_group = DrillholeGroup.create(workspace, name="dh_group")
+
+    lasfile = generate_lasfile(
+        "123",
+        {"UTMX": 0.0, "UTMY": 0.0, "ELEV": 10.0},
+        np.arange(0, 11, 1),
+        {"my_property": np.zeros(11)},
+    )
+    lasfile = write_lasfile(tmp_path, lasfile)
+
+    filepath = write_import_params_file(
+        tmp_path / "import_las_files.ui.json",
+        dh_group,
+        "my_property_group",
+        [lasfile],
+        (
+            "UTMX",
+            "UTMY",
+            "ELEV",
+        ),
+    )
+
+    module = importlib.import_module("las_geoh5.import_files.driver")
+    module.run(filepath)
+
+    with workspace.open():
+        dh_group = workspace.get_entity("dh_group")[0]
+        assert "123" in [k.name for k in dh_group.children]

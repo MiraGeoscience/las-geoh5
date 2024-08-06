@@ -309,6 +309,8 @@ def create_or_append_drillhole(
         translator = LASTranslator(NameOptions())
 
     name = translator.retrieve("well_name", lasfile)
+    if not isinstance(name, str):
+        name = str(name)
     if not name and logger is not None:
         logger.warning(
             "No well name provided for LAS file. "
