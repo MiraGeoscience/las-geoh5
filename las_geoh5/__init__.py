@@ -13,7 +13,7 @@ import re
 from pathlib import Path
 from lasio import reader
 
-__version__ = "0.2.1-alpha.1"
+__version__ = "0.2.1"
 
 
 def assets_path() -> Path:
