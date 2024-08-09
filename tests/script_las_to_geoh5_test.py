@@ -19,6 +19,7 @@ from las_geoh5.scripts import las_to_geoh5
 from .helpers import generate_lasfile, write_import_params_file, write_lasfile
 
 
+# pylint: disable=duplicate-code
 @pytest.fixture(scope="module", name="lasfile")
 def lasfile_fixture(tmp_path_factory) -> Path:
     input_dir = tmp_path_factory.mktemp("input")
@@ -75,6 +76,7 @@ def test_las_to_geoh5_without_output_name(
     """Test the las_to_geoh5 script."""
 
     workspace_file = input_workspace.h5file
+    assert isinstance(workspace_file, Path)
     modified_date = workspace_file.stat().st_mtime
 
     with patch("sys.argv", ["las_to_geoh5", str(params_filepath)]):
@@ -93,6 +95,7 @@ def test_las_to_geoh5_with_monitoring_folder(
     """Test the las_to_geoh5 script."""
 
     workspace_file = input_workspace.h5file
+    assert isinstance(workspace_file, Path)
     modified_date = workspace_file.stat().st_mtime
 
     monitoring_folder = tmp_path / "monitored here"
@@ -124,6 +127,7 @@ def test_las_to_geoh5_with_output_name(
     """Test the las_to_geoh5 script."""
 
     workspace_file = input_workspace.h5file
+    assert isinstance(workspace_file, Path)
     modified_date = workspace_file.stat().st_mtime
 
     working_dir = tmp_path / "working"
@@ -150,6 +154,7 @@ def test_las_to_geoh5_with_absolute_output_path(
     """Test the las_to_geoh5 script."""
 
     workspace_file = input_workspace.h5file
+    assert isinstance(workspace_file, Path)
     modified_date = workspace_file.stat().st_mtime
 
     output_dir = tmp_path / "output"
