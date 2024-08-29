@@ -17,14 +17,13 @@ from multiprocessing import Pool
 from pathlib import Path
 from shutil import move
 
-import lasio
 from geoh5py import Workspace
 from geoh5py.shared.utils import fetch_active_workspace
 from geoh5py.ui_json import InputFile
 from tqdm import tqdm
 
 from las_geoh5.import_files.params import ImportOptions, NameOptions
-from las_geoh5.import_las import las_to_drillhole
+from las_geoh5.import_las import las_to_drillhole, lasio_read
 
 
 _logger = logging.getLogger(__name__)
@@ -84,10 +83,6 @@ def log_execution_time(message: str, log_level: int = logging.INFO) -> Iterator[
     _logger.log(log_level, out)
 
 
-def _read_lasio_file(file):
-    return lasio.read(file, mnemonic_case="preserve")
-
-
 def run(params_json: Path, output_geoh5: Path | None = None):
     """
     Import LAS files into a geoh5 file.
@@ -117,7 +112,7 @@ def run(params_json: Path, output_geoh5: Path | None = None):
                     for file in tqdm(
                         ifile.data["files"].split(";"), desc="Reading LAS files"
                     ):
-                        futures.append(pool.apply_async(_read_lasio_file, (file,)))
+                        futures.append(pool.apply_async(lasio_read, (file,)))
 
                     lasfiles = [future.get() for future in futures]
 
