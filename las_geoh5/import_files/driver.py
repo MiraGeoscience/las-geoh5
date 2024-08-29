@@ -84,6 +84,10 @@ def log_execution_time(message: str, log_level: int = logging.INFO) -> Iterator[
     _logger.log(log_level, out)
 
 
+def _read_lasio_file(file):
+    return lasio.read(file, mnemonic_case="preserve")
+
+
 def run(params_json: Path, output_geoh5: Path | None = None):
     """
     Import LAS files into a geoh5 file.
@@ -113,11 +117,7 @@ def run(params_json: Path, output_geoh5: Path | None = None):
                     for file in tqdm(
                         ifile.data["files"].split(";"), desc="Reading LAS files"
                     ):
-                        futures.append(
-                            pool.apply_async(
-                                lasio.read, (file,), {"mnemonic_case": "preserve"}
-                            )
-                        )
+                        futures.append(pool.apply_async(_read_lasio_file, (file,)))
 
                     lasfiles = [future.get() for future in futures]
 
