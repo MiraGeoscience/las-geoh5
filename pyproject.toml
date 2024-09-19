@@ -89,6 +89,7 @@ select = [
     "F",  # pyflakes
     "I",  # isort
     "RUF",  # ruff rules
+    "RUF005",  # collection-literal-concatenation - wrong suggestion with numpy arrays
     "TID", # flake8-tidy-imports
     "UP",  # pyupgrade
     "W",  # pycodestyle warnings
