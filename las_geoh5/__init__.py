@@ -6,11 +6,10 @@
 #  (see LICENSE file at the root of this source code package).
 #
 
-# flake8: noqa
-
 from __future__ import annotations
 
 from pathlib import Path
+
 
 __version__ = "0.3.0-alpha.1"
 
@@ -25,3 +24,9 @@ def assets_path() -> Path:
         raise RuntimeError(f"Assets folder not found: {assets_folder}")
 
     return assets_folder
+
+
+__all__ = [
+    "__version__",
+    "assets_path",
+]
