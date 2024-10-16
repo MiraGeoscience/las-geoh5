@@ -288,10 +288,11 @@ def add_data(
     return drillhole
 
 
-def create_or_append_drillhole(  # pylint: disable=too-many-arguments
+def create_or_append_drillhole(
     lasfile: lasio.LASFile,
     drillhole_group: DrillholeGroup,
     group_name: str,
+    *,
     translator: LASTranslator | None = None,
     collocation_tolerance: float = 0.01,
     logger: logging.Logger | None = None,
@@ -350,10 +351,11 @@ def create_or_append_drillhole(  # pylint: disable=too-many-arguments
     return drillhole
 
 
-def las_to_drillhole(  # pylint: disable=too-many-arguments
+def las_to_drillhole(
     data: lasio.LASFile | list[lasio.LASFile],
     drillhole_group: DrillholeGroup,
     property_group: str,
+    *,
     surveys: Path | list[Path] | None = None,
     logger: logging.Logger | None = None,
     options: ImportOptions | None = None,
