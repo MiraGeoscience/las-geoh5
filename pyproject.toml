@@ -54,7 +54,7 @@ tqdm = "^4.66.1"
 ## dependencies from Git repositories
 #------------------------------------
 #geoh5py = {version = ">=0.9.1, <0.11", allow-prereleases = true}
-geoh5py = {git = "https://github.com/MiraGeoscience/geoh5py.git", rev = "GEOPY-1781"}
+geoh5py = {git = "https://github.com/MiraGeoscience/geoh5py.git", rev = "release/0.10.0"}
 #geoh5py = {path = "../geoh5py", develop = true}
 
 [tool.poetry.group.dev.dependencies]
