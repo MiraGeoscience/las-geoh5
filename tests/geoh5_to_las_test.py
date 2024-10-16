@@ -14,7 +14,7 @@ from pathlib import Path
 import lasio
 import numpy as np
 import pytest
-from geoh5py.groups.drillhole_group import DrillholeGroup
+from geoh5py.groups.drillhole import DrillholeGroup
 from geoh5py.objects.drillhole import Drillhole
 from geoh5py.shared.utils import compare_entities
 from geoh5py.workspace import Workspace
