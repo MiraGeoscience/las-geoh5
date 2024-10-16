@@ -288,7 +288,7 @@ def add_data(
     return drillhole
 
 
-def create_or_append_drillhole(  # pylint: disable=too-many-locals
+def create_or_append_drillhole(  # pylint: disable=too-many-arguments
     lasfile: lasio.LASFile,
     drillhole_group: DrillholeGroup,
     group_name: str,
@@ -350,7 +350,7 @@ def create_or_append_drillhole(  # pylint: disable=too-many-locals
     return drillhole
 
 
-def las_to_drillhole(  # pylint: disable=too-many-locals
+def las_to_drillhole(  # pylint: disable=too-many-arguments
     data: lasio.LASFile | list[lasio.LASFile],
     drillhole_group: DrillholeGroup,
     property_group: str,
