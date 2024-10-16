@@ -52,6 +52,7 @@ def write_import_params_file(
     property_group_name: str,
     files: list[Path],
     collar_xyz_names: tuple[str, str, str],
+    *,
     skip_empty_header=False,
 ) -> Path:
     workspace = drillhole_group.workspace
