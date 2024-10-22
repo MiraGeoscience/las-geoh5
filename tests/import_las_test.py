@@ -447,3 +447,19 @@ def test_handle_numeric_well_name(tmp_path: Path):
     with workspace.open():
         dh_group = workspace.get_entity("dh_group")[0]
         assert "123" in [k.name for k in dh_group.children]
+
+
+def test_existing_drillhole_new_collar_location(tmp_path):
+    ws = Workspace.create(tmp_path / "test.geoh5")
+    dh_group = DrillholeGroup.create(ws, name="dh_group")
+    dh = Drillhole.create(ws, name="dh", parent=dh_group, collar=[0, 0, 0])
+    lasfile = generate_lasfile(
+        well="dh",
+        collar={"X": 0.0, "Y": 0.0, "ELEV": 10.0},
+        depths=np.arange(0, 11, 1),
+        properties={"my_property": np.zeros(11)},
+    )
+    lasfile = lasio.read(write_lasfile(tmp_path, lasfile))
+    dh_compare = create_or_append_drillhole(lasfile, dh_group, "test")
+
+    assert dh.uid == dh_compare.uid
