@@ -84,9 +84,9 @@ def test_import_las_new_drillholes(tmp_path: Path):
         assert dh1.collar["x"] == 0.0
         assert dh1.collar["y"] == 0.0
         assert dh1.collar["z"] == 10.0
-        assert dh1.surveys.shape == (2, 3)
-        assert dh1.surveys[1, 0] == 10.0
-        assert dh1.end_of_hole == 10.0
+        assert dh1.surveys.shape == (1, 3)
+        assert np.allclose(dh1.surveys, np.r_[0, 0, -90])
+        assert dh1.end_of_hole == 0.0
         assert dh1.parent.uid == dh_group.uid
         assert all(dh1.get_data("my_property")[0].values == 0.0)
         assert dh1.property_groups[0].name == "my_property_group"
@@ -98,7 +98,7 @@ def test_import_las_new_drillholes(tmp_path: Path):
         assert dh2.collar["x"] == 10.0
         assert dh2.collar["y"] == 10.0
         assert dh2.collar["z"] == 0.0
-        assert dh2.end_of_hole == 20.0
+        assert dh2.end_of_hole == 0.0
         assert dh2.parent.uid == dh_group.uid
         assert dh2.property_groups[0].name == "my_property_group"
         assert len(dh2.property_groups) == 1
@@ -164,7 +164,7 @@ def test_import_las_existing_drillholes(tmp_path: Path):
         assert dh2.collar["x"] == 10.0
         assert dh2.collar["y"] == 10.0
         assert dh2.collar["z"] == 0.0
-        assert dh2.end_of_hole == 20.0
+        assert dh2.end_of_hole == 0.0
         assert dh2.parent.uid == dh_group.uid
         assert dh2.property_groups[0].name == "my_property_group"
         assert len(dh2.property_groups) == 1
