@@ -325,10 +325,7 @@ def create_or_append_drillhole(
     collar = get_collar(lasfile, translator, logger)
     drillhole = drillhole_group.get_entity(name)[0]  # type: ignore
 
-    if not isinstance(drillhole, Drillhole) or (
-        isinstance(drillhole, Drillhole)
-        and not np.allclose(collar, drillhole.collar.tolist())
-    ):
+    if not isinstance(drillhole, Drillhole):
         name = find_copy_name(drillhole_group.workspace, name)
         kwargs = {
             "name": name,
