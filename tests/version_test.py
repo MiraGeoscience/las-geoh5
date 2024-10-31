@@ -42,7 +42,7 @@ def get_conda_recipe_version():
     return recipe["package"]["version"]
 
 
-def test_version_is_consistent(pyproject: dict):
+def test_version_is_consistent():
     assert las_geoh5.__version__ == get_version()
 
 
