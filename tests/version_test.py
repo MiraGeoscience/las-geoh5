@@ -9,12 +9,46 @@
 from __future__ import annotations
 
 import re
+from pathlib import Path
+
+import tomli as toml
+import yaml
+from jinja2 import Template
+from packaging.version import Version
 
 import las_geoh5
 
 
+def get_version():
+    path = Path(__file__).resolve().parents[1] / "pyproject.toml"
+
+    with open(str(path), encoding="utf-8") as file:
+        pyproject = toml.loads(file.read())
+
+    return pyproject["tool"]["poetry"]["version"]
+
+
+def get_conda_recipe_version():
+    path = Path(__file__).resolve().parents[1] / "meta.yaml"
+
+    with open(str(path), encoding="utf-8") as file:
+        content = file.read()
+
+    template = Template(content)
+    rendered_yaml = template.render()
+
+    recipe = yaml.safe_load(rendered_yaml)
+
+    return recipe["package"]["version"]
+
+
 def test_version_is_consistent(pyproject: dict):
-    assert las_geoh5.__version__ == pyproject["tool"]["poetry"]["version"]
+    assert las_geoh5.__version__ == get_version()
+
+
+def test_conda_version_is_pep440():
+    version = Version(get_conda_recipe_version())
+    assert version is not None
 
 
 def test_version_is_semver():
