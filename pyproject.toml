@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "las-geoh5"
-version = "0.4.0-alpha.1"
+version = "0.3.0-alpha.2"
 description = "Las/Geoh5 conversion"
 license = "MIT"
 readme = "README.rst"
@@ -53,8 +53,8 @@ tqdm = "^4.66.1"
 
 ## dependencies from Git repositories
 #------------------------------------
-#geoh5py = {version = ">=0.9.1, <0.11", allow-prereleases = true}
-geoh5py = {git = "https://github.com/MiraGeoscience/geoh5py.git", rev = "release/0.10.0"}
+geoh5py = {version = "~0.10.0-alpha.1", allow-prereleases = true}
+#geoh5py = {git = "https://github.com/MiraGeoscience/geoh5py.git", rev = "release/0.10.0"}
 #geoh5py = {path = "../geoh5py", develop = true}
 
 [tool.poetry.group.dev.dependencies]
@@ -62,6 +62,9 @@ Pygments = "*"
 pylint = "*"
 pytest = "*"
 pytest-cov = "*"
+pyyaml = '*'
+jinja2 = '*'
+packaging = '*'
 tomli = "*"
 sphinx = "*"
 sphinx-autodoc-typehints = "*"
