@@ -58,7 +58,9 @@ def import_las_directory(dh_group: DrillholeGroup, basepath: str | Path):
     for prop in property_group_folders:
         lasfiles = []
         for file in [k for k in prop.iterdir() if k.suffix == ".las"]:
-            lasfiles.append(lasio.read(file, mnemonic_case="preserve"))
+            lasfiles.append(
+                lasio.read(file, mnemonic_case="preserve", encoding="utf-8")
+            )
         print(f"Importing property group data from to '{prop.name}'")
         las_to_drillhole(
             lasfiles,
