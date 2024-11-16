@@ -27,7 +27,7 @@ requirements:
     - setuptools_scm
   run:
     - python >=3.9.0,<3.11
-    - geoh5py >=0.10.0a1,<0.11.0
+    - geoh5py >=0.10.0b1,<0.11.0a.dev
     - lasio >=0.31
     - numpy >=1.26.0,<1.27.0
     - pydantic >=2.5.2,<2.6.0
