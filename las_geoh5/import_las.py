@@ -531,4 +531,4 @@ def lasio_read(file):
     """
 
     _patch_lasio_reader()
-    return lasio.read(file, mnemonic_case="preserve")
+    return lasio.read(file, mnemonic_case="preserve", encoding="utf-8")

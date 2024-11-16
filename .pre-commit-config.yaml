@@ -39,6 +39,7 @@ repos:
             pydantic==2.5.*,
             tomli,  # to read config from pyproject.toml
             types-toml,
+            types-PyYAML,
         ]
         exclude: ^(docs|las_geoh5-assets)/
 -   repo: https://github.com/codingjoe/relint
@@ -78,7 +79,8 @@ repos:
         exclude_types: [jupyter]
     -   id: check-toml
     -   id: check-yaml
-#    -   id: check-added-large-files # crashing on some configuration. To be investigated
+        exclude: ^meta.yaml$
+    -   id: check-added-large-files
     -   id: check-case-conflict
     -   id: check-merge-conflict
     -   id: debug-statements
