@@ -46,7 +46,7 @@ las_to_geoh5 = 'las_geoh5.scripts.las_to_geoh5:main'
 [tool.poetry.dependencies]
 python = "^3.10"
 
-lasio = "~0.31"
+lasio = "0.31.*"
 numpy = "~1.26.0"  # also in geoh5py
 pydantic = "^2.5.2"  # also in geoh5py
 tqdm = "^4.66.1"
