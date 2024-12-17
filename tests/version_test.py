@@ -19,7 +19,7 @@ from packaging.version import Version
 import las_geoh5
 
 
-def get_version():
+def get_pyproject_version():
     path = Path(__file__).resolve().parents[1] / "pyproject.toml"
 
     with open(str(path), encoding="utf-8") as file:
@@ -43,7 +43,10 @@ def get_conda_recipe_version():
 
 
 def test_version_is_consistent():
-    assert las_geoh5.__version__ == get_version()
+    assert las_geoh5.__version__ == get_pyproject_version()
+    normalized_conda_version = Version(get_conda_recipe_version())
+    normalized_version = Version(las_geoh5.__version__)
+    assert normalized_conda_version == normalized_version
 
 
 def test_conda_version_is_pep440():
