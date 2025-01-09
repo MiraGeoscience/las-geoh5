@@ -320,8 +320,7 @@ def create_or_append_drillhole(
         name = str(name)
     if not name and logger is not None:
         logger.warning(
-            "No well name provided for LAS file. "
-            "Saving drillhole with name 'Unknown'."
+            "No well name provided for LAS file. Saving drillhole with name 'Unknown'."
         )
 
     collar = get_collar(lasfile, translator, logger)
