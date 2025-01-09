@@ -17,12 +17,12 @@ repos:
     -   id: poetry-check
         args: [--lock]
 -   repo: https://github.com/hadialqattan/pycln
-    rev: v2.4.0
+    rev: v2.5.0
     hooks:
     -   id: pycln
         args: [--config=pyproject.toml]
 -   repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.6.9
+    rev: v0.9.0
     hooks:
     -   id: ruff
         args:
@@ -31,7 +31,7 @@ repos:
 #        -   --unsafe-fixes
     -   id: ruff-format
 -   repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.12.0
+    rev: v1.14.1
     hooks:
     -   id: mypy
         additional_dependencies: [
@@ -43,12 +43,12 @@ repos:
         ]
         exclude: ^(docs|las_geoh5-assets)/
 -   repo: https://github.com/codingjoe/relint
-    rev: 3.2.0
+    rev: 3.3.1
     hooks:
     -   id: relint
         args: [-W]  # to fail on warnings
 -   repo: http://github.com/MiraGeoscience/pre-commit-hooks
-    rev: v1.0.1
+    rev: v1.0.2
     hooks:
     -   id: check-copyright
         files: (^LICENSE|^README(|-dev).rst|\.py|\.pyi)$
