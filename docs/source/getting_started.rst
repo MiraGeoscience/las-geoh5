@@ -49,7 +49,7 @@ and its few dependencies together.
 
 This is as simple opening a miniforge terminal and running the following commands
 
-.. code-block::
+.. code-block:: bash
 
     conda create -n "las-geoh5" python=3.10
     conda activate las-geoh5

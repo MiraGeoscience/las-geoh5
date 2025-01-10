@@ -6,7 +6,7 @@ Basic usage
 The main entry points to the various modules are ``ui.json`` file (stored under the ``las_geoh5-assets`` directory).
 The ``ui.json`` has the dual purpose of (1) rendering a user-interface from Geoscience ANALYST and (2) storing the input
 parameters chosen by the user for the program to run. To learn more about the ui.json interface visit the
-`UIJson documentation <https://geoh5py.readthedocs.io/en/v0.8.0-rc.1/content/uijson_format/usage.html#usage-with-geoscience-analyst-pro>`_ page.
+`UIJson documentation <https://mirageoscience-geoh5py.readthedocs-hosted.com/en/stable/content/uijson_format/usage.html#usage-with-geoscience-analyst-pro>`_ page.
 
 
 User-interface
