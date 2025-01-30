@@ -2,7 +2,7 @@ schema_version: 1
 
 context:
   name: las-geoh5
-  version: 0.3.0b2
+  version: 0.4.0a1
 
 package:
   name: ${{ name|lower }}
@@ -64,4 +64,3 @@ extra:
   recipe-maintainers:
     - SophieCurinier
     - sebhmg
-

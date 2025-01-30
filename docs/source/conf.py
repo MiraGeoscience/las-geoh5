@@ -27,6 +27,6 @@ html_theme = "alabaster"
 html_static_path = ["_static"]
 
 # The short X.Y version.
-version = "0.3.0"
+version = "0.4.0"
 # The full version, including alpha/beta/rc tags.
-release = "0.3.0-beta.2"
+release = "0.4.0-alpha.1"
