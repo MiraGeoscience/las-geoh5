@@ -12,7 +12,7 @@ ci:
 
 repos:
 -   repo: https://github.com/python-poetry/poetry
-    rev: 1.8.0
+    rev: 2.0.1
     hooks:
     -   id: poetry-check
         args: [--lock]
@@ -22,7 +22,7 @@ repos:
     -   id: pycln
         args: [--config=pyproject.toml]
 -   repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.9.0
+    rev: v0.9.4
     hooks:
     -   id: ruff
         args:
@@ -48,7 +48,7 @@ repos:
     -   id: relint
         args: [-W]  # to fail on warnings
 -   repo: http://github.com/MiraGeoscience/pre-commit-hooks
-    rev: v1.0.2
+    rev: v1.1.0
     hooks:
     -   id: check-copyright
         files: (^package\.rst|^LICENSE|^README(|-dev)\.rst|\.py|\.pyi)$
@@ -65,7 +65,7 @@ repos:
         types: [python]
         exclude: ^(devtools|docs|las_geoh5-assets)/
 -   repo: https://github.com/codespell-project/codespell
-    rev: v2.3.0
+    rev: v2.4.1
     hooks:
     -   id: codespell
         exclude: (\.lock|\.ipynb|^THIRD_PARTY_SOFTWARE\.rst)$
