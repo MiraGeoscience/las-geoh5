@@ -1,10 +1,12 @@
-#  Copyright (c) 2024 Mira Geoscience Ltd.
-#
-#  This file is part of las-geoh5 project.
-#
-#  las-geoh5 is distributed under the terms and conditions of the MIT License
-#  (see LICENSE file at the root of this source code package).
-#
+# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2024-2025 Mira Geoscience Ltd.                                '
+#                                                                              '
+#  This file is part of las-geoh5 package.                                     '
+#                                                                              '
+#  las-geoh5 is distributed under the terms and conditions of the MIT License  '
+#  (see LICENSE file at the root of this source code package).                 '
+#                                                                              '
+# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 from __future__ import annotations
 
@@ -292,6 +294,7 @@ def create_or_append_drillhole(
     lasfile: lasio.LASFile,
     drillhole_group: DrillholeGroup,
     group_name: str,
+    *,
     translator: LASTranslator | None = None,
     collocation_tolerance: float = 0.01,
     logger: logging.Logger | None = None,
@@ -317,17 +320,13 @@ def create_or_append_drillhole(
         name = str(name)
     if not name and logger is not None:
         logger.warning(
-            "No well name provided for LAS file. "
-            "Saving drillhole with name 'Unknown'."
+            "No well name provided for LAS file. Saving drillhole with name 'Unknown'."
         )
 
     collar = get_collar(lasfile, translator, logger)
     drillhole = drillhole_group.get_entity(name)[0]  # type: ignore
 
-    if not isinstance(drillhole, Drillhole) or (
-        isinstance(drillhole, Drillhole)
-        and not np.allclose(collar, drillhole.collar.tolist())
-    ):
+    if not isinstance(drillhole, Drillhole):
         name = find_copy_name(drillhole_group.workspace, name)
         kwargs = {
             "name": name,
@@ -354,6 +353,7 @@ def las_to_drillhole(
     data: lasio.LASFile | list[lasio.LASFile],
     drillhole_group: DrillholeGroup,
     property_group: str,
+    *,
     surveys: Path | list[Path] | None = None,
     logger: logging.Logger | None = None,
     options: ImportOptions | None = None,
@@ -532,4 +532,4 @@ def lasio_read(file):
     """
 
     _patch_lasio_reader()
-    return lasio.read(file, mnemonic_case="preserve")
+    return lasio.read(file, mnemonic_case="preserve", encoding="utf-8")

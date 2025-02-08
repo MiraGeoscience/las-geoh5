@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "las-geoh5"
-version = "0.2.2"
+version = "0.3.0"
 description = "Las/Geoh5 conversion"
 license = "MIT"
 readme = "README.rst"
@@ -31,12 +31,12 @@ packages = [
 ]
 
 include = [
-    { path = "COPYING", format = ["sdist", "wheel"] },
-    { path = "COPYING.LESSER", format = ["sdist", "wheel"] },
-    { path = "LICENSE", format = ["sdist", "wheel"] },
-    { path = "README.rst", format = ["sdist", "wheel"] },
-    { path = "THIRD_PARTY_SOFTWARE.rst", format = ["sdist", "wheel"] },
-    { path = "docs/**/THIRD_PARTY_SOFTWARE.rst", format = ["sdist", "wheel"] },
+    { path = "COPYING" },
+    { path = "COPYING.LESSER" },
+    { path = "LICENSE" },
+    { path = "README.rst" },
+    { path = "THIRD_PARTY_SOFTWARE.rst" },
+    { path = "docs/**/THIRD_PARTY_SOFTWARE.rst" },
 ]
 
 [tool.poetry.scripts]
@@ -44,25 +44,27 @@ geoh5_to_las = 'las_geoh5.scripts.geoh5_to_las:main'
 las_to_geoh5 = 'las_geoh5.scripts.las_to_geoh5:main'
 
 [tool.poetry.dependencies]
-python = "^3.10, <3.11"
+python = "^3.10"
 
-lasio = "~0.31"
-numpy = "~1.23.5"  # also in geoh5py
-pydantic = "~2.5.2"
+lasio = "0.31.*"
+numpy = "~1.26.0"  # also in geoh5py
+pydantic = "^2.5.2"  # also in geoh5py
 tqdm = "^4.66.1"
 
 ## dependencies from Git repositories
 #------------------------------------
-geoh5py = {version ="~0.9.0", allow-prereleases = true}
-#geoh5py = {git = "https://github.com/MiraGeoscience/geoh5py.git", branch = "release/0.9.0"}
-#geoh5py = {url = "https://github.com/MiraGeoscience/geoh5py/archive/refs/heads/release/0.9.0.zip#sha256="}
-#geoh5py = {url = "http://localhost:8888/geoh5py.tar.gz#sha256="}
+geoh5py = {version = ">=0.10.0b1, <0.11.0a.dev", allow-prereleases = true}
+#geoh5py = {git = "https://github.com/MiraGeoscience/geoh5py.git", rev = "release/0.10.0"}
+#geoh5py = {path = "../geoh5py", develop = true}
 
 [tool.poetry.group.dev.dependencies]
 Pygments = "*"
 pylint = "*"
 pytest = "*"
 pytest-cov = "*"
+pyyaml = '*'
+jinja2 = '*'
+packaging = '*'
 tomli = "*"
 sphinx = "*"
 sphinx-autodoc-typehints = "*"
@@ -90,6 +92,7 @@ select = [
     "F",  # pyflakes
     "I",  # isort
     "RUF",  # ruff rules
+    "RUF005",  # collection-literal-concatenation - wrong suggestion with numpy arrays
     "TID", # flake8-tidy-imports
     "UP",  # pyupgrade
     "W",  # pycodestyle warnings

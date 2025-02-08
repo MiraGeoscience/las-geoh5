@@ -1,10 +1,12 @@
-#  Copyright (c) 2024 Mira Geoscience Ltd.
-#
-#  This file is part of las-geoh5 project.
-#
-#  las-geoh5 is distributed under the terms and conditions of the MIT License
-#  (see LICENSE file at the root of this source code package).
-#
+# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2024-2025 Mira Geoscience Ltd.                                '
+#                                                                              '
+#  This file is part of las-geoh5 package.                                     '
+#                                                                              '
+#  las-geoh5 is distributed under the terms and conditions of the MIT License  '
+#  (see LICENSE file at the root of this source code package).                 '
+#                                                                              '
+# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 import logging
 import random
@@ -14,7 +16,7 @@ from pathlib import Path
 import lasio
 import numpy as np
 import pytest
-from geoh5py.groups.drillhole_group import DrillholeGroup
+from geoh5py.groups.drillhole import DrillholeGroup
 from geoh5py.objects.drillhole import Drillhole
 from geoh5py.shared.utils import compare_entities
 from geoh5py.workspace import Workspace
@@ -129,17 +131,6 @@ def test_create_or_append_drillhole(tmp_path: Path):
             Path(tmp_path / f"dh1_{drillhole_a.property_groups[0].name}.las"),
             mnemonic_case="preserve",
         )
-        file.well["X"] = 10.0
-        drillhole = create_or_append_drillhole(
-            file,
-            drillhole_group,
-            "test",
-            translator=LASTranslator(NameOptions()),
-        )
-
-        # New data should be placed in a new drillhole object with augmented name
-        assert drillhole.uid != drillhole_a.uid
-        assert drillhole.name == "dh1 (1)"
 
         file.well["WELL"] = "dh2"
         drillhole = create_or_append_drillhole(

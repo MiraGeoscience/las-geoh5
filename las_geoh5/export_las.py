@@ -1,10 +1,12 @@
-#  Copyright (c) 2024 Mira Geoscience Ltd.
-#
-#  This file is part of las-geoh5 project.
-#
-#  las-geoh5 is distributed under the terms and conditions of the MIT License
-#  (see LICENSE file at the root of this source code package).
-#
+# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2024-2025 Mira Geoscience Ltd.                                '
+#                                                                              '
+#  This file is part of las-geoh5 package.                                     '
+#                                                                              '
+#  las-geoh5 is distributed under the terms and conditions of the MIT License  '
+#  (see LICENSE file at the root of this source code package).                 '
+#                                                                              '
+# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 from __future__ import annotations
 
@@ -79,8 +81,8 @@ def add_curve_data(file: LASFile, drillhole: Drillhole, group):
 
         file.append_curve(datum.name, datum.values)
 
-        if isinstance(datum, ReferencedData):
-            for k, v in datum.value_map.map.items():  # pylint: disable=invalid-name
+        if isinstance(datum, ReferencedData) and datum.value_map is not None:
+            for k, v in datum.value_map().items():  # pylint: disable=invalid-name
                 file.params.append(
                     HeaderItem(
                         mnemonic=f"{datum.name} ({k})", value=v, descr="REFERENCE"

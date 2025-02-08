@@ -1,17 +1,19 @@
-#  Copyright (c) 2024 Mira Geoscience Ltd.
-#
-#  This file is part of las_geoh5 project.
-#
-#  las-geoh5 is distributed under the terms and conditions of the MIT License
-#  (see LICENSE file at the root of this source code package).
-#
+# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2023-2025 Mira Geoscience Ltd.                                '
+#                                                                              '
+#  This file is part of las-geoh5 package.                                     '
+#                                                                              '
+#  las-geoh5 is distributed under the terms and conditions of the MIT License  '
+#  (see LICENSE file at the root of this source code package).                 '
+#                                                                              '
+# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 from __future__ import annotations
 
 from pathlib import Path
 
 
-__version__ = "0.2.2"
+__version__ = "0.3.0"
 
 
 def assets_path() -> Path:

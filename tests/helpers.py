@@ -1,9 +1,12 @@
-#  Copyright (c) 2024 Mira Geoscience Ltd.
-#
-#  This file is part of las-geoh5 project.
-#
-#  las-geoh5 is distributed under the terms and conditions of the MIT License
-#  (see LICENSE file at the root of this source code package).
+# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2024-2025 Mira Geoscience Ltd.                                '
+#                                                                              '
+#  This file is part of las-geoh5 package.                                     '
+#                                                                              '
+#  las-geoh5 is distributed under the terms and conditions of the MIT License  '
+#  (see LICENSE file at the root of this source code package).                 '
+#                                                                              '
+# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 from pathlib import Path
 
@@ -52,6 +55,7 @@ def write_import_params_file(
     property_group_name: str,
     files: list[Path],
     collar_xyz_names: tuple[str, str, str],
+    *,
     skip_empty_header=False,
 ) -> Path:
     workspace = drillhole_group.workspace

@@ -1,10 +1,12 @@
-#  Copyright (c) 2024 Mira Geoscience Ltd.
-#
-#  This file is part of las-geoh5 project.
-#
-#  las-geoh5 is distributed under the terms and conditions of the MIT License
-#  (see LICENSE file at the root of this source code package).
-#
+# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2024-2025 Mira Geoscience Ltd.                                '
+#                                                                              '
+#  This file is part of las-geoh5 package.                                     '
+#                                                                              '
+#  las-geoh5 is distributed under the terms and conditions of the MIT License  '
+#  (see LICENSE file at the root of this source code package).                 '
+#                                                                              '
+# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 from __future__ import annotations
 
@@ -58,7 +60,9 @@ def import_las_directory(dh_group: DrillholeGroup, basepath: str | Path):
     for prop in property_group_folders:
         lasfiles = []
         for file in [k for k in prop.iterdir() if k.suffix == ".las"]:
-            lasfiles.append(lasio.read(file, mnemonic_case="preserve"))
+            lasfiles.append(
+                lasio.read(file, mnemonic_case="preserve", encoding="utf-8")
+            )
         print(f"Importing property group data from to '{prop.name}'")
         las_to_drillhole(
             lasfiles,

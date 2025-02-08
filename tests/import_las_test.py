@@ -1,10 +1,12 @@
-#  Copyright (c) 2024 Mira Geoscience Ltd.
-#
-#  This file is part of las-geoh5 project.
-#
-#  las-geoh5 is distributed under the terms and conditions of the MIT License
-#  (see LICENSE file at the root of this source code package).
-#
+# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2024-2025 Mira Geoscience Ltd.                                '
+#                                                                              '
+#  This file is part of las-geoh5 package.                                     '
+#                                                                              '
+#  las-geoh5 is distributed under the terms and conditions of the MIT License  '
+#  (see LICENSE file at the root of this source code package).                 '
+#                                                                              '
+# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 from __future__ import annotations
 
@@ -59,6 +61,36 @@ TEST_FILES = [
 ]
 
 
+def test_encoding(tmp_path: Path):
+    with Workspace.create(tmp_path / "test.geoh5") as workspace:
+        dh_group = DrillholeGroup.create(workspace, name="dh_group")
+
+    lasfile = generate_lasfile(
+        well="dh1é",
+        collar={"UTMX": 0.0, "UTMY": 0.0, "ELEV": 10.0},
+        depths=np.arange(0, 11, 1),
+        properties={"my_property": np.zeros(11)},
+    )
+    lasfiles = [write_lasfile(tmp_path, lasfile)]
+    filepath = write_import_params_file(
+        tmp_path / "import_las_files.ui.json",
+        dh_group,
+        "my_property_group",
+        lasfiles,
+        (
+            "UTMX",
+            "UTMY",
+            "ELEV",
+        ),
+    )
+
+    module = importlib.import_module("las_geoh5.import_files.driver")
+    module.run(filepath)
+
+    with workspace.open(mode="r"):
+        assert workspace.get_entity("dh1é")[0] is not None
+
+
 def test_import_las_new_drillholes(tmp_path: Path):
     with Workspace.create(tmp_path / "test.geoh5") as workspace:
         dh_group = DrillholeGroup.create(workspace, name="dh_group")
@@ -85,7 +117,7 @@ def test_import_las_new_drillholes(tmp_path: Path):
         assert dh1.collar["y"] == 0.0
         assert dh1.collar["z"] == 10.0
         assert dh1.surveys.shape == (2, 3)
-        assert dh1.surveys[1, 0] == 10.0
+        assert np.allclose(dh1.surveys, np.array([[0, 0, -90], [10, 0, -90]]))
         assert dh1.end_of_hole == 10.0
         assert dh1.parent.uid == dh_group.uid
         assert all(dh1.get_data("my_property")[0].values == 0.0)
@@ -447,3 +479,19 @@ def test_handle_numeric_well_name(tmp_path: Path):
     with workspace.open():
         dh_group = workspace.get_entity("dh_group")[0]
         assert "123" in [k.name for k in dh_group.children]
+
+
+def test_existing_drillhole_new_collar_location(tmp_path):
+    ws = Workspace.create(tmp_path / "test.geoh5")
+    dh_group = DrillholeGroup.create(ws, name="dh_group")
+    dh = Drillhole.create(ws, name="dh", parent=dh_group, collar=[0, 0, 0])
+    lasfile = generate_lasfile(
+        well="dh",
+        collar={"X": 0.0, "Y": 0.0, "ELEV": 10.0},
+        depths=np.arange(0, 11, 1),
+        properties={"my_property": np.zeros(11)},
+    )
+    lasfile = lasio.read(write_lasfile(tmp_path, lasfile))
+    dh_compare = create_or_append_drillhole(lasfile, dh_group, "test")
+
+    assert dh.uid == dh_compare.uid
