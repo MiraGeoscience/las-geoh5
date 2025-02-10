@@ -5,9 +5,12 @@
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
+from datetime import datetime
+from importlib.metadata import version
+from packaging.version import Version
 
 project = "las-geoh5"
-copyright = "Mira Geoscience Ltd."
+project_copyright = "%Y, Mira Geoscience Ltd"
 author = "Ben Kary"
 release = "2024"
 
@@ -27,6 +30,13 @@ html_theme = "alabaster"
 html_static_path = ["_static"]
 
 # The short X.Y version.
-version = "0.4.0"
-# The full version, including alpha/beta/rc tags.
-release = "0.4.0-alpha.1"
+release = version("las-geoh5")
+# The short X.Y.Z version.
+version = Version(release).base_version
+
+def get_copyright_notice():
+    return f"Copyright {datetime.now().strftime(project_copyright)}"
+
+rst_epilog = f"""
+.. |copyright_notice| replace:: {get_copyright_notice()}.
+"""
