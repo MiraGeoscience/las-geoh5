@@ -11,7 +11,7 @@ from packaging.version import Version
 
 project = "las-geoh5"
 project_copyright = "%Y, Mira Geoscience Ltd"
-author = "Ben Kary"
+author = "Mira Geoscience Ltd."
 release = "2024"
 
 # -- General configuration ---------------------------------------------------
