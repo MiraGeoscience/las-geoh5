@@ -29,6 +29,7 @@ interface.  To learn more about importing and exporting drillhole data with
    usage
    import
    export
+   THIRD_PARTY_SOFTWARE
 
 
 License
