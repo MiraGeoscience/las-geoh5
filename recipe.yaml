@@ -44,12 +44,14 @@ tests:
   - python:
       imports:
         - las_geoh5
-  - requirements:
+  - script:
+      - pytest ./tests
+    requirements:
       run:
-        - pip
-    script:
-      - pip list
-      - pip check
+        - pytest
+    files:
+      source:
+        - tests/
 
 about:
   summary: Import/Export LAS files to/from geoh5 format.
