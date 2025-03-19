@@ -16,7 +16,8 @@ jobs:
     with:
       package-name: 'las-geoh5'
       python-version: '3.10'
-      source-repo-names: '["public-conda-dev-local", "conda-forge-dev-remote"]'
+      source-repo-names: '["public-noremote-conda-dev"]'
+      conda-channels: '["conda-forge"]'
       publish-repo-names: '["public-conda-dev"]'
     secrets:
       JFROG_ARTIFACTORY_URL: ${{ secrets.JFROG_ARTIFACTORY_URL }}
