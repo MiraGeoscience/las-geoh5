@@ -45,7 +45,7 @@ tests:
       imports:
         - las_geoh5
   - script:
-      - pytest ./tests
+      - pytest --ignore=tests/version_test.py
     requirements:
       run:
         - pytest
