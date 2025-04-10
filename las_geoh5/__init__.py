@@ -13,7 +13,7 @@ from __future__ import annotations
 from pathlib import Path
 
 
-__version__ = "0.3.1-alpha.1"
+__version__ = "0.3.1-alpha.2"
 
 
 def assets_path() -> Path:
