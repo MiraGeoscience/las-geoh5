@@ -2,7 +2,7 @@ schema_version: 1
 
 context:
   name: "las-geoh5"
-  version: "0.3.1a2"
+  version: "0.4.0a1"
   python_min: "3.10"
 
 package:
@@ -33,7 +33,7 @@ requirements:
   run:
     - python >=${{ python_min }}
     # Mira packages
-    - geoh5py >=0.11.0a, <0.12.dev
+    - geoh5py >=0.12.0a, <0.13.dev
     # direct dependencies
     - lasio >=0.31, <0.32.dev
     - numpy >=1.26.0, <1.27.dev
