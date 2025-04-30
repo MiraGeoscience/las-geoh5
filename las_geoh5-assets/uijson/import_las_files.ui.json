@@ -1,25 +1,23 @@
 {
+    "version": "0.3.1-alpha.1",
     "title": "LAS files to Drillhole group",
     "conda_environment": "las-geoh5",
     "run_command": "las_geoh5.import_files.driver",
     "geoh5": "",
     "monitoring_directory": "",
-    "run_command_boolean": {
-        "value": false,
-        "label": "Run python module",
-        "main": true,
-        "tooltip": "Warning: launches process to run python model on save"
-    },
-    "conda_environment_boolean": false,
     "drillhole_group": {
         "main": true,
-        "label": "Drillhole group",
+        "optional": true,
+        "enabled": false,
+        "label": "Existing drillhole group",
+        "group": "Drillhole import",
         "value": "",
         "groupType": [
             "{825424fb-c2c6-4fea-9f2b-6cd00023d393}"
         ]
     },
     "files": {
+        "visible": false,
         "main": true,
         "label": "Files",
         "value": "",
@@ -31,59 +29,65 @@
         ],
         "fileMulti": true
     },
-    "name": {
-        "main": true,
-        "label": "Property group name",
-        "group": "Property group",
-        "value": ""
-    },
     "collocation_tolerance": {
         "main": true,
+        "dependency": "drillhole_group",
+        "dependencyType": "enabled",
         "label": "Collocation tolerance",
-        "group": "Property group",
+        "min": 0.0,
+        "max": 1000.0,
+        "precision": 2,
+        "lineEdit": false,
+        "group": "Drillhole import",
         "value": 0.01,
-        "tooltip": [
-            "Tolerance for determining collocation of data locations and ultimately deciding if incoming data should belong to an existing property group."
-        ]
+        "tooltip": "Tolerance in drillhole units. Decides if whether to create a new depth-data table or not (if one exists)"
+    },
+    "name": {
+        "main": true,
+        "label": "Depth-data table name",
+        "tooltip": "Name for imported depth table on drillholes",
+        "group": "Drillhole import",
+        "value": ""
     },
     "collar_x_name": {
         "main": true,
         "label": "Easting",
-        "tooltip": "Name of the mnemonic (MNEM column) in ~Well header section of las file that provides the collar easting. Does not include the .UNIT extension.",
+        "tooltip": "Name of header field containing the collar easting",
         "value": "X",
-        "group": "Collar mnemonics",
+        "group": "Collar header fields",
         "optional": true,
         "enabled": false
     },
     "collar_y_name": {
         "main": true,
         "label": "Northing",
-        "tooltip": "Name of the mnemonic (MNEM column) in ~Well header section of las file that provides the collar northing. Does not include the .UNIT extension.",
+        "tooltip": "Name of header field containing the collar northing",
         "value": "Y",
-        "group": "Collar mnemonics",
+        "group": "Collar header fields",
         "optional": true,
         "enabled": false
     },
     "collar_z_name": {
         "main": true,
-        "tooltip": "Name of the mnemonic (MNEM column) in ~Well header section of las file that provides the collar elevation. Does not include the .UNIT extension.",
+        "tooltip": "Name of header field containing the collar elevation",
         "label": "Elevation",
         "value": "ELEV",
-        "group": "Collar mnemonics",
+        "group": "Collar header fields",
         "optional": true,
         "enabled": false
     },
     "skip_empty_header": {
         "main": true,
-        "label": "Skip empty header",
+        "label": "Skip files with no collar information",
         "value": false,
-        "group": "Collar",
-        "tooltip": "Importing files without collar information results in drillholes placed at the origin. Check this box to skip these files."
+        "group": "Collar header fields",
+        "tooltip": "Importing files without collar information results in drillholes placed at the origin. Check this box to skip these files"
     },
     "warnings": {
+        "visible": false,
         "main": true,
         "label": "Warnings",
         "value": true,
-        "tooltip": "Show warnings during import."
+        "tooltip": "Show warnings during import"
     }
 }
