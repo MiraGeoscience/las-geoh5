@@ -1,7 +1,7 @@
 {
     "version": "0.3.1-alpha.1",
     "title": "Drillhole group to LAS files",
-    "documentation": "https://mirageoscience-las-geoh5.readthedocs-hosted.com/",
+    "documentation": "https://mirageoscience-las-geoh5.readthedocs-hosted.com/en/latest/",
     "conda_environment": "las-geoh5",
     "run_command": "las_geoh5.export_files.driver",
     "geoh5": "",
