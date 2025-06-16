@@ -1,6 +1,7 @@
 {
-    "version": "0.3.1-alpha.1",
+    "version": "0.3.1-alpha.2",
     "title": "LAS file directories to Drillhole group",
+    "documentation": "",
     "conda_environment": "las-geoh5",
     "run_command": "las_geoh5.import_directories.driver",
     "geoh5": "",
