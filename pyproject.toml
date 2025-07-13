@@ -158,4 +158,3 @@ omit = []
 [tool.coverage.html]
 skip_empty = true
 skip_covered = true
-
