@@ -5,11 +5,18 @@
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
+from datetime import datetime
+from importlib.metadata import version
+from packaging.version import Version
 
 project = "las-geoh5"
-copyright = "Mira Geoscience Ltd."
-author = "Ben Kary"
-release = "2024"
+project_copyright = "%Y, Mira Geoscience Ltd"
+author = "Mira Geoscience Ltd."
+
+# The full version.
+release = version("las-geoh5")
+# The base X.Y.Z version.
+version = Version(release).base_version
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -24,9 +31,14 @@ exclude_patterns: list[str] = []
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
 html_theme = "alabaster"
-html_static_path = ["_static"]
+html_theme_options = {
+    'description': f"version {release}",
+}
 
-# The short X.Y version.
-version = "0.3.0"
-# The full version, including alpha/beta/rc tags.
-release = "0.3.0"
+
+def get_copyright_notice():
+    return f"Copyright {datetime.now().strftime(project_copyright)}"
+
+rst_epilog = f"""
+.. |copyright_notice| replace:: {get_copyright_notice()}.
+"""

@@ -5,6 +5,9 @@ build:
   os: "ubuntu-22.04"
   tools:
     python: "mambaforge-22.9"
+  jobs:
+    pre_build:
+      - "pip install . --no-deps"
 
 # Build documentation in the docs/ directory with Sphinx
 sphinx:
@@ -12,8 +15,3 @@ sphinx:
 
 conda:
   environment: docs/environment.yml
-
-python:
-  install:
-    - method: pip
-      path: .
