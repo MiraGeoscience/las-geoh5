@@ -12,7 +12,11 @@ from packaging.version import Version
 project = "las-geoh5"
 project_copyright = "%Y, Mira Geoscience Ltd"
 author = "Mira Geoscience Ltd."
-release = "2024"
+
+# The full version.
+release = version("las-geoh5")
+# The base X.Y.Z version.
+version = Version(release).base_version
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -31,11 +35,6 @@ html_theme_options = {
     'description': f"version {release}",
 }
 
-
-# The short X.Y version.
-release = version("las-geoh5")
-# The short X.Y.Z version.
-version = Version(release).base_version
 
 def get_copyright_notice():
     return f"Copyright {datetime.now().strftime(project_copyright)}"
