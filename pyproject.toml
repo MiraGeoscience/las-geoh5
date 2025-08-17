@@ -1,26 +1,31 @@
 [build-system]
-requires = ["poetry-core>=1.0.0", "setuptools"]
+requires = ["poetry-core>=1.8.0"]
 build-backend = "poetry.core.masonry.api"
-
 
 [project]
 name = "las-geoh5"
-version = "0.4.0-alpha.1"
-
-dynamic = ["dependencies"]
-
+version = "0.4.0a1"
 requires-python = ">=3.10,<4.0"
 
 description = "Las/Geoh5 conversion"
-license = { text = "MIT" }
-readme = "package.rst"
-authors = [{ name = "Mira Geoscience", email = "support@mirageoscience.com" }]
-
-maintainers = [
-    { name = "Benjamin Kary", email = "benjamink@mirageoscience.com" },
-    ]
+license = "MIT"
 keywords = ["geology", "geophysics", "earth sciences", "io", "data", "interoperability"]
+readme = "package.rst"
+dynamic = ["dependencies", "classifiers"]
+authors = [{ name = "Mira Geoscience", email = "support@mirageoscience.com" }]
+maintainers = [{ name = "Benjamin Kary", email = "benjamink@mirageoscience.com" }]
 
+[project.urls]
+repository = "https://github.com/MiraGeoscience/las-geoh5"
+documentation  = "https://mirageoscience-las-geoh5.readthedocs-hosted.com/"
+homepage = "https://www.mirageoscience.com/mining-industry-software/python-integration/"
+
+[project.scripts]
+geoh5_to_las = 'las_geoh5.scripts.geoh5_to_las:main'
+las_to_geoh5 = 'las_geoh5.scripts.las_to_geoh5:main'
+
+[tool.poetry]
+requires-poetry = '>=2.0,<3.0'
 
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -50,18 +55,7 @@ include = [
     { path = "docs/**/THIRD_PARTY_SOFTWARE.rst" },
 ]
 
-
-[project.urls]
-repository = "https://github.com/MiraGeoscience/las-geoh5"
-documentation  = "https://mirageoscience-las-geoh5.readthedocs-hosted.com/"
-homepage = "https://www.mirageoscience.com/mining-industry-software/python-integration/"
-
-[project.scripts]
-geoh5_to_las = 'las_geoh5.scripts.geoh5_to_las:main'
-las_to_geoh5 = 'las_geoh5.scripts.las_to_geoh5:main'
-
 [tool.poetry.dependencies]
-python = "^3.10"
 
 lasio = "0.31.*"
 numpy = "~1.26.0"  # also in geoh5py
