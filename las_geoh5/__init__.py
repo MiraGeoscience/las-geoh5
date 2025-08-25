@@ -10,10 +10,18 @@
 
 from __future__ import annotations
 
+from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 
 
-__version__ = "0.4.0a1"
+try:
+    from las_geoh5._version import __version__, __version_tuple__
+except ModuleNotFoundError:  # pragma: no cover
+    from datetime import datetime
+
+    __date_str = datetime.today().strftime("%Y%m%d")
+    __version__ = "0.0.0.dev0+" + __date_str
+    __version_tuple__ = (0, 0, 0, "dev0", __date_str)
 
 
 def assets_path() -> Path:
