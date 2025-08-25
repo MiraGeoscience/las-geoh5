@@ -51,7 +51,7 @@ def _can_import_version():
 
 
 @pytest.mark.skipif(
-     _version_module_exists(),
+    _version_module_exists(),
     reason="las_geoh5._version can be imported: package is built",
 )
 def test_fallback_version_is_zero():
