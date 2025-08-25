@@ -97,7 +97,6 @@ files = ["las_geoh5/_version.py", "recipe.yaml"]
 patterns = [
     { value = '''(^__version__\s*(?::.*?)?=\s*['"])[^'"]*(['"])''', mode = "str" },
     { value = '''(^\s*version\s*(?::.*?)?:\s*['"])[^'"]*(['"])''', mode = "str" },
-    { value = '''(^__version_tuple__\s*(?::.*?)?=\s*\()[^)]*(\))''', mode = "tuple" },
 ]
 
 [tool.poetry-dynamic-versioning.files."las_geoh5/_version.py"]

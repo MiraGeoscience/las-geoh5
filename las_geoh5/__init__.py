@@ -21,7 +21,6 @@ except ModuleNotFoundError:  # pragma: no cover
 
     __date_str = datetime.today().strftime("%Y%m%d")
     __version__ = "0.0.0.dev0+" + __date_str
-    __version_tuple__ = (0, 0, 0, "dev0", __date_str)
 
 
 def assets_path() -> Path:
