@@ -35,7 +35,7 @@ def get_conda_recipe_version():
     return recipe["context"]["version"]
 
 
-def test_version_is_consistent():
+def _version_module_exists():
     project_version = Version(las_geoh5.__version__)
     conda_version = Version(get_conda_recipe_version())
     assert conda_version.base_version == project_version.base_version
@@ -46,12 +46,12 @@ def _can_import_version():
         importlib.import_module("las_geoh5._version")
 
         return True
-    except ImportError:
+    except ModuleNotFoundError:
         return False
 
 
 @pytest.mark.skipif(
-    _can_import_version(),
+     _version_module_exists(),
     reason="las_geoh5._version can be imported: package is built",
 )
 def test_fallback_version_is_zero():
@@ -64,7 +64,7 @@ def test_fallback_version_is_zero():
 
 
 @pytest.mark.skipif(
-    not _can_import_version(),
+    not _version_module_exists(),
     reason="las_geoh5._version cannot be imported: uses a fallback version",
 )
 def test_conda_version_is_consistent():
