@@ -13,15 +13,35 @@ build-backend = "poetry_dynamic_versioning.backend"
 
 [project]
 name = "las-geoh5"
-requires-python = ">=3.10,<4.0"
+requires-python = ">=3.9,<4.0"
 
 description = "Las/Geoh5 conversion"
 license = "MIT"
-keywords = ["geology", "geophysics", "earth sciences", "io", "data", "interoperability"]
+keywords = [
+  "las",
+  "lasio",
+  "well-logs",
+  "borehole-data",
+  "geoh5",
+  "geology",
+  "geophysics",
+  "earth-sciences",
+  "mining",
+  "data-conversion",
+  "interoperability",
+]
 readme = "package.rst"
-dynamic = ["version", "dependencies", "classifiers"]
+dynamic = ["version", "classifiers"]
 authors = [{ name = "Mira Geoscience", email = "support@mirageoscience.com" }]
 maintainers = [{ name = "Benjamin Kary", email = "benjamink@mirageoscience.com" }]
+
+dependencies = [
+  "geoh5py >= 0.12.0a1, == 0.12.*",
+  "lasio == 0.31.*",
+  "numpy == 1.26.*",
+  "pydantic >= 2.7, == 2.*",
+  "tqdm >=4.66.1, == 4.*",
+]
 
 [project.urls]
 repository = "https://github.com/MiraGeoscience/las-geoh5"
@@ -34,20 +54,6 @@ las_to_geoh5 = 'las_geoh5.scripts.las_to_geoh5:main'
 
 [tool.poetry]
 requires-poetry = '>=2.0,<3.0'
-
-classifiers = [
-    "Development Status :: 4 - Beta",
-    "Intended Audience :: Science/Research",
-    "Programming Language :: Python",
-    "Topic :: Scientific/Engineering",
-    "Topic :: Scientific/Engineering :: Mathematics",
-    "Topic :: Scientific/Engineering :: Physics",
-    "Operating System :: Microsoft :: Windows",
-    "Operating System :: POSIX",
-    "Operating System :: Unix",
-    "Operating System :: MacOS",
-    "Natural Language :: English",
-]
 
 packages = [
     { include = "las_geoh5" },
@@ -62,33 +68,21 @@ include = [
     { path = "THIRD_PARTY_SOFTWARE.rst" },
     { path = "docs/**/THIRD_PARTY_SOFTWARE.rst" },
 ]
+
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX",
+    "Operating System :: Unix",
+    "Operating System :: MacOS",
+    "Natural Language :: English",
+]
 version = "0.0.0.dev0"
-
-
-[tool.poetry.dependencies]
-lasio = "0.31.*"
-numpy = "~1.26.0"  # also in geoh5py
-pydantic = "^2.5.2"  # also in geoh5py
-tqdm = "^4.66.1"
-
-## dependencies from Git repositories
-#------------------------------------
-#geoh5py = {version = ">=0.12.0a1, <0.13.dev", allow-prereleases = true}
-geoh5py = {git = "https://github.com/MiraGeoscience/geoh5py.git", rev = "develop"}
-#geoh5py = {path = "../geoh5py", develop = true}
-
-[tool.poetry.group.dev.dependencies]
-Pygments = "*"
-pylint = "*"
-pytest = "*"
-pytest-cov = "*"
-pyyaml = '*'
-jinja2 = '*'
-packaging = '*'
-tomli = "*"
-sphinx = "*"
-sphinx-autodoc-typehints = "*"
-sphinx-rtd-theme = "*"
 
 [tool.poetry.requires-plugins]
 poetry-dynamic-versioning = { version = ">=1.9.1,<2.0.0", extras = ["plugin"] }
@@ -169,7 +163,7 @@ plugins = [
 ]
 
 [tool.pytest.ini_options]
-#addopts =
+testpaths = ["tests"]
 
 [tool.coverage.report]
 exclude_lines = [
