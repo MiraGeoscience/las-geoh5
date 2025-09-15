@@ -15,7 +15,6 @@ from pathlib import Path
 
 import pytest
 import yaml
-from jinja2 import Template
 from packaging.version import InvalidVersion, Version
 
 import las_geoh5
