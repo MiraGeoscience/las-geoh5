@@ -18,7 +18,7 @@
         ]
     },
     "files": {
-        "visible": false,
+        "visible": true,
         "main": true,
         "label": "Files",
         "value": "",
