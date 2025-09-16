@@ -20,16 +20,11 @@ from packaging.version import InvalidVersion, Version
 import las_geoh5
 
 
-def get_conda_recipe_version():
-    path = Path(__file__).resolve().parents[1] / "recipe.yaml"
+def get_conda_recipe_version() -> str | None:
+    recipe_path = Path(__file__).resolve().parents[1] / "recipe.yaml"
 
-    with open(str(path), encoding="utf-8") as file:
-        content = file.read()
-
-    template = Template(content)
-    rendered_yaml = template.render()
-
-    recipe = yaml.safe_load(rendered_yaml)
+    with recipe_path.open(encoding="utf-8") as file:
+        recipe = yaml.safe_load(file)
 
     return recipe["context"]["version"]
 
@@ -37,9 +32,7 @@ def get_conda_recipe_version():
 def test_version_is_consistent():
     project_version = Version(las_geoh5.__version__)
     conda_version = Version(get_conda_recipe_version())
-
-
-assert conda_version.base_version == project_version.base_version
+    assert conda_version.base_version == project_version.base_version
 
 
 def _version_module_exists():
