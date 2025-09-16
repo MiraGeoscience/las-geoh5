@@ -51,14 +51,17 @@ def write_lasfile(basepath: Path, lasfile: lasio.LASFile) -> Path:
 
 def write_import_params_file(
     json_output_path: Path,
-    drillhole_group: DrillholeGroup,
+    drillhole_group: DrillholeGroup | None,
     property_group_name: str,
     files: list[Path],
     collar_xyz_names: tuple[str, str, str],
     *,
     skip_empty_header=False,
 ) -> Path:
-    workspace = drillhole_group.workspace
+    if drillhole_group is None:
+        workspace = Workspace.create(json_output_path.parent / "import.geoh5")
+    else:
+        workspace = drillhole_group.workspace
     ifile = InputFile(ui_json=import_uijson.ui_json, validate=False)
     with workspace.open():
         ifile.update_ui_values(
