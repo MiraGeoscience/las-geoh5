@@ -31,13 +31,14 @@ def get_conda_recipe_version():
 
     recipe = yaml.safe_load(rendered_yaml)
 
-
     return recipe["context"]["version"]
 
 
 def test_version_is_consistent():
     project_version = Version(las_geoh5.__version__)
     conda_version = Version(get_conda_recipe_version())
+
+
 assert conda_version.base_version == project_version.base_version
 
 
