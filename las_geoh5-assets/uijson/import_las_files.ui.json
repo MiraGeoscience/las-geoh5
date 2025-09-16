@@ -8,7 +8,8 @@
     "monitoring_directory": "",
     "drillhole_group": {
         "main": true,
-        "enabled": true,
+        "optional": true,
+        "enabled": false,
         "label": "Existing drillhole group",
         "group": "Drillhole import",
         "value": "",

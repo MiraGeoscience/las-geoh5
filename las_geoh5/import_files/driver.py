@@ -11,7 +11,6 @@
 from __future__ import annotations
 
 import logging
-import sys
 from collections.abc import Iterator
 from contextlib import contextmanager
 from datetime import datetime
@@ -20,6 +19,7 @@ from pathlib import Path
 from shutil import move
 
 from geoh5py import Workspace
+from geoh5py.groups import DrillholeGroup
 from geoh5py.shared.utils import fetch_active_workspace
 from geoh5py.ui_json import InputFile
 from tqdm import tqdm
@@ -119,8 +119,11 @@ def run(params_json: Path, output_geoh5: Path | None = None):
                     lasfiles = [future.get() for future in futures]
 
             with fetch_active_workspace(ifile.data["geoh5"]) as geoh5:
-                dh_group = geoh5.get_entity(ifile.data["drillhole_group"].uid)[0]
-                dh_group = dh_group.copy(parent=workspace)
+                if ifile.data["drillhole_group"] is None:
+                    dh_group = DrillholeGroup.create(workspace)
+                else:
+                    dh_group = geoh5.get_entity(ifile.data["drillhole_group"].uid)[0]
+                    dh_group = dh_group.copy(parent=workspace)
 
             _logger.info(
                 "Saving drillhole data into drillhole group '%s' under property group '%s'",
@@ -163,5 +166,6 @@ def run(params_json: Path, output_geoh5: Path | None = None):
 
 
 if __name__ == "__main__":
-    FILE = sys.argv[1]
+    # FILE = sys.argv[1]
+    FILE = r"C:\Users\dominiquef\Desktop\Tests\GEOPY-2400.ui.json"
     run(Path(FILE))
