@@ -166,6 +166,6 @@ def run(params_json: Path, output_geoh5: Path | None = None):
 
 
 if __name__ == "__main__":
-    # FILE = sys.argv[1]
-    FILE = r"C:\Users\dominiquef\Desktop\Tests\GEOPY-2400.ui.json"
+    FILE = sys.argv[1]
     run(Path(FILE))
+
