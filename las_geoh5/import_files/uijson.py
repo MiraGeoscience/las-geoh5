@@ -24,6 +24,8 @@ ui_json = dict(
         "drillhole_group": {
             "main": True,
             "label": "Drillhole group",
+            "optional": True,
+            "enabled": False,
             "value": None,
             "groupType": ["{825424fb-c2c6-4fea-9f2b-6cd00023d393}"],
         },

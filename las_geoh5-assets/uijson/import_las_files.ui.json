@@ -18,7 +18,7 @@
         ]
     },
     "files": {
-        "visible": false,
+        "visible": true,
         "main": true,
         "label": "Files",
         "value": "",
@@ -32,8 +32,6 @@
     },
     "collocation_tolerance": {
         "main": true,
-        "dependency": "drillhole_group",
-        "dependencyType": "enabled",
         "label": "Collocation tolerance",
         "min": 0.0,
         "max": 1000.0,
