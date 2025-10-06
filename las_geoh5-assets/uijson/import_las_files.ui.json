@@ -20,6 +20,7 @@
     "files": {
         "visible": true,
         "main": true,
+        "group": "Drillhole import",
         "label": "Files",
         "value": "",
         "fileDescription": [
@@ -43,7 +44,7 @@
     },
     "name": {
         "main": true,
-        "label": "Depth-data table name",
+        "label": "Depth table name",
         "tooltip": "Name for imported depth table on drillholes",
         "group": "Drillhole import",
         "value": ""

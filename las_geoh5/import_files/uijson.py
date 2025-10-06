@@ -37,12 +37,6 @@ ui_json = dict(
             "fileType": ["las"],
             "fileMulti": True,
         },
-        "name": {
-            "main": True,
-            "label": "Property group name",
-            "group": "Property group",
-            "value": "",
-        },
         "collocation_tolerance": {
             "main": True,
             "label": "Collocation tolerance",
