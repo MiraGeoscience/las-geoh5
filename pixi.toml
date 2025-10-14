@@ -1,0 +1,102 @@
+[workspace]
+requires-pixi = ">=0.54"
+channels = ["https://repo.prefix.dev/conda-forge"]
+platforms = ["win-64", "linux-64"]
+
+[dependencies]
+# dependencies resolved from conda
+## direct dependencies:
+#----------------------
+lasio   = "0.31.*"
+numpy   = "1.26.*"
+tqdm    = ">=4.66.1, 4.*"
+
+## indirect dependencies from remaining pip packages:
+#----------------------------------------------------
+h5py = ">=3.2.1, 3.*"
+pydantic = ">=2.5.2, 2.*"
+
+[pypi-dependencies]
+las-geoh5 = { path = ".", editable = true }
+
+[environments]
+#prod-py310 = {features = ["py310", "mirageo"], solve-group = "prod-py310"}
+#prod-py311 = {features = ["py311", "mirageo"], solve-group = "prod-py311"}
+#prod-py312 = {features = ["py312", "mirageo"], solve-group = "prod-py312"}
+#test-prod-py310 = {features = ["py310", "mirageo", "test"], solve-group = "prod-py310"}
+#test-prod-py311 = {features = ["py311", "mirageo", "test"], solve-group = "prod-py311"}
+#test-prod-py312 = {features = ["py312", "mirageo", "test"], solve-group = "prod-py312"}
+
+py310 = {features = ["py310", "mirageo-git", "test"], solve-group = "default"}
+py311 = {features = ["py311", "mirageo-git", "test"]}
+py312 = {features = ["py312", "mirageo-git", "test"]}
+
+default = {features = ["py310", "mirageo-git", "test", "dev"], solve-group = "default"}
+docs = {features = ["py310", "mirageo-git", "doc"], solve-group = "default"}
+
+[feature.py310.dependencies]
+python = "3.10.*"
+
+[feature.py311.dependencies]
+python = "3.11.*"
+
+[feature.py312.dependencies]
+python = "3.12.*"
+
+#[feature.mirageo.dependencies]
+#geoh5py = ">=0.12.0a1, 0.12.*"
+
+[feature.mirageo-git.pypi-dependencies]
+geoh5py = { git = "https://github.com/MiraGeoscience/geoh5py.git", rev = "develop" }
+
+[feature.dev.dependencies]
+Pygments = '*'
+ipython = "*"
+
+[feature.dev.tasks]
+repl = "ipython"
+
+[feature.test.dependencies]
+packaging = "*"
+pylint = "*"
+pytest = "*"
+pytest-cov = "*"
+pyyaml = "*"
+
+[feature.test.tasks]
+test = "pytest tests --cov --cov-report=xml"
+
+[feature.test.tasks.test-local]
+args = [{ arg = "packages", default = "geoh5py" }]
+depends-on = [
+    {task = "use-local-deps", args = [ "{{ packages }}" ]},
+    {task = "show-pip-source", args =  [ "{{ packages }}" ]},
+    {task = "test"}
+]
+
+[feature.doc.dependencies]
+sphinx = ">=5.3, 5.*"
+sphinx-rtd-theme = "*"
+sphinx-autodoc-typehints = "*"
+
+[feature.doc.tasks]
+build-docs = "sphinx-build -nW -b html docs docs/_build"
+linkcheck-docs = "sphinx-build -nW -b linkcheck docs docs/_build"
+
+[tasks.show-pip-source]
+args = [{ arg = "packages", "default" = "geoh5py" }]
+cmd = "uv pip show {{packages}}"
+
+[tasks.use-local-deps]
+args = [{ arg = "packages", default = "geoh5py" }]
+cmd = """
+uv pip install --no-deps --force-reinstall \
+{% for package in packages | split %} -e ../{{ package | trim }}{% endfor %}
+"""
+
+[tasks.test-pyvers]
+depends-on = [
+    {task = "test", environment = "py310"},
+    {task = "test", environment = "py311"},
+    {task = "test", environment = "py312"},
+]
