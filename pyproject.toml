@@ -17,6 +17,10 @@ requires-python = ">=3.10,<4.0"
 
 description = "Las/Geoh5 conversion"
 license = "MIT"
+license-files = [
+    "LICENSE",
+    "docs/source/THIRD_PARTY_SOFTWARE.rst",
+]
 keywords = ["geology", "geophysics", "earth sciences", "io", "data", "interoperability"]
 readme = "package.rst"
 dynamic = ["version", "dependencies", "classifiers"]
@@ -55,11 +59,6 @@ packages = [
 ]
 
 include = [
-    { path = "COPYING" },
-    { path = "COPYING.LESSER" },
-    { path = "LICENSE" },
-    { path = "THIRD_PARTY_SOFTWARE.rst" },
-    { path = "docs/**/THIRD_PARTY_SOFTWARE.rst" },
     { path = "las_geoh5/_version.py", format = ["sdist", "wheel"] },
 ]
 version = "0.0.0.dev0"
