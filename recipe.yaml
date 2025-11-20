@@ -34,7 +34,7 @@ requirements:
   run:
     - python >=${{ python_min }}
     # Mira packages
-    - geoh5py >=0.12.0a, <0.13.dev
+    - geoh5py >=0.12.0b5, 0.12.*
     # direct dependencies
     - lasio >=0.31, <0.32.dev
     - numpy >=1.26.0, <1.27.dev
