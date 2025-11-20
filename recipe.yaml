@@ -45,8 +45,8 @@ requirements:
 tests:
   - python:
       imports:
-        - las_geoh5
-        - las_geoh5._version
+        - ${{ module_name }}
+        - ${{ module_name }}._version
   - script:
       - pytest --ignore=tests/version_test.py
     requirements:
