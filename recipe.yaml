@@ -28,7 +28,7 @@ requirements:
     - pip
     - python 3.10.*
     - poetry-core >=1.8.0
-    - poetry-dynamic-versioning >=1.9, <2.0.dev
+    - poetry-dynamic-versioning >=1.9, 1.*
     - setuptools
     - setuptools_scm
   run:
@@ -36,10 +36,10 @@ requirements:
     # Mira packages
     - geoh5py >=0.12.0b5, 0.12.*
     # direct dependencies
-    - lasio >=0.31, <0.32.dev
-    - numpy >=1.26.0, <1.27.dev
-    - pydantic >=2.5.2, <3.0.dev
-    - tqdm >=4.66.1, <5.0.dev
+    - lasio 0.31.*
+    - numpy 1.26.*
+    - pydantic >=2.5.2, 2.*
+    - tqdm >=4.66.1, 4.*
 
 tests:
   - python:
