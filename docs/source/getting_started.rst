@@ -3,7 +3,7 @@
 Getting Started
 ===============
 
-In this section, we will guide you through the installation of **las-geoh5** and it's dependencies inside a
+In this section, we will guide you through the installation of **las-geoh5** and its dependencies inside a
 conda environment.
 
 .. contents::
