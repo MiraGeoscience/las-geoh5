@@ -18,8 +18,9 @@
         ]
     },
     "files": {
-        "visible": false,
+        "visible": true,
         "main": true,
+        "group": "Drillhole import",
         "label": "Files",
         "value": "",
         "fileDescription": [
@@ -32,8 +33,6 @@
     },
     "collocation_tolerance": {
         "main": true,
-        "dependency": "drillhole_group",
-        "dependencyType": "enabled",
         "label": "Collocation tolerance",
         "min": 0.0,
         "max": 1000.0,
@@ -45,7 +44,7 @@
     },
     "name": {
         "main": true,
-        "label": "Depth-data table name",
+        "label": "Depth table name",
         "tooltip": "Name for imported depth table on drillholes",
         "group": "Drillhole import",
         "value": ""

@@ -24,6 +24,8 @@ ui_json = dict(
         "drillhole_group": {
             "main": True,
             "label": "Drillhole group",
+            "optional": True,
+            "enabled": False,
             "value": None,
             "groupType": ["{825424fb-c2c6-4fea-9f2b-6cd00023d393}"],
         },
@@ -34,12 +36,6 @@ ui_json = dict(
             "fileDescription": ["LAS files"],
             "fileType": ["las"],
             "fileMulti": True,
-        },
-        "name": {
-            "main": True,
-            "label": "Property group name",
-            "group": "Property group",
-            "value": "",
         },
         "collocation_tolerance": {
             "main": True,

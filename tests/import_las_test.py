@@ -481,6 +481,35 @@ def test_handle_numeric_well_name(tmp_path: Path):
         assert "123" in [k.name for k in dh_group.children]
 
 
+def test_handle_no_group(tmp_path: Path):
+    lasfile = generate_lasfile(
+        "123",
+        {"UTMX": 0.0, "UTMY": 0.0, "ELEV": 10.0},
+        np.arange(0, 11, 1),
+        {"my_property": np.zeros(11)},
+    )
+    lasfile = write_lasfile(tmp_path, lasfile)
+
+    filepath = write_import_params_file(
+        tmp_path / "import_las_files.ui.json",
+        None,
+        "my_property_group",
+        [lasfile],
+        (
+            "UTMX",
+            "UTMY",
+            "ELEV",
+        ),
+    )
+
+    module = importlib.import_module("las_geoh5.import_files.driver")
+    module.run(filepath)
+
+    with Workspace(tmp_path / "import.geoh5") as workspace:
+        dh_group = workspace.get_entity("Drillhole Group")[0]
+        assert "123" in [k.name for k in dh_group.children]
+
+
 def test_existing_drillhole_new_collar_location(tmp_path):
     ws = Workspace.create(tmp_path / "test.geoh5")
     dh_group = DrillholeGroup.create(ws, name="dh_group")
