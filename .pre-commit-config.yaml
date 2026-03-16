@@ -35,8 +35,8 @@ repos:
     hooks:
     -   id: mypy
         additional_dependencies: [
-            numpy==1.26.*,
-            pydantic==2.5.*,
+            numpy==2.4.*,
+            pydantic==2.12.*,
             tomli,  # to read config from pyproject.toml
             types-toml,
             types-PyYAML,
