@@ -33,7 +33,7 @@ requirements:
     - setuptools
     - setuptools_scm
   run:
-    - python >=${{ python_min }}
+    - python >=${{ python_min }},<3.15
     # Mira packages
     - geoh5py >=0.13.0a2, 0.13.*
     # direct dependencies
