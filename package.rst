@@ -9,7 +9,7 @@ and a ui.json that parameterizes the driver and renders a UI for use within `Geo
 
 Installation
 ^^^^^^^^^^^^
-**las-geoh5** is currently written for Python 3.12 or higher.
+**las-geoh5** is currently written for Python 3.12–3.14.
 
 Install **las-geoh5** from PyPI::
 
