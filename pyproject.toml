@@ -65,7 +65,7 @@ version = "0.0.0.dev0"
 
 
 [tool.poetry.dependencies]
-lasio = "0.31.*"
+lasio = "0.32.*"
 numpy = "~2.4.0"
 pydantic = "~2.12.0"
 tqdm = "^4.66.1"

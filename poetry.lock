@@ -482,14 +482,13 @@ i18n = ["Babel (>=2.7)"]
 
 [[package]]
 name = "lasio"
-version = "0.31"
+version = "0.32"
 description = "Read/write well data from Log ASCII Standard (LAS) files"
 optional = false
-python-versions = ">=3"
+python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "lasio-0.31-py2.py3-none-any.whl", hash = "sha256:30204596b0f3eb9118af99a622f177fba2b6c245db0512f9f57c437020599db4"},
-    {file = "lasio-0.31.tar.gz", hash = "sha256:5dd3c4baa3f2c89bc95ca8e052dc37fe86363c687199c93fd0fae80c597e63e5"},
+    {file = "lasio-0.32-py3-none-any.whl", hash = "sha256:4c0daa5f99d99b505a62ce58144d2512944ac6ee8e620ab251109d8f2a6ca7f8"},
 ]
 
 [package.dependencies]
@@ -497,7 +496,7 @@ numpy = "*"
 
 [package.extras]
 all = ["chardet", "openpyxl", "pandas"]
-test = ["black", "chardet", "codecov", "coverage", "openpyxl", "pandas", "pytest (>=3.6)", "pytest-benchmark", "pytest-cov"]
+test = ["black", "chardet", "codecov", "coverage", "openpyxl", "pandas", "pytest (>=6)", "pytest-benchmark", "pytest-cov"]
 
 [[package]]
 name = "markupsafe"
@@ -1500,4 +1499,4 @@ zstd = ["backports-zstd (>=1.0.0) ; python_version < \"3.14\""]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12,<3.15"
-content-hash = "d71ea01366e8156fe70f894b5579316a1bc6a5aefd099ad1c42aa09219778713"
+content-hash = "becaf20732699d87867cc4616be6215f20623824bd8461080c0075eec4f77831"
