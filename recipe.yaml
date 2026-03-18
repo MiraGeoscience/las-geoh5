@@ -38,7 +38,7 @@ requirements:
     - geoh5py >=0.13.0a2, 0.13.*
     # direct dependencies
     - lasio 0.31.*
-    - numpy >=2.4.2, 2.4.*
+    - numpy >=2.4.0, 2.4.*
     - pydantic 2.12.*
     - tqdm >=4.66.1, 4.*
 
