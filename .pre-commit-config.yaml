@@ -17,7 +17,7 @@ repos:
     -   id: poetry-check
         args: [--lock, --no-plugins]
 -   repo: https://github.com/hadialqattan/pycln
-    rev: v2.5.0
+    rev: v2.6.0
     hooks:
     -   id: pycln
         args: [--config=pyproject.toml]
@@ -35,8 +35,8 @@ repos:
     hooks:
     -   id: mypy
         additional_dependencies: [
-            numpy==1.26.*,
-            pydantic==2.5.*,
+            numpy==2.4.*,
+            pydantic==2.12.*,
             tomli,  # to read config from pyproject.toml
             types-toml,
             types-PyYAML,

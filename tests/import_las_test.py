@@ -506,7 +506,7 @@ def test_handle_no_group(tmp_path: Path):
     module.run(filepath)
 
     with Workspace(tmp_path / "import.geoh5") as workspace:
-        dh_group = workspace.get_entity("Drillhole Group")[0]
+        dh_group = workspace.get_entity("Drillholes")[0]
         assert "123" in [k.name for k in dh_group.children]
 
 
