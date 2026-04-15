@@ -11,8 +11,6 @@ package:
   version: ${{ version }}
 
 source:
-  # url: https://github.com/MiraGeoscience/{{ name }}/archive/v{{ version }}.tar.gz
-  # sha256: 1c20e6bb021516ef89de8551dc1f47f944bc98ea83d3da393d13e71469add43d
   path: ../${{ name }}
 
 build:
@@ -37,7 +35,7 @@ requirements:
     # Mira packages
     - geoh5py >=0.13.0a2, 0.13.*
     # direct dependencies
-    - lasio 0.31.*
+    - lasio 0.32.*
     - numpy >=2.4.0, 2.4.*
     - pydantic 2.12.*
     - tqdm >=4.66.1, 4.*
