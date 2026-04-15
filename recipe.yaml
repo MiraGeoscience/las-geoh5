@@ -35,7 +35,7 @@ requirements:
     # Mira packages
     - geoh5py >=0.13.0a2, 0.13.*
     # direct dependencies
-    - lasio 0.31.*
+    - lasio 0.32.*
     - numpy >=2.4.0, 2.4.*
     - pydantic 2.12.*
     - tqdm >=4.66.1, 4.*
