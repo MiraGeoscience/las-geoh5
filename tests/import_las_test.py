@@ -1,5 +1,5 @@
 # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2024-2025 Mira Geoscience Ltd.                                '
+#  Copyright (c) 2024-2026 Mira Geoscience Ltd.                                '
 #                                                                              '
 #  This file is part of las-geoh5 package.                                     '
 #                                                                              '
@@ -324,6 +324,7 @@ def test_add_data_increments_property_group(tmp_path: Path):
 
     drillhole = add_data(drillhole, file, "my group")
 
+    assert drillhole.property_groups is not None
     assert len(drillhole.property_groups) == 2
     assert [k.name in ["my group", "my group (1)"] for k in drillhole.property_groups]
 
@@ -334,6 +335,7 @@ def test_add_data_increments_property_group(tmp_path: Path):
 
     drillhole = add_data(drillhole, file, "my group")
 
+    assert drillhole.property_groups is not None
     assert len(drillhole.property_groups) == 3
     assert [
         k.name in ["my group", "my group (1)", "my group (2)"]
@@ -362,6 +364,7 @@ def test_add_data_increments_data_name(tmp_path: Path):
 
     drillhole = add_data(drillhole, file, "my group")
 
+    assert drillhole.property_groups is not None
     assert len(drillhole.property_groups) == 2
     assert [k.name in ["my group", "my group (1)"] for k in drillhole.property_groups]
     assert all(
@@ -375,6 +378,7 @@ def test_add_data_increments_data_name(tmp_path: Path):
 
     drillhole = add_data(drillhole, file, "my group")
 
+    assert drillhole.property_groups is not None
     assert len(drillhole.property_groups) == 3
     assert [
         k.name in ["my group", "my group (1)", "my group (2)"]
@@ -506,7 +510,7 @@ def test_handle_no_group(tmp_path: Path):
     module.run(filepath)
 
     with Workspace(tmp_path / "import.geoh5") as workspace:
-        dh_group = workspace.get_entity("Drillhole Group")[0]
+        dh_group = workspace.get_entity("Drillholes")[0]
         assert "123" in [k.name for k in dh_group.children]
 
 

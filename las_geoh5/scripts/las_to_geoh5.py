@@ -1,5 +1,5 @@
 # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2024-2025 Mira Geoscience Ltd.                                '
+#  Copyright (c) 2024-2026 Mira Geoscience Ltd.                                '
 #                                                                              '
 #  This file is part of las-geoh5 package.                                     '
 #                                                                              '
@@ -15,6 +15,8 @@ from pathlib import Path
 
 from las_geoh5.import_files import driver
 
+
+# pylint: disable=duplicate-code
 
 _logger = logging.getLogger(__package__ + "." + Path(__file__).stem)
 

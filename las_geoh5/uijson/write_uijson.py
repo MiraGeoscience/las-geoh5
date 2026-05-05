@@ -1,5 +1,5 @@
 # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2024-2025 Mira Geoscience Ltd.                                '
+#  Copyright (c) 2024-2026 Mira Geoscience Ltd.                                '
 #                                                                              '
 #  This file is part of las-geoh5 package.                                     '
 #                                                                              '
@@ -63,7 +63,7 @@ def main(args):
             "import_files",
             "import_directories",
             "export_files",
-        ]:  # pylint: disable=invalid-name
+        ]:
             write_uijson(args.path, mode)
     else:
         write_uijson(args.path, args.mode)

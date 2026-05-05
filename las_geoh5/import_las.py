@@ -1,5 +1,5 @@
 # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2024-2025 Mira Geoscience Ltd.                                '
+#  Copyright (c) 2024-2026 Mira Geoscience Ltd.                                '
 #                                                                              '
 #  This file is part of las-geoh5 package.                                     '
 #                                                                              '
@@ -324,7 +324,7 @@ def create_or_append_drillhole(
         )
 
     collar = get_collar(lasfile, translator, logger)
-    drillhole = drillhole_group.get_entity(name)[0]  # type: ignore
+    drillhole = drillhole_group.get_entity(name)[0]
 
     if not isinstance(drillhole, Drillhole):
         name = find_copy_name(drillhole_group.workspace, name)
@@ -433,7 +433,7 @@ def _patch_lasio_reader():
 
     # TODO: Propose change on lasio to fix possible version issue
 
-    def configure_metadata_patterns(line, section_name):  # pylint: disable=too-many-locals
+    def configure_metadata_patterns(line, section_name):  # pylint: disable = too-many-locals
         """Configure regular-expression patterns to parse section meta-data lines.
 
         # OVERLOAD lasio.reader.configure_metadata_patterns

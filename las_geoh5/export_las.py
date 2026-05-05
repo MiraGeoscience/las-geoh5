@@ -1,5 +1,5 @@
 # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2024-2025 Mira Geoscience Ltd.                                '
+#  Copyright (c) 2024-2026 Mira Geoscience Ltd.                                '
 #                                                                              '
 #  This file is part of las-geoh5 package.                                     '
 #                                                                              '
@@ -82,7 +82,7 @@ def add_curve_data(file: LASFile, drillhole: Drillhole, group):
         file.append_curve(datum.name, datum.values)
 
         if isinstance(datum, ReferencedData) and datum.value_map is not None:
-            for k, v in datum.value_map().items():  # pylint: disable=invalid-name
+            for k, v in datum.value_map().items():
                 file.params.append(
                     HeaderItem(
                         mnemonic=f"{datum.name} ({k})", value=v, descr="REFERENCE"
@@ -164,7 +164,7 @@ def write_curves(
             subpath = basepath
 
         filename = f"{drillhole.name}_{group.name}.las"
-        with open(subpath / filename, "a", encoding="utf8") as io:  # pylint: disable=invalid-name
+        with open(subpath / filename, "a", encoding="utf8") as io:
             file.write(io)
 
 
@@ -195,7 +195,7 @@ def write_survey(
             basepath.mkdir()
 
     filename = f"{drillhole.name}_survey.las"
-    with open(basepath / filename, "a", encoding="utf8") as io:  # pylint: disable=invalid-name
+    with open(basepath / filename, "a", encoding="utf8") as io:
         file.write(io)
 
 
