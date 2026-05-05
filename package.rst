@@ -9,7 +9,7 @@ and a ui.json that parameterizes the driver and renders a UI for use within `Geo
 
 Installation
 ^^^^^^^^^^^^
-**las-geoh5** is currently written for Python 3.10 or higher.
+**las-geoh5** is currently written for Python 3.12–3.14.
 
 Install **las-geoh5** from PyPI::
 
@@ -31,8 +31,6 @@ and services.
 License
 ^^^^^^^
 MIT License
-
-Copyright (c) 2020-2025 Mira Geoscience
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -64,4 +62,4 @@ Third Party Software notices and/or additional terms and conditions are located 
 
 Copyright
 ^^^^^^^^^
-Copyright (c) 2024-2025 Mira Geoscience Ltd.
+Copyright (c) 2023-2026 Mira Geoscience Ltd.
