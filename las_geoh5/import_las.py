@@ -433,7 +433,7 @@ def _patch_lasio_reader():
 
     # TODO: Propose change on lasio to fix possible version issue
 
-    def configure_metadata_patterns(line, section_name):  # pylint: disable = too-many-locals
+    def configure_metadata_patterns(line, section_name):  # pylint: disable=too-many-locals
         """Configure regular-expression patterns to parse section meta-data lines.
 
         # OVERLOAD lasio.reader.configure_metadata_patterns
