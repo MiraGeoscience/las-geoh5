@@ -337,10 +337,10 @@ def test_add_data_increments_property_group(tmp_path: Path):
 
     assert drillhole.property_groups is not None
     assert len(drillhole.property_groups) == 3
-    assert [
+    assert all(
         k.name in ["my group", "my group (1)", "my group (2)"]
         for k in drillhole.property_groups
-    ]
+    )
 
 
 def test_add_data_increments_data_name(tmp_path: Path):
@@ -366,7 +366,9 @@ def test_add_data_increments_data_name(tmp_path: Path):
 
     assert drillhole.property_groups is not None
     assert len(drillhole.property_groups) == 2
-    assert [k.name in ["my group", "my group (1)"] for k in drillhole.property_groups]
+    assert all(
+        k.name in ["my group", "my group (1)"] for k in drillhole.property_groups
+    )
     assert all(
         k in [c.name for c in drillhole.children] for k in ["my data", "my data (1)"]
     )
