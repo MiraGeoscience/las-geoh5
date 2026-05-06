@@ -63,7 +63,7 @@ def main(args):
             "import_files",
             "import_directories",
             "export_files",
-        ]:  # pylint: disable=invalid-name
+        ]:
             write_uijson(args.path, mode)
     else:
         write_uijson(args.path, args.mode)

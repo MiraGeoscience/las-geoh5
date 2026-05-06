@@ -348,6 +348,7 @@ def test_collocation_tolerance(tmp_path: Path):
 
     dh1 = add_data(dh1, lasfile, group_name, collocation_tolerance=0.1)
 
+    assert dh1.property_groups is not None
     assert dh1.property_groups[0].name == group_name
 
     lasfile = lasio.LASFile()
@@ -356,6 +357,7 @@ def test_collocation_tolerance(tmp_path: Path):
 
     dh1 = add_data(dh1, lasfile, group_name, collocation_tolerance=0.01)
 
+    assert dh1.property_groups is not None
     assert len(dh1.property_groups) == 2
     assert all(
         k.name in ["my_property_group", "my_property_group (1)"]

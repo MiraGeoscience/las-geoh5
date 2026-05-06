@@ -324,7 +324,7 @@ def create_or_append_drillhole(
         )
 
     collar = get_collar(lasfile, translator, logger)
-    drillhole = drillhole_group.get_entity(name)[0]  # type: ignore
+    drillhole = drillhole_group.get_entity(name)[0]
 
     if not isinstance(drillhole, Drillhole):
         name = find_copy_name(drillhole_group.workspace, name)
