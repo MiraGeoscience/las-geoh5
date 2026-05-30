@@ -49,7 +49,7 @@ def test_get_depths():
     assert "from-to" in depths and len(depths) == 1
     assert np.allclose(depths["from-to"], np.c_[np.arange(0, 10), np.arange(1, 11)])
     lasfile = lasio.LASFile()
-    with pytest.raises(ValueError, match="curve named 'DEPTH' or 'DEPT'."):
+    with pytest.raises(ValueError, match=r"curve named 'DEPTH' or 'DEPT'\."):
         get_depths(lasfile)
 
 

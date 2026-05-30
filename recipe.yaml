@@ -29,12 +29,10 @@ requirements:
     - python ${{ python_min }}.*
     - poetry-core >=1.8.0
     - poetry-dynamic-versioning >=1.9, 1.*
-    - setuptools
-    - setuptools_scm
   run:
     - python >=${{ python_min }}
     # Mira packages
-    - geoh5py >=0.13.0a2, 0.13.*
+    - geoh5py >=0.13.0b1, 0.13.*
     # direct dependencies
     - lasio 0.32.*
     - numpy >=2.4.0, 2.4.*
@@ -43,6 +41,7 @@ requirements:
 
 tests:
   - python:
+      python_version: ${{ python_min }}.*
       imports:
         - ${{ module_name }}
         - ${{ module_name }}._version
@@ -74,4 +73,6 @@ about:
 extra:
   recipe-maintainers:
     - andrewg-mira
+    - domfournier
+    - RomFloreani
     - sebhmg
