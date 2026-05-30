@@ -226,7 +226,7 @@ def test_las_translator_retrieve(tmp_path: Path):
     assert translator.retrieve("well_name", lasfile) == "dh1"
 
     with pytest.raises(
-        KeyError, match="'collar_z_name' field: 'ELEV' not found in LAS file."
+        KeyError, match=r"'collar_z_name' field: 'ELEV' not found in LAS file\."
     ):
         translator.retrieve("collar_z_name", lasfile)
 
@@ -234,7 +234,7 @@ def test_las_translator_retrieve(tmp_path: Path):
 def test_las_translator_translate():
     translator = LASTranslator(NameOptions(collar_x_name="UTMX"))
     assert translator.translate("collar_x_name") == "UTMX"
-    with pytest.raises(KeyError, match="'not_a_field' is not a recognized field."):
+    with pytest.raises(KeyError, match=r"'not_a_field' is not a recognized field\."):
         translator.translate("not_a_field")
 
 
