@@ -28,7 +28,7 @@ from .helpers import write_export_params_file
 @pytest.fixture(scope="module", name="input_workspace")
 def input_workspace_fixture(tmp_path_factory) -> Workspace:
     tmp_path = tmp_path_factory.mktemp("input")
-    with Workspace.create(tmp_path / "my workspace") as workspace:
+    with Workspace.create(tmp_path / "my workspace.geoh5") as workspace:
         return workspace
 
 
