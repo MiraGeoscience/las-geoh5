@@ -17,7 +17,11 @@ source:
 build:
   number: 1
   noarch: python
-  script: ${{ PYTHON }} -m pip install . -vv --no-deps --no-build-isolation
+  script:
+    env:
+      POETRY_DYNAMIC_VERSIONING_BYPASS: "${{ version }}"
+    content:
+      ${{ PYTHON }} -m pip install . -vv --no-deps --no-build-isolation
   python:
     entry_points:
       - geoh5_to_las = las_geoh5.scripts.geoh5_to_las:main
