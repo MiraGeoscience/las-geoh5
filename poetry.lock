@@ -364,14 +364,14 @@ files = [
 
 [[package]]
 name = "geoh5py"
-version = "0.13.0b1"
+version = "0.13.0b2"
 description = "Python API for geoh5, an open file format for geoscientific data"
 optional = false
 python-versions = "<3.15,>=3.12"
 groups = ["main"]
 files = [
-    {file = "geoh5py-0.13.0b1-py3-none-any.whl", hash = "sha256:d747f3da35d08d51a809736103832c477b242758341815904f603a4886a83397"},
-    {file = "geoh5py-0.13.0b1.tar.gz", hash = "sha256:43c12da0e0a294b4d4e8c0dda47d6f842349be01d2fcf269e8dc4024ab9823f6"},
+    {file = "geoh5py-0.13.0b2-py3-none-any.whl", hash = "sha256:89359d8d71027ea4a55b978ed8c2d6145fe67c4092afa2bbe7d90e6a0ceb19b7"},
+    {file = "geoh5py-0.13.0b2.tar.gz", hash = "sha256:65942baea8e575331d6cc71398c6960edbcc10a696f51325af9bfe7de8735f00"},
 ]
 
 [package.dependencies]
@@ -436,14 +436,14 @@ numpy = ">=1.21.2"
 
 [[package]]
 name = "idna"
-version = "3.17"
+version = "3.18"
 description = "Internationalized Domain Names in Applications (IDNA)"
 optional = false
 python-versions = ">=3.9"
 groups = ["dev"]
 files = [
-    {file = "idna-3.17-py3-none-any.whl", hash = "sha256:466e48829084efe2548012b855df21540b96f2e20e51bd124c851536556a592c"},
-    {file = "idna-3.17.tar.gz", hash = "sha256:5eb0cb53bc467c12eadcf6de83163ad8527cec9416f44b9b61b19caedad2b87f"},
+    {file = "idna-3.18-py3-none-any.whl", hash = "sha256:7f952cbe720b688055e3f87de14f5c3e5fdaa8bc3928985c4077ca689de849a2"},
+    {file = "idna-3.18.tar.gz", hash = "sha256:ffb385a7e039654cef1ab9ef32c6fafe283c0c0467bba1d9029738ce4a14a848"},
 ]
 
 [package.extras]
@@ -1258,14 +1258,14 @@ files = [
 
 [[package]]
 name = "snowballstemmer"
-version = "3.1.0"
+version = "3.1.1"
 description = "This package provides 36 stemmers for 34 languages generated from Snowball algorithms."
 optional = false
 python-versions = ">=3.3"
 groups = ["dev"]
 files = [
-    {file = "snowballstemmer-3.1.0-py3-none-any.whl", hash = "sha256:17e6d1da216aa07db6dad37139ea70cf13c4b2e9a096f6e64a9648fc657d3154"},
-    {file = "snowballstemmer-3.1.0.tar.gz", hash = "sha256:fd9e34526b23340cd23ffea6c9f9760974ecc2c2ac9e1d81401443ccdb2a801f"},
+    {file = "snowballstemmer-3.1.1-py3-none-any.whl", hash = "sha256:7e207fa178741da09cdee59d3ecec3827ad5f92b1fc5c9ff3755b639f71f5752"},
+    {file = "snowballstemmer-3.1.1.tar.gz", hash = "sha256:e07bbc54a0d798fe6010a12398422e62a8bfbba95c394fd0956ef58cb4d3e260"},
 ]
 
 [[package]]
@@ -1301,14 +1301,14 @@ sphinxcontrib-serializinghtml = ">=1.1.9"
 
 [[package]]
 name = "sphinx-autodoc-typehints"
-version = "3.10.3"
+version = "3.10.5"
 description = "Type hints (PEP 484) support for the Sphinx autodoc extension"
 optional = false
 python-versions = ">=3.12"
 groups = ["dev"]
 files = [
-    {file = "sphinx_autodoc_typehints-3.10.3-py3-none-any.whl", hash = "sha256:c6f9909dbdf81085f01b8a677f4da9accf97bd403d9bf820718fd5a745da355f"},
-    {file = "sphinx_autodoc_typehints-3.10.3.tar.gz", hash = "sha256:01798d25041a16b95c5e053a45b133228e66ff37dbeef0ae8b3add4937aa41a2"},
+    {file = "sphinx_autodoc_typehints-3.10.5-py3-none-any.whl", hash = "sha256:7155748080735731c892d09b5128bc4e5303795691ca8515ccf333b1efd8d964"},
+    {file = "sphinx_autodoc_typehints-3.10.5.tar.gz", hash = "sha256:a54dfab95a6b5e8601543d25474497e98ed59268ac0ab01b3daba9817cf9707e"},
 ]
 
 [package.dependencies]
