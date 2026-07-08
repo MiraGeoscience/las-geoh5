@@ -110,14 +110,17 @@ def run(params_json: Path, output_geoh5: Path | None = None):
 
             workspace = Workspace()
             with log_execution_time("Finished reading LAS files"):
-                with Pool() as pool:
-                    futures = []
-                    for file in tqdm(
-                        ifile.data["files"].split(";"), desc="Reading LAS files"
-                    ):
-                        futures.append(pool.apply_async(lasio_read, (file,)))
-
-                    lasfiles = [future.get() for future in futures]
+                lasfiles = []
+                for file in ifile.data["files"].split(";"):
+                    lasfiles.append(lasio_read(file))
+                # with Pool() as pool:
+                #     futures = []
+                #     for file in tqdm(
+                #         ifile.data["files"].split(";"), desc="Reading LAS files"
+                #     ):
+                #         futures.append(pool.apply_async(lasio_read, (file,)))
+                #
+                #     lasfiles = [future.get() for future in futures]
 
             with fetch_active_workspace(ifile.data["geoh5"]) as geoh5:
                 if ifile.data["drillhole_group"] is None:

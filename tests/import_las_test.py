@@ -530,3 +530,22 @@ def test_existing_drillhole_new_collar_location(tmp_path):
     dh_compare = create_or_append_drillhole(lasfile, dh_group, "test")
 
     assert dh.uid == dh_compare.uid
+
+
+def test_something(tmp_path):
+    h5file = r"C:\Users\Benjamink\Downloads\00YZZ_RB183.geoh5"
+    workspace = Workspace()
+    with Workspace(h5file, mode="r") as geoh5:
+        dh_group = geoh5.groups[1]
+        dh_group_copy = dh_group.copy(parent=workspace)
+        workspace.save_as(tmp_path / "test_dh_group_copy.geoh5")
+
+def test_something_else(tmp_path):
+    h5file = r"C:\Users\Benjamink\Downloads\00YZZ_RB183.geoh5"
+    with Workspace(h5file, mode="r") as geoh5:
+        dh_group = geoh5.groups[1]
+        with Workspace(tmp_path / "test_dh_group_copy.geoh5") as workspace:
+            dh_group_copy = dh_group.copy(parent=workspace)
+
+
+
