@@ -2,23 +2,26 @@ schema_version: 1
 
 context:
   name: "las-geoh5"
-  version: "0.0.0.dev0"  # This will be replaced by the actual version in the build process
-  python_min: "3.10"
+  python_min: "3.12"
+  # Extract version from auto-generated _version.json
+  version: "${{ load_from_file('_version.json').version | trim }}"
   module_name: ${{ name|lower|replace("-", "_") }}
 
 package:
   name: ${{ name|lower }}
-  version: ${{ version }}
+  version: "${{ version }}"
 
 source:
-  # url: https://github.com/MiraGeoscience/{{ name }}/archive/v{{ version }}.tar.gz
-  # sha256: 1c20e6bb021516ef89de8551dc1f47f944bc98ea83d3da393d13e71469add43d
   path: ../${{ name }}
 
 build:
   number: 1
   noarch: python
-  script: ${{ PYTHON }} -m pip install . -vv --no-deps --no-build-isolation
+  script:
+    env:
+      POETRY_DYNAMIC_VERSIONING_BYPASS: "${{ version }}"
+    content:
+      ${{ PYTHON }} -m pip install . -vv --no-deps --no-build-isolation
   python:
     entry_points:
       - geoh5_to_las = las_geoh5.scripts.geoh5_to_las:main
@@ -27,23 +30,22 @@ build:
 requirements:
   host:
     - pip
-    - python 3.10.*
+    - python ${{ python_min }}.*
     - poetry-core >=1.8.0
     - poetry-dynamic-versioning >=1.9, 1.*
-    - setuptools
-    - setuptools_scm
   run:
     - python >=${{ python_min }}
     # Mira packages
-    - geoh5py >=0.12.0b5, 0.12.*
+    - geoh5py >=0.13.0b1, 0.13.*
     # direct dependencies
-    - lasio 0.31.*
-    - numpy 1.26.*
-    - pydantic >=2.5.2, 2.*
+    - lasio 0.32.*
+    - numpy >=2.4.0, 2.4.*
+    - pydantic 2.12.*
     - tqdm >=4.66.1, 4.*
 
 tests:
   - python:
+      python_version: ${{ python_min }}.*
       imports:
         - ${{ module_name }}
         - ${{ module_name }}._version
@@ -75,4 +77,6 @@ about:
 extra:
   recipe-maintainers:
     - andrewg-mira
+    - domfournier
+    - RomFloreani
     - sebhmg

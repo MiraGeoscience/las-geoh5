@@ -1,5 +1,5 @@
 # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2024-2025 Mira Geoscience Ltd.                                '
+#  Copyright (c) 2024-2026 Mira Geoscience Ltd.                                '
 #                                                                              '
 #  This file is part of las-geoh5 package.                                     '
 #                                                                              '
@@ -226,7 +226,7 @@ def test_las_translator_retrieve(tmp_path: Path):
     assert translator.retrieve("well_name", lasfile) == "dh1"
 
     with pytest.raises(
-        KeyError, match="'collar_z_name' field: 'ELEV' not found in LAS file."
+        KeyError, match=r"'collar_z_name' field: 'ELEV' not found in LAS file\."
     ):
         translator.retrieve("collar_z_name", lasfile)
 
@@ -234,7 +234,7 @@ def test_las_translator_retrieve(tmp_path: Path):
 def test_las_translator_translate():
     translator = LASTranslator(NameOptions(collar_x_name="UTMX"))
     assert translator.translate("collar_x_name") == "UTMX"
-    with pytest.raises(KeyError, match="'not_a_field' is not a recognized field."):
+    with pytest.raises(KeyError, match=r"'not_a_field' is not a recognized field\."):
         translator.translate("not_a_field")
 
 
@@ -324,6 +324,7 @@ def test_add_data_increments_property_group(tmp_path: Path):
 
     drillhole = add_data(drillhole, file, "my group")
 
+    assert drillhole.property_groups is not None
     assert len(drillhole.property_groups) == 2
     assert [k.name in ["my group", "my group (1)"] for k in drillhole.property_groups]
 
@@ -334,11 +335,12 @@ def test_add_data_increments_property_group(tmp_path: Path):
 
     drillhole = add_data(drillhole, file, "my group")
 
+    assert drillhole.property_groups is not None
     assert len(drillhole.property_groups) == 3
-    assert [
+    assert all(
         k.name in ["my group", "my group (1)", "my group (2)"]
         for k in drillhole.property_groups
-    ]
+    )
 
 
 def test_add_data_increments_data_name(tmp_path: Path):
@@ -362,8 +364,11 @@ def test_add_data_increments_data_name(tmp_path: Path):
 
     drillhole = add_data(drillhole, file, "my group")
 
+    assert drillhole.property_groups is not None
     assert len(drillhole.property_groups) == 2
-    assert [k.name in ["my group", "my group (1)"] for k in drillhole.property_groups]
+    assert all(
+        k.name in ["my group", "my group (1)"] for k in drillhole.property_groups
+    )
     assert all(
         k in [c.name for c in drillhole.children] for k in ["my data", "my data (1)"]
     )
@@ -375,6 +380,7 @@ def test_add_data_increments_data_name(tmp_path: Path):
 
     drillhole = add_data(drillhole, file, "my group")
 
+    assert drillhole.property_groups is not None
     assert len(drillhole.property_groups) == 3
     assert [
         k.name in ["my group", "my group (1)", "my group (2)"]
@@ -506,7 +512,7 @@ def test_handle_no_group(tmp_path: Path):
     module.run(filepath)
 
     with Workspace(tmp_path / "import.geoh5") as workspace:
-        dh_group = workspace.get_entity("Drillhole Group")[0]
+        dh_group = workspace.get_entity("Drillholes")[0]
         assert "123" in [k.name for k in dh_group.children]
 
 

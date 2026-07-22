@@ -1,5 +1,5 @@
 # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2024-2025 Mira Geoscience Ltd.                                '
+#  Copyright (c) 2024-2026 Mira Geoscience Ltd.                                '
 #                                                                              '
 #  This file is part of las-geoh5 package.                                     '
 #                                                                              '
@@ -49,7 +49,7 @@ def test_get_depths():
     assert "from-to" in depths and len(depths) == 1
     assert np.allclose(depths["from-to"], np.c_[np.arange(0, 10), np.arange(1, 11)])
     lasfile = lasio.LASFile()
-    with pytest.raises(ValueError, match="curve named 'DEPTH' or 'DEPT'."):
+    with pytest.raises(ValueError, match=r"curve named 'DEPTH' or 'DEPT'\."):
         get_depths(lasfile)
 
 
@@ -348,6 +348,7 @@ def test_collocation_tolerance(tmp_path: Path):
 
     dh1 = add_data(dh1, lasfile, group_name, collocation_tolerance=0.1)
 
+    assert dh1.property_groups is not None
     assert dh1.property_groups[0].name == group_name
 
     lasfile = lasio.LASFile()
@@ -356,6 +357,7 @@ def test_collocation_tolerance(tmp_path: Path):
 
     dh1 = add_data(dh1, lasfile, group_name, collocation_tolerance=0.01)
 
+    assert dh1.property_groups is not None
     assert len(dh1.property_groups) == 2
     assert all(
         k.name in ["my_property_group", "my_property_group (1)"]

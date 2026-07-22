@@ -144,3 +144,4 @@ dmypy.json
 
 #version ignore
 las_geoh5/_version.py
+/_version.json
