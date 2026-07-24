@@ -40,16 +40,16 @@ Release 0.3.0 (2025-02-07)
 Release 0.2.0 (2024-04-15)
 --------------------------
 
-- Add Documentation.
-- Drillhole name first in exported LAS files.
-- Suffix exported .las files with property group name.
-- Move all parameters in import ui.json to main tab.
+- Add Documentation
+- Drillhole name first in exported LAS files
+- Suffix exported .las files with property group name
+- Move all parameters in import ui.json to main tab
 - Expose collocation tolerance in import ui.json file
 - Improve logging
-- Increment property group and data names for existing non-collocated objects.
+- Increment property group and data names for existing non-collocated objects
 
 Release 0.1.0 (2023-11-02)
 --------------------------
 
-- Introduce a generalized .las importer.
-- Introduce import/export in and out of directory structure.
+- Introduce a generalized .las importer
+- Introduce import/export in and out of directory structure
