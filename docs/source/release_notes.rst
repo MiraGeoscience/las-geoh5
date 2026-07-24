@@ -18,7 +18,7 @@ Release 0.3.1 (2025-06-18)
 --------------------------
 
 - Build conda package faster with rattler-build
-- For pypi, use dedicated package.rst as long description (readme field) instead of README.rst
+- For PyPI, use dedicated package.rst as long description (readme field) instead of README.rst
 - Relock on latest git dev revisions
 - Re-versioned
 - Adjust ui.json
