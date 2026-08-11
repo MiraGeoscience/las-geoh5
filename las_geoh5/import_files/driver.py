@@ -117,18 +117,17 @@ def run(params_json: Path, output_geoh5: Path | None = None):
             with log_execution_time("Finished reading LAS files"):
                 with Pool() as pool:
                     futures = []
-                    for file in tqdm(
-                        data["files"], desc="Reading LAS files"
-                    ):
+                    for file in tqdm(data["files"], desc="Reading LAS files"):
                         futures.append(pool.apply_async(lasio_read, (file,)))
 
                     lasfiles = [future.get() for future in futures]
 
             with fetch_active_workspace(data["geoh5"]) as geoh5:
-                if data.get("drillhole_group") is None:
+                dh_group = data.get("drillhole_group")
+                if dh_group is None:
                     dh_group = DrillholeGroup.create(workspace)
                 else:
-                    dh_group = data.get("drillhole_group").copy(parent=workspace)
+                    dh_group = dh_group.copy(parent=workspace)
 
             _logger.info(
                 "Saving drillhole data into drillhole group '%s' under property group '%s'",
@@ -137,12 +136,11 @@ def run(params_json: Path, output_geoh5: Path | None = None):
             )
 
             with log_execution_time("Finished saving drillhole data"):
-                name_options = NameOptions(**data)
                 las_to_drillhole(
                     lasfiles,
                     dh_group,
                     data["name"],
-                    options=ImportOptions(names=name_options, **data),
+                    options=ImportOptions(names=NameOptions(**data), **data),
                 )
 
     if log_file.exists() and log_file.stat().st_size > 0:
