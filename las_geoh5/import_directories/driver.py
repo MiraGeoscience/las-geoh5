@@ -16,19 +16,20 @@ from pathlib import Path
 import lasio
 from geoh5py.groups import DrillholeGroup
 from geoh5py.shared.utils import fetch_active_workspace
-from geoh5py.ui_json import InputFile
+from geoh5py.ui_json import UIJson
 
 from las_geoh5.import_files.params import ImportOptions
 from las_geoh5.import_las import las_to_drillhole
 
 
 def run(file: str):
-    ifile = InputFile.read_ui_json(file)
-    dh_group = ifile.data["drillhole_group"]
-    parent_folder = ifile.data["parent_folder"]
+    ifile = UIJson.read(file)
+    data = ifile.to_params()
+    dh_group = data["drillhole_group"]
+    parent_folder = data["parent_folder"]
     if not parent_folder:
         raise ValueError("No folder specified to read LAS files from.")
-    with fetch_active_workspace(ifile.data["geoh5"], mode="a"):
+    with fetch_active_workspace(data["geoh5"], mode="a"):
         import_las_directory(dh_group, parent_folder)
 
 
