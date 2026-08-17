@@ -22,7 +22,7 @@ from shutil import move
 from geoh5py import Workspace
 from geoh5py.groups import DrillholeGroup
 from geoh5py.shared.utils import fetch_active_workspace
-from geoh5py.ui_json import InputFile
+from geoh5py.ui_json import UIJson
 from tqdm import tqdm
 
 from las_geoh5.import_files.params import ImportOptions, NameOptions
@@ -101,44 +101,46 @@ def run(params_json: Path, output_geoh5: Path | None = None):
 
     with log_to_file(_logger, params_json.parent) as log_file:
         with log_execution_time("All done"):
-            ifile = InputFile.read_ui_json(params_json)
+            ifile = UIJson.read(params_json)
+
+            if ifile.geoh5 is None:
+                raise ValueError("Input 'geoh5' is not a valid file.")
 
             _logger.info(
                 "Importing LAS file data to workspace '%s.geoh5'.",
-                ifile.data["geoh5"].h5file.stem,
+                ifile.geoh5.stem,
             )
 
             workspace = Workspace()
+
+            data = ifile.to_params()
             with log_execution_time("Finished reading LAS files"):
                 with Pool() as pool:
                     futures = []
-                    for file in tqdm(
-                        ifile.data["files"].split(";"), desc="Reading LAS files"
-                    ):
+                    for file in tqdm(data["files"], desc="Reading LAS files"):
                         futures.append(pool.apply_async(lasio_read, (file,)))
 
                     lasfiles = [future.get() for future in futures]
 
-            with fetch_active_workspace(ifile.data["geoh5"]) as geoh5:
-                if ifile.data["drillhole_group"] is None:
+            with fetch_active_workspace(data["geoh5"]) as geoh5:
+                dh_group = data.get("drillhole_group")
+                if dh_group is None:
                     dh_group = DrillholeGroup.create(workspace)
                 else:
-                    dh_group = geoh5.get_entity(ifile.data["drillhole_group"].uid)[0]
                     dh_group = dh_group.copy(parent=workspace)
 
             _logger.info(
                 "Saving drillhole data into drillhole group '%s' under property group '%s'",
                 dh_group.name,
-                ifile.data["name"],
+                data["name"],
             )
 
             with log_execution_time("Finished saving drillhole data"):
-                name_options = NameOptions(**ifile.data)
                 las_to_drillhole(
                     lasfiles,
                     dh_group,
-                    ifile.data["name"],
-                    options=ImportOptions(names=name_options, **ifile.data),
+                    data["name"],
+                    options=ImportOptions(names=NameOptions(**data), **data),
                 )
 
     if log_file.exists() and log_file.stat().st_size > 0:
@@ -148,15 +150,15 @@ def run(params_json: Path, output_geoh5: Path | None = None):
     if output_geoh5 is not None:
         output_geoh5.unlink(missing_ok=True)
         workspace.save_as(output_geoh5)
-    elif ifile.data["monitoring_directory"]:
-        working_path = Path(ifile.data["monitoring_directory"]) / ".working"
+    elif data["monitoring_directory"]:
+        working_path = Path(data["monitoring_directory"]) / ".working"
         working_path.mkdir(exist_ok=True)
         temp_geoh5 = f"temp{datetime.now().timestamp():.3f}.geoh5"
         workspace.save_as(working_path / temp_geoh5)
         workspace.close()
         move(
             working_path / temp_geoh5,
-            Path(ifile.data["monitoring_directory"]) / temp_geoh5,
+            Path(data["monitoring_directory"]) / temp_geoh5,
         )
     else:
         geoh5_path = geoh5.h5file

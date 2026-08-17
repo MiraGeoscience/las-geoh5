@@ -16,7 +16,7 @@ from pathlib import Path
 from geoh5py.groups import DrillholeGroup
 from geoh5py.objects import Drillhole
 from geoh5py.shared.utils import fetch_active_workspace
-from geoh5py.ui_json import InputFile
+from geoh5py.ui_json import UIJson
 from tqdm import tqdm
 
 from las_geoh5.export_las import drillhole_to_las
@@ -31,14 +31,15 @@ def run(params_json: str | Path, output_dir: str | Path | None = None):
     :param output_dir: if specified, use this path as the directory to write out the resulting
         LAS files, instead of the ``rootpath`` location defined by the parameter file.
     """
-    ifile = InputFile.read_ui_json(params_json)
-    dh_group = ifile.data["drillhole_group"]
+    ifile = UIJson.read(params_json)
+    data = ifile.to_params()
+    dh_group = data["drillhole_group"]
     if output_dir is not None:
         rootpath = output_dir
     else:
-        rootpath = Path(ifile.data["rootpath"])
-    use_directories = ifile.data["use_directories"]
-    with fetch_active_workspace(ifile.data["geoh5"]):
+        rootpath = Path(data["rootpath"])
+    use_directories = data["use_directories"]
+    with fetch_active_workspace(data["geoh5"]):
         export_las_files(dh_group, rootpath, use_directories)
 
 
