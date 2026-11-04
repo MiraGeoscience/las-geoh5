@@ -47,7 +47,7 @@ repos:
     hooks:
     -   id: relint
         args: [-W]  # to fail on warnings
--   repo: http://github.com/MiraGeoscience/pre-commit-hooks
+-   repo: https://github.com/MiraGeoscience/pre-commit-hooks
     rev: v1.1.0
     hooks:
     -   id: check-copyright
