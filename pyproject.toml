@@ -23,7 +23,7 @@ license-files = [
 ]
 keywords = ["geology", "geophysics", "earth sciences", "io", "data", "interoperability"]
 readme = "package.rst"
-dynamic = ["version"]
+dynamic = ["version", "classifiers"]
 authors = [{ name = "Mira Geoscience", email = "support@mirageoscience.com" }]
 maintainers = [{ name = "Benjamin Kary", email = "benjamink@mirageoscience.com" }]
 dependencies = [
@@ -32,19 +32,6 @@ dependencies = [
     "pydantic>=2.12.0,<2.13.0",
     "tqdm>=4.66.1,<5.0.0",
     "geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@GA-9681",
-]
-classifiers = [
-    "Development Status :: 4 - Beta",
-    "Intended Audience :: Science/Research",
-    "Programming Language :: Python",
-    "Topic :: Scientific/Engineering",
-    "Topic :: Scientific/Engineering :: Mathematics",
-    "Topic :: Scientific/Engineering :: Physics",
-    "Operating System :: Microsoft :: Windows",
-    "Operating System :: POSIX",
-    "Operating System :: Unix",
-    "Operating System :: MacOS",
-    "Natural Language :: English",
 ]
 
 [project.urls]
@@ -71,6 +58,20 @@ las_to_geoh5 = 'las_geoh5.scripts.las_to_geoh5:main'
 
 [tool.poetry]
 requires-poetry = ">=2.2.0"
+
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX",
+    "Operating System :: Unix",
+    "Operating System :: MacOS",
+    "Natural Language :: English",
+]
 
 packages = [
     { include = "las_geoh5" },
