@@ -20,8 +20,8 @@ import numpy as np
 from geoh5py import Workspace
 from geoh5py.groups import DrillholeGroup
 from geoh5py.objects import Drillhole, ObjectBase
-from geoh5py.shared import Entity
 from geoh5py.shared.concatenation import ConcatenatedDrillhole
+from geoh5py.shared.entity import Entity
 from tqdm import tqdm
 
 from las_geoh5.import_files.params import ImportOptions, NameOptions
