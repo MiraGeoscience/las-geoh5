@@ -1,6 +1,6 @@
 [build-system]
 requires = [
-  "poetry-core>=1.8.0",
+  "poetry-core>=2.2.1",
   "poetry-dynamic-versioning>=1.9.1,<2.0",
   # list dependencies to work with PIP_NO_DEPS=1
   "MarkupSafe>=2.0",
@@ -23,22 +23,16 @@ license-files = [
 ]
 keywords = ["geology", "geophysics", "earth sciences", "io", "data", "interoperability"]
 readme = "package.rst"
-dynamic = ["version", "dependencies", "classifiers"]
+dynamic = ["version"]
 authors = [{ name = "Mira Geoscience", email = "support@mirageoscience.com" }]
 maintainers = [{ name = "Benjamin Kary", email = "benjamink@mirageoscience.com" }]
-
-[project.urls]
-repository = "https://github.com/MiraGeoscience/las-geoh5"
-documentation  = "https://mirageoscience-las-geoh5.readthedocs-hosted.com/"
-homepage = "https://www.mirageoscience.com/mining-industry-software/python-integration/"
-
-[project.scripts]
-geoh5_to_las = 'las_geoh5.scripts.geoh5_to_las:main'
-las_to_geoh5 = 'las_geoh5.scripts.las_to_geoh5:main'
-
-[tool.poetry]
-requires-poetry = '>=2.0,<3.0'
-
+dependencies = [
+    "lasio==0.32.*",
+    "numpy>=2.4.0,<2.5.0",
+    "pydantic>=2.12.0,<2.13.0",
+    "tqdm>=4.66.1,<5.0.0",
+    "geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@GA-9681",
+]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Science/Research",
@@ -53,6 +47,31 @@ classifiers = [
     "Natural Language :: English",
 ]
 
+[project.urls]
+repository = "https://github.com/MiraGeoscience/las-geoh5"
+documentation  = "https://mirageoscience-las-geoh5.readthedocs-hosted.com/"
+homepage = "https://www.mirageoscience.com/mining-industry-software/python-integration/"
+
+[dependency-groups]
+dev = [
+    "Pygments",
+    "pylint",
+    "pytest",
+    "pytest-cov",
+    "pyyaml",
+    "packaging",
+    "sphinx",
+    "sphinx-autodoc-typehints",
+    "sphinx-rtd-theme",
+]
+
+[project.scripts]
+geoh5_to_las = 'las_geoh5.scripts.geoh5_to_las:main'
+las_to_geoh5 = 'las_geoh5.scripts.las_to_geoh5:main'
+
+[tool.poetry]
+requires-poetry = ">=2.2.0"
+
 packages = [
     { include = "las_geoh5" },
     { include = "las_geoh5-assets" },
@@ -62,30 +81,6 @@ include = [
     { path = "las_geoh5/_version.py", format = ["sdist", "wheel"] },
 ]
 version = "0.0.0.dev0"
-
-
-[tool.poetry.dependencies]
-lasio = "0.32.*"
-numpy = "~2.4.0"
-pydantic = "~2.12.0"
-tqdm = "^4.66.1"
-
-## dependencies from Git repositories
-#------------------------------------
-#geoh5py = {version = ">=0.14.0a, 0.14.*", allow-prereleases = true}
-geoh5py = {git = "https://github.com/MiraGeoscience/geoh5py.git", rev = "GA-9681"}
-#geoh5py = {path = "../geoh5py", develop = true}
-
-[tool.poetry.group.dev.dependencies]
-Pygments = "*"
-pylint = "*"
-pytest = "*"
-pytest-cov = "*"
-pyyaml = '*'
-packaging = '*'
-sphinx = "*"
-sphinx-autodoc-typehints = "*"
-sphinx-rtd-theme = "*"
 
 [tool.poetry.requires-plugins]
 poetry-dynamic-versioning = { version = ">=1.9.1,<2.0.0", extras = ["plugin"] }
