@@ -31,7 +31,7 @@ requirements:
   host:
     - pip
     - python ${{ python_min }}.*
-    - poetry-core >=1.8.0
+    - poetry-core >=2.2.1
     - poetry-dynamic-versioning >=1.9, 1.*
   run:
     - python >=${{ python_min }}, <3.15
