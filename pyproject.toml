@@ -21,18 +21,32 @@ license-files = [
     "LICENSE",
     "docs/source/THIRD_PARTY_SOFTWARE.rst",
 ]
-keywords = ["geology", "geophysics", "earth sciences", "io", "data", "interoperability"]
+keywords = [
+    "las",
+    "lasio",
+    "well-logs",
+    "borehole-data",
+    "geoh5",
+    "geology",
+    "geophysics",
+    "earth-sciences",
+    "mining",
+    "data-conversion",
+    "interoperability",
+]
 readme = "package.rst"
 dynamic = ["version", "classifiers"]
 authors = [{ name = "Mira Geoscience", email = "support@mirageoscience.com" }]
 maintainers = [{ name = "Benjamin Kary", email = "benjamink@mirageoscience.com" }]
 dependencies = [
+    # Mira packages
+    "geoh5py>=0.14.0b1,<0.15.0a.dev",
+    # "geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@release/ga-4.9",
+    # other direct dependencies
     "lasio==0.32.*",
     "numpy>=2.4.0,<2.5.0",
     "pydantic>=2.12.0,<2.13.0",
     "tqdm>=4.66.1,<5.0.0",
-    "geoh5py>=0.14.0b1,<0.15.0a.dev",
-    # "geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@release/ga-4.9",
 ]
 
 [project.urls]
@@ -80,6 +94,9 @@ packages = [
 ]
 
 include = [
+    { path = "README.rst" },
+    { path = "LICENSE" },
+    { path = "docs/**/THIRD_PARTY_SOFTWARE.rst" },
     { path = "las_geoh5/_version.py", format = ["sdist", "wheel"] },
 ]
 version = "0.0.0.dev0"
@@ -184,3 +201,47 @@ omit = []
 [tool.coverage.html]
 skip_empty = true
 skip_covered = true
+
+[tool.pylint.main]
+extension-pkg-allow-list = ["numpy", "scipy"]
+fail-on = ["F", "E", "W"]
+jobs = 0
+py-version = "3.10"
+
+[tool.pylint."messages control"]
+disable = [
+    "raw-checker-failed",
+    "bad-inline-option",
+    "locally-disabled",
+    "file-ignored",
+    "suppressed-message",
+    "useless-suppression",
+    "deprecated-pragma",
+    "use-symbolic-message-instead",
+    "missing-module-docstring",
+    "missing-function-docstring",
+    "missing-class-docstring",
+    "fixme",
+]
+enable = ["c-extension-no-member"]
+
+[tool.pylint.basic]
+good-names = ["i", "j", "k", "x", "y", "z", "ex", "Run", "id", "_"]
+
+[tool.pylint.classes]
+defining-attr-methods = ["__init__", "__new__", "setUp", "__post_init__"]
+exclude-protected = ["_asdict", "_fields", "_replace", "_source", "_make"]
+valid-metaclass-classmethod-first-arg = "cls"
+
+[tool.pylint.design]
+max-args = 9 # as long as not hitting too-many-positional-arguments
+max-attributes = 15
+max-bool-expr = 6
+max-branches = 13
+max-statements = 65
+
+[tool.pylint.exceptions]
+overgeneral-exceptions = ["builtin.BaseException", "builtin.Exception"]
+
+[tool.pylint.imports]
+deprecated-modules = ["optparse", "tkinter.tix"]
