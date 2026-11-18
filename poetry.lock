@@ -432,10 +432,12 @@ name = "geoh5py"
 version = "0.14.0b1"
 description = "Python API for geoh5, an open file format for geoscientific data"
 optional = false
-python-versions = ">=3.12,<3.15"
+python-versions = "<3.15,>=3.12"
 groups = ["main"]
-files = []
-develop = false
+files = [
+    {file = "geoh5py-0.14.0b1-py3-none-any.whl", hash = "sha256:e6f57dc47305ed69825c1dafc9899c78072c00e86fa04bcf02e6cced260aa871"},
+    {file = "geoh5py-0.14.0b1.tar.gz", hash = "sha256:9feeea315b45e39698fb1d7155b182fb195fb9dfa17b19716d85ce437cb00545"},
+]
 
 [package.dependencies]
 defusedxml = ">=0.7.1,<0.8.0"
@@ -444,12 +446,6 @@ numpy = ">=2.4.0,<2.5.0"
 Pillow = ">=13.0.0,<14.0.0"
 psutil = ">=7.2.2,<7.3.0"
 pydantic = ">=2.12.0,<2.13.0"
-
-[package.source]
-type = "git"
-url = "https://github.com/MiraGeoscience/geoh5py.git"
-reference = "release/ga-4.9"
-resolved_reference = "89c3db12c9b41f26f7d7aa5b664fca62012ac2f9"
 
 [[package]]
 name = "h5py"
@@ -1706,4 +1702,4 @@ zstd = ["backports-zstd (>=1.0.0) ; python_version < \"3.14\""]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12,<3.15"
-content-hash = "d3b52c05d7e9e7af5b20359a493f40a7b5370980cad4a292e2500bcdd4ec612f"
+content-hash = "6355d75e56977dd62ddf46be5c84f4e4da2ef15373ede06f450671266e1780b9"
