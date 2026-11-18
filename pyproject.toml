@@ -95,8 +95,6 @@ packages = [
 
 include = [
     { path = "README.rst" },
-    { path = "LICENSE" },
-    { path = "docs/**/THIRD_PARTY_SOFTWARE.rst" },
     { path = "las_geoh5/_version.py", format = ["sdist", "wheel"] },
 ]
 version = "0.0.0.dev0"
