@@ -42,6 +42,8 @@ requirements:
     - numpy >=2.4.0, <2.5.0
     - pydantic >=2.12.0, <2.13.0
     - tqdm >=4.66.1, <5.0.0
+  run_constraints:
+    - pillow >=13.0.0  # Security floor (GHSA-wqgw-9xfh-qf2g).
 
 tests:
   - python:
