@@ -612,13 +612,14 @@ i18n = ["Babel (>=2.7)"]
 
 [[package]]
 name = "lasio"
-version = "0.32"
+version = "0.34"
 description = "Read/write well data from Log ASCII Standard (LAS) files"
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "lasio-0.32-py3-none-any.whl", hash = "sha256:4c0daa5f99d99b505a62ce58144d2512944ac6ee8e620ab251109d8f2a6ca7f8"},
+    {file = "lasio-0.34-py3-none-any.whl", hash = "sha256:5264bf2cc6592af60a896b6f9bf91c3943135b4c272af26cc2bb2972490480f5"},
+    {file = "lasio-0.34.tar.gz", hash = "sha256:4d746f9683ef8c1eae1844b36f6e28260924071012066a649f4191bd777f0b4f"},
 ]
 
 [package.dependencies]
@@ -1704,4 +1705,4 @@ zstd = ["backports-zstd (>=1.0.0) ; python_version < \"3.14\""]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12,<3.15"
-content-hash = "96f2b0c7164ea3e4c7bfb11fb9462dbb086e713e573a2f284041b900ccf07c8e"
+content-hash = "662679495f4f2be5cc2a159d505e4dbeee633ceb68cf50d810c4eaa7d7a1a1a3"
