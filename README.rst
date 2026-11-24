@@ -44,10 +44,6 @@ There is a module each for import and export operations.  Each of these includes
 and a ui.json that parameterizes the driver and renders a UI for use within `Geoscience ANALYST Pro`_.
 Read on to learn how to install las-geoh5 and get started importing and exporting LAS files.
 
-.. contents:: Table of Contents
-   :local:
-   :depth: 3
-
 Documentation
 -------------
 `Online documentation <https://mirageoscience-las-geoh5.readthedocs-hosted.com/en/latest/>`_
@@ -140,3 +136,7 @@ Third Party Software notices and/or additional terms and conditions are located 
 `THIRD_PARTY_SOFTWARE.rst`_ file.
 
 .. _THIRD_PARTY_SOFTWARE.rst: ./docs/THIRD_PARTY_SOFTWARE.rst
+
+Trademarks
+----------
+"Python" and the Python logos are trademarks or registered trademarks of the Python Software Foundation.
