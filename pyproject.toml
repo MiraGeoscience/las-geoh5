@@ -40,8 +40,8 @@ authors = [{ name = "Mira Geoscience", email = "support@mirageoscience.com" }]
 maintainers = [{ name = "Benjamin Kary", email = "benjamink@mirageoscience.com" }]
 dependencies = [
     # Mira packages
-    # "geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@release/ga-4.9",
-    "geoh5py>=0.14.0b1,==0.14.*",
+    "geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@release/ga-4.9",
+    # "geoh5py>=0.14.0b1,==0.14.*",
     # other direct dependencies
     "lasio>=0.33,<0.35",
     "numpy==2.4.*",
