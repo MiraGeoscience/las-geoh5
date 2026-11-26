@@ -15,7 +15,7 @@ import numpy as np
 import pytest
 from geoh5py import Workspace
 from geoh5py.groups import DrillholeGroup
-from geoh5py.ui_json import InputFile
+from geoh5py.ui_json import UIJson
 
 from las_geoh5.scripts import las_to_geoh5
 
@@ -60,7 +60,7 @@ def params_filepath_fixture(
     json_dir.mkdir()
 
     return write_import_params_file(
-        json_dir / "import params.json",
+        json_dir / "import params.ui.json",
         dh_group,
         "my_property_group",
         [lasfile],
@@ -104,9 +104,9 @@ def test_las_to_geoh5_with_monitoring_folder(
     monitoring_folder = tmp_path / "monitored here"
     monitoring_folder.mkdir()
 
-    ifile = InputFile.read_ui_json(params_filepath)
-    ifile.data["monitoring_directory"] = str(monitoring_folder)
-    ifile.write_ui_json(params_filepath.name, params_filepath.parent)
+    ifile = UIJson.read(params_filepath)
+    ifile.set_values(monitoring_directory=monitoring_folder)
+    ifile.write(params_filepath)
 
     with patch("sys.argv", ["las_to_geoh5", str(params_filepath)]):
         las_to_geoh5.main()
