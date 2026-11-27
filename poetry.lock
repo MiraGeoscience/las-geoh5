@@ -429,7 +429,7 @@ files = [
 
 [[package]]
 name = "geoh5py"
-version = "0.14.0b2.dev61+5c3fa9df"
+version = "0.14.0b2.dev68+063d09c2"
 description = "Python API for geoh5, an open file format for geoscientific data"
 optional = false
 python-versions = ">=3.12,<3.15"
@@ -449,7 +449,7 @@ pydantic = "==2.12.*"
 type = "git"
 url = "https://github.com/MiraGeoscience/geoh5py.git"
 reference = "release/ga-4.9"
-resolved_reference = "5c3fa9df0e006d7544e5d985a9276c74c873e168"
+resolved_reference = "063d09c2582efe21bb2c19c3b8a995ea503f1639"
 
 [[package]]
 name = "h5py"
