@@ -39,9 +39,9 @@ def generate_lasfile(
 
 
 def write_lasfile(basepath: Path, lasfile: lasio.LASFile) -> Path:
-    filepath = basepath / f"{lasfile.well['WELL'].value}.las"
+    filepath = basepath / f"{lasfile.well['WELL'].value}.LAS"
     if filepath.exists():
-        filepath = basepath / f"{lasfile.well['WELL'].value}_1.las"
+        filepath = basepath / f"{lasfile.well['WELL'].value}_1.LAS"
     with open(filepath, "a", encoding="utf8") as file:
         lasfile.write(file)
 
