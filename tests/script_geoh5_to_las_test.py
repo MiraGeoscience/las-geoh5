@@ -66,7 +66,7 @@ def test_geoh5_to_las_without_output_dir(
     export_dir = tmp_path / "export here"
     export_dir.mkdir()
     params_filepath = write_export_params_file(
-        tmp_path / "export params.json",
+        tmp_path / "export params.ui.json",
         input_workspace,
         dh_group,
         export_dir,
@@ -87,7 +87,7 @@ def test_geoh5_to_las_with_output_dir_name(
 
     unused_dir = tmp_path / "unused"
     params_filepath = write_export_params_file(
-        tmp_path / "export_params.json",
+        tmp_path / "export_params.ui.json",
         input_workspace,
         dh_group,
         unused_dir,
@@ -117,7 +117,7 @@ def test_geoh5_to_las_with_absolute_output_dir(
 
     unused_dir = tmp_path / "unused"
     params_filepath = write_export_params_file(
-        tmp_path / "export_params.json",
+        tmp_path / "export_params.ui.json",
         input_workspace,
         dh_group,
         unused_dir,

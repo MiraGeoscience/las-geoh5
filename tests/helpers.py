@@ -14,10 +14,9 @@ import lasio
 import numpy as np
 from geoh5py import Workspace
 from geoh5py.groups import DrillholeGroup
-from geoh5py.ui_json import InputFile
+from geoh5py.ui_json import UIJson
 
-from las_geoh5.export_files import uijson as export_uijson
-from las_geoh5.import_files import uijson as import_uijson
+from las_geoh5 import assets_path
 
 
 def generate_lasfile(
@@ -62,26 +61,27 @@ def write_import_params_file(
         workspace = Workspace.create(json_output_path.parent / "import.geoh5")
     else:
         workspace = drillhole_group.workspace
-    ifile = InputFile(ui_json=import_uijson.ui_json, validate=False)
-    with workspace.open():
-        ifile.update_ui_values(
-            {
-                "geoh5": workspace,
-                "drillhole_group": drillhole_group,
-                "name": property_group_name,
-                "files": ";".join([str(f) for f in files]),
-                "collar_x_name": collar_xyz_names[0],
-                "collar_y_name": collar_xyz_names[1],
-                "collar_z_name": collar_xyz_names[2],
-                "skip_empty_header": skip_empty_header,
-            }
-        )
-        ifile.write_ui_json(json_output_path.name, json_output_path.parent)
 
-    if ifile.path_name is None:
-        raise ValueError("Input file path is None.")
+    import_json = assets_path() / "uijson" / "import_las_files.ui.json"
 
-    return Path(ifile.path_name)
+    ifile = UIJson.read(import_json)
+
+    ifile.set_values(
+        copy=False,
+        **{
+            "geoh5": workspace.h5file,
+            "drillhole_group": drillhole_group,
+            "name": property_group_name,
+            "files": ";".join([str(f) for f in files]),
+            "collar_x_name": collar_xyz_names[0],
+            "collar_y_name": collar_xyz_names[1],
+            "collar_z_name": collar_xyz_names[2],
+            "skip_empty_header": skip_empty_header,
+        },
+    )
+    ifile.write(json_output_path)
+
+    return json_output_path
 
 
 def write_export_params_file(
@@ -91,19 +91,18 @@ def write_export_params_file(
     export_dir: Path,
     use_directories: bool,
 ) -> Path:
-    ifile = InputFile(ui_json=export_uijson.ui_json, validate=False)
-    with workspace.open():
-        ifile.update_ui_values(
-            {
-                "geoh5": workspace,
-                "drillhole_group": drillhole_group,
-                "rootpath": str(export_dir),
-                "use_directories": use_directories,
-            }
-        )
-    ifile.write_ui_json(json_output_path.name, json_output_path.parent)
+    import_json = assets_path() / "uijson" / "export_las_files.ui.json"
+    ifile = UIJson.read(import_json)
 
-    if ifile.path_name is None:
-        raise ValueError("Input file path is None.")
+    ifile.set_values(
+        copy=False,
+        **{
+            "geoh5": workspace.h5file,
+            "drillhole_group": drillhole_group.uid,
+            "rootpath": str(export_dir),
+            "use_directories": use_directories,
+        },
+    )
+    ifile.write(json_output_path)
 
-    return Path(ifile.path_name)
+    return json_output_path
